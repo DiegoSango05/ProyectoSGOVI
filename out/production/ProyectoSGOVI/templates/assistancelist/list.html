@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SPS - Registro de Asistencias</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Registro de Asistencias (AssistanceList)</h1>
+    <a href="/activity/list" class="btn btn-outline-secondary">Ver Actividades</a>
+</div>
+
+<table class="table table-striped table-hover shadow-sm">
+    <thead class="table-dark">
+    <tr>
+        <th>DNI del Usuario</th>
+        <th>ID de la Actividad</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="asistencia : ${assistancesList}">
+        <td th:text="${asistencia.dniUser}"></td>
+        <td th:text="${asistencia.idActivity}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:if="${asistencia.isEmpty()}" class="alert alert-info mt-4">
+    No se han encontrado registros en la tabla <b>assistancelist</b>.
+</div>
+
+</body>
+</html>
