@@ -1,4 +1,4 @@
-package es.uji.ei1027.proyectosgovi;
+package es.uji.ei1027.sps;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
