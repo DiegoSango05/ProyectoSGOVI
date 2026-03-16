@@ -15,14 +15,25 @@
 <table class="table table-striped table-hover shadow-sm">
     <thead class="table-dark">
     <tr>
-        <th>DNI del Usuario</th>
-        <th>ID de la Actividad</th>
+        <th>ID</th>
+        <th>Fecha Asistencia</th>
+        <th>Hora Actividad</th>
+        <th>Participantes</th>
+        <th>Participacion</th>
+        <th>ID Actividad</th>
+        <th>DNI Asistente</th>
+        <th>DNI OVIUser</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="asistencia : ${assistancesList}">
-        <td th:text="${asistencia.dniUser}"></td>
+        <td th:text="${asistencia.id_list}"></td>
+        <td th:text="${asistencia.assistanceDate}"></td>
+        <td th:text="${asistencia.assistanceTime}"></td>
+        <td th:text="${asistencia.participation}"></td>
         <td th:text="${asistencia.idActivity}"></td>
+        <td th:text="${asistencia.dniAssistant}"></td>
+        <td th:text="${asistencia.dniOVIUser}"></td>
     </tr>
     </tbody>
 </table>

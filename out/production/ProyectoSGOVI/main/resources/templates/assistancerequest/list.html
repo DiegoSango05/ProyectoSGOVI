@@ -11,17 +11,25 @@
   <thead class="table-primary">
   <tr>
     <th>ID</th>
-    <th>DNI Usuario</th>
-    <th>Descripción</th>
+    <th>Tipo</th>
+    <th>Descripcion</th>
+    <th>Horario</th>
+    <th>Lugar</th>
     <th>Estado</th>
+    <th>Requisitos</th>
+    <th>DNI</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="request : ${assistanceRequests}">
     <td th:text="${request.id}"></td>
-    <td th:text="${request.dniUser}"></td>
+    <td th:text="${request.type}"></td>
     <td th:text="${request.description}"></td>
+    <td th:text="${request.schedule}"></td>
+    <td th:text="${request.location}"></td>
     <td th:text="${request.status}"></td>
+    <td th:text="${request.requirements}"></td>
+    <td th:text="${request.dniOVIuser}"></td>
   </tr>
   </tbody>
 </table>

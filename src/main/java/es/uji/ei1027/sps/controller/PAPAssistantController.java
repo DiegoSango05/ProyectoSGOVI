@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/papassistant")
+@RequestMapping("/pap_assistant")
 public class PAPAssistantController {
 
     private PAPAssistantDao papAssistantDao;
@@ -20,6 +20,6 @@ public class PAPAssistantController {
     @RequestMapping("/list")
     public String list(Model model) {
         model.addAttribute("papassistants", papAssistantDao.getPAPAssistants());
-        return "papassistant/list";
+        return "pap_assistant/list";
     }
 }

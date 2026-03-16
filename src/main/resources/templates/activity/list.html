@@ -11,17 +11,19 @@
     <thead class="table-dark">
     <tr>
         <th>ID</th>
+        <th>Descripción</th>
         <th>Título</th>
         <th>Tipo</th>
         <th>Fecha</th>
         <th>Hora</th>
         <th>Ubicación</th>
-        <th>Instructor</th>
+        <th>DNI Instructor</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="activity : ${activities}">
         <td th:text="${activity.id}"></td>
+        <td th:text="${activity.description}"></td>
         <td th:text="${activity.title}"></td>
         <td th:text="${activity.type}"></td>
         <td th:text="${activity.activityDate}"></td>

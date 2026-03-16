@@ -16,16 +16,26 @@
   <tr>
     <th>DNI</th>
     <th>Nombre</th>
-    <th>Email</th>
-    <th>Teléfono</th>
+    <th>Año de Nacimiento</th>
+    <th>Tipo de Asistente</th>
+    <th>Formación Profesional</th>
+    <th>Experiencia</th>
+    <th>Disponibilidad</th>
+    <th>Localización</th>
+    <th>Estado</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="pap : ${papassistants}">
     <td th:text="${pap.dni}"></td>
     <td th:text="${pap.name}"></td>
-    <td th:text="${pap.email}"></td>
-    <td th:text="${pap.phoneNumber}"></td>
+    <td th:text="${pap.birthDate}"></td>
+    <td th:text="${pap.assistanceType}"></td>
+    <td th:text="${pap.professionalTraining}"></td>
+    <td th:text="${pap.previousExperience}"></td>
+    <td th:text="${pap.availability}"></td>
+    <td th:text="${pap.location}"></td>
+    <td th:text="${pap.status}"></td>
   </tr>
   </tbody>
 </table>

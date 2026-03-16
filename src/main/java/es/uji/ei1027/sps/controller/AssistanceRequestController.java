@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/assistanceRequest")
+@RequestMapping("/assistancerequest")
 public class AssistanceRequestController {
 
     private AssistanceRequestDao assistanceRequestDao;
@@ -20,6 +20,6 @@ public class AssistanceRequestController {
     @RequestMapping("/list")
     public String list(Model model) {
         model.addAttribute("assistanceRequests", assistanceRequestDao.getAssistanceRequests());
-        return "assistanceRequest/list";
+        return "assistancerequest/list";
     }
 }
