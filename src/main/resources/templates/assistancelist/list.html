@@ -18,7 +18,6 @@
         <th>ID</th>
         <th>Fecha Asistencia</th>
         <th>Hora Actividad</th>
-        <th>Participantes</th>
         <th>Participacion</th>
         <th>ID Actividad</th>
         <th>DNI Asistente</th>
@@ -38,7 +37,7 @@
     </tbody>
 </table>
 
-<div th:if="${asistencia.isEmpty()}" class="alert alert-info mt-4">
+<div th:if="${#lists.isEmpty(assistancesList)}" class="alert alert-info mt-4">
     No se han encontrado registros en la tabla <b>assistancelist</b>.
 </div>
 

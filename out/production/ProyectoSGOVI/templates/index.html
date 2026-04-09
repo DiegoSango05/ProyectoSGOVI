@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SPS - Panel de Control</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .card:hover { transform: scale(1.02); transition: 0.2s; }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <header class="pb-3 mb-4 border-bottom">
+        <span class="fs-4">Sistema de Gestión SPS</span>
+    </header>
+
+    <div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
+        <h1 class="display-5 fw-bold text-primary">Panel de Administración</h1>
+        <p class="col-md-8 fs-4">Accede a las distintas secciones del sistema para gestionar la base de datos.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Usuarios y Personal</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/oviuser/list" class="btn btn-outline-primary text-start">👤 Usuarios OVI</a>
+                        <a href="/instructor/list" class="btn btn-outline-primary text-start">🎓 Instructores</a>
+                        <a href="/pap_assistant/list" class="btn btn-outline-primary text-start">🤝 Asistentes PAP</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Actividades y Asistencia</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/activity/list" class="btn btn-outline-success text-start">🏀 Lista de Actividades</a>
+                        <a href="/assistancelist/list" class="btn btn-outline-success text-start">📋 Registro Asistencias</a>
+                        <a href="/assistancerequest/list" class="btn btn-outline-success text-start">🆘 Solicitudes de Ayuda</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Legal y Mensajería</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/negotiation/list" class="btn btn-outline-info text-start">🤝 Negociaciones</a>
+                        <a href="/contract/list" class="btn btn-outline-info text-start">📜 Contratos</a>
+                        <a href="/communication/list" class="btn btn-outline-info text-start">💬 Comunicaciones</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

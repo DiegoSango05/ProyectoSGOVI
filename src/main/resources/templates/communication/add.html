@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SPS - Registrar Comunicación</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">Nueva Comunicación</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form action="#" th:action="@{/communication/add}" th:object="${communication}" method="post">
+
+                        <!-- ID de la Negociación Relacionada -->
+                        <div class="mb-3">
+                            <label for="idNegotiation" class="form-label">ID Negociación</label>
+                            <input type="number" th:field="*{idNegotiation}" class="form-control" id="idNegotiation" required />
+                            <div class="form-text">Debe ser un ID de negociación existente.</div>
+                        </div>
+
+                        <!-- Remitente (Sender) -->
+                        <div class="mb-3">
+                            <label for="sender" class="form-label">Remitente</label>
+                            <input type="text" th:field="*{sender}" class="form-control" id="sender" placeholder="Ej: Administrador / OVIUser" required />
+                        </div>
+
+                        <!-- Fecha y Hora (LocalDateTime) -->
+                        <div class="mb-3">
+                            <label for="messageDate" class="form-label">Fecha y Hora del Mensaje</label>
+                            <input type="datetime-local" th:field="*{messageDate}" class="form-control" id="messageDate" required />
+                        </div>
+
+                        <!-- Mensaje -->
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Mensaje / Contenido</label>
+                            <textarea th:field="*{message}" class="form-control" id="message" rows="4" placeholder="Escribe aquí el contenido de la comunicación..." required></textarea>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/communication/list" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-warning px-4">Registrar Mensaje</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

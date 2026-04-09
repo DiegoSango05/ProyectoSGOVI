@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SPS - Registrar Asistencia</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Registrar Nueva Asistencia</h3>
+                </div>
+                <div class="card-body">
+                    <form action="#" th:action="@{/assistancelist/add}" th:object="${assistancelist}" method="post">
+
+                        <div class="row">
+                            <!-- Fecha Asistencia -->
+                            <div class="col-md-6 mb-3">
+                                <label for="assistanceDate" class="form-label">Fecha</label>
+                                <input type="date" th:field="*{assistanceDate}" class="form-control" id="assistanceDate" required />
+                            </div>
+                            <!-- Hora Asistencia -->
+                            <div class="col-md-6 mb-3">
+                                <label for="assistanceTime" class="form-label">Hora</label>
+                                <input type="time" th:field="*{assistanceTime}" class="form-control" id="assistanceTime" required />
+                            </div>
+                        </div>
+
+                        <!-- ID Actividad -->
+                        <div class="mb-3">
+                            <label for="idActivity" class="form-label">ID de la Actividad</label>
+                            <input type="number" th:field="*{idActivity}" class="form-control" id="idActivity" required />
+                        </div>
+
+                        <!-- DNI Usuario OVI -->
+                        <div class="mb-3">
+                            <label for="dniOVIUser" class="form-label">DNI Usuario OVI</label>
+                            <input type="text" th:field="*{dniOVIUser}" class="form-control" id="dniOVIUser" required />
+                        </div>
+
+                        <!-- DNI Asistente (PAP) -->
+                        <div class="mb-3">
+                            <label for="dniAssistant" class="form-label">DNI Asistente Personal</label>
+                            <input type="text" th:field="*{dniAssistant}" class="form-control" id="dniAssistant" required />
+                        </div>
+
+                        <!-- Participación (Boolean) -->
+                        <div class="mb-3">
+                            <label for="participation" class="form-label">¿Ha participado?</label>
+                            <select th:field="*{participation}" class="form-select" id="participation">
+                                <option th:value="true">Sí</option>
+                                <option th:value="false">No</option>
+                            </select>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/assistancelist/list" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-success px-4">Registrar Asistencia</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

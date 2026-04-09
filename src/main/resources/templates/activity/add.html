@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SPS - Nueva Actividad</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Registrar Nueva Actividad</h3>
+                </div>
+                <div class="card-body">
+                    <form action="#" th:action="@{/activity/add}" th:object="${activity}" method="post">
+
+                        <!-- Título -->
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Título</label>
+                            <input type="text" th:field="*{title}" class="form-control" id="title" required />
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción</label>
+                            <textarea th:field="*{description}" class="form-control" id="description" rows="2"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <!-- Tipo -->
+                            <div class="col-md-6 mb-3">
+                                <label for="type" class="form-label">Tipo de Actividad</label>
+                                <input type="text" th:field="*{type}" class="form-control" id="type" placeholder="Ej: Deporte" />
+                            </div>
+                            <!-- Max Participantes -->
+                            <div class="col-md-6 mb-3">
+                                <label for="maxParticipants" class="form-label">Máx. Participantes</label>
+                                <input type="number" th:field="*{maxParticipants}" class="form-control" id="maxParticipants" min="1" required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Fecha -->
+                            <div class="col-md-6 mb-3">
+                                <label for="activityDate" class="form-label">Fecha</label>
+                                <input type="date" th:field="*{activityDate}" class="form-control" id="activityDate" />
+                            </div>
+                            <!-- Hora -->
+                            <div class="col-md-6 mb-3">
+                                <label for="activityTime" class="form-label">Hora</label>
+                                <input type="time" th:field="*{activityTime}" class="form-control" id="activityTime" />
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Ubicación</label>
+                            <input type="text" th:field="*{location}" class="form-control" id="location" />
+                        </div>
+
+                        <!-- DNI Instructor -->
+                        <div class="mb-3">
+                            <label for="dniInstructor" class="form-label">DNI Instructor Responsable</label>
+                            <input type="text" th:field="*{dniInstructor}" class="form-control" id="dniInstructor" required />
+                            <div class="form-text">Debe ser un DNI válido ya registrado.</div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/activity/list" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-success px-4">Guardar Actividad</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

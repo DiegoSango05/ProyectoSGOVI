@@ -22,7 +22,7 @@ public class PAPAssistantDao {
 
     /* Añade un asistente PAP */
     public void addPAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("INSERT INTO papassistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update("INSERT INTO pap_assistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 assistant.getDni(), assistant.getName(), assistant.getBirthDate(),
                 assistant.getAssistanceType(), assistant.getProfessionalTraining(),
                 assistant.isPreviousExperience(), assistant.getAvailability(),
@@ -31,12 +31,12 @@ public class PAPAssistantDao {
 
     /* Borra un asistente por DNI */
     public void deletePAPAssistant(String dni) {
-        jdbcTemplate.update("DELETE FROM papassistant WHERE dni=?", dni);
+        jdbcTemplate.update("DELETE FROM pap_assistant WHERE dni=?", dni);
     }
 
     /* Actualiza un asistente */
     public void updatePAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("UPDATE papassistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=? WHERE dni=?",
+        jdbcTemplate.update("UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=? WHERE dni=?",
                 assistant.getName(), assistant.getBirthDate(), assistant.getAssistanceType(),
                 assistant.getProfessionalTraining(), assistant.isPreviousExperience(),
                 assistant.getAvailability(), assistant.getLocation(), assistant.getStatus(),
@@ -46,7 +46,7 @@ public class PAPAssistantDao {
     /* Obtiene un asistente por DNI */
     public PAPAssistant getPAPAssistant(String dni) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM papassistant WHERE dni=?",
+            return jdbcTemplate.queryForObject("SELECT * FROM pap_assistant WHERE dni=?",
                     new PAPAssistantRowMapper(), dni);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -56,7 +56,7 @@ public class PAPAssistantDao {
     /* Obtiene todos los asistentes */
     public List<PAPAssistant> getPAPAssistants() {
         try {
-            return jdbcTemplate.query("SELECT * FROM papassistant", new PAPAssistantRowMapper());
+            return jdbcTemplate.query("SELECT * FROM pap_assistant", new PAPAssistantRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<PAPAssistant>();
         }
