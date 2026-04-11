@@ -37,6 +37,9 @@ public class OVIUserController {
     @RequestMapping(value="/add", method=RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("oviuser") OVIUser oviUser,
                                    BindingResult bindingResult) {
+        OVIUserValidator oviUserValidator = new OVIUserValidator();
+        oviUserValidator.validate(oviUser, bindingResult);
+        
         if (bindingResult.hasErrors())
             return "oviuser/add";
 

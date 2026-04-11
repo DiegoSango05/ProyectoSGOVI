@@ -19,19 +19,25 @@
                         <!-- DNI -->
                         <div class="mb-3">
                             <label for="dni" class="form-label">DNI / Identificador</label>
-                            <input type="text" th:field="*{dni}" class="form-control" id="dni" placeholder="Ej: 12345678X" required />
+                            <input type="text" th:field="*{dni}" class="form-control" id="dni"
+                                   th:errorclass="is-invalid" placeholder="Ej: 12345678X" />
+                            <div th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}" class="text-danger"></div>
                         </div>
 
                         <!-- Nombre -->
                         <div class="mb-3">
                             <label for="name" class="form-label">Nombre Completo</label>
-                            <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Ej: Ana García Pérez" required />
+                            <input type="text" th:field="*{name}" class="form-control" id="name"
+                                   th:errorclass="is-invalid" placeholder="Ej: Ana García Pérez" />
+                            <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></div>
                         </div>
 
                         <!-- Especialización -->
                         <div class="mb-4">
                             <label for="specialization" class="form-label">Especialización</label>
-                            <input type="text" th:field="*{specialization}" class="form-control" id="specialization" placeholder="Ej: Fisioterapia / Deporte Adaptado" />
+                            <input type="text" th:field="*{specialization}" class="form-control" id="specialization"
+                                   th:errorclass="is-invalid" placeholder="Ej: Fisioterapia / Deporte Adaptado" />
+                            <div th:if="${#fields.hasErrors('specialization')}" th:errors="*{specialization}" class="text-danger"></div>
                         </div>
 
                         <hr>

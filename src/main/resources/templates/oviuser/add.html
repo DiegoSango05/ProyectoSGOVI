@@ -20,12 +20,14 @@
                             <!-- DNI -->
                             <div class="col-md-4 mb-3">
                                 <label for="dni" class="form-label">DNI</label>
-                                <input type="text" th:field="*{dni}" class="form-control" id="dni" required />
+                                <input type="text" th:field="*{dni}" class="form-control" id="dni" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}" class="text-danger"></div>
                             </div>
                             <!-- Nombre Completo -->
                             <div class="col-md-8 mb-3">
                                 <label for="name" class="form-label">Nombre Completo</label>
-                                <input type="text" th:field="*{name}" class="form-control" id="name" required />
+                                <input type="text" th:field="*{name}" class="form-control" id="name" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></div>
                             </div>
                         </div>
 
@@ -38,7 +40,8 @@
                             <!-- Teléfono -->
                             <div class="col-md-6 mb-3">
                                 <label for="phoneNumber" class="form-label">Teléfono</label>
-                                <input type="text" th:field="*{phoneNumber}" class="form-control" id="phoneNumber" />
+                                <input type="text" th:field="*{phoneNumber}" class="form-control" id="phoneNumber" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="text-danger"></div>
                             </div>
                         </div>
 
@@ -46,12 +49,14 @@
                             <!-- Email -->
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Correo Electrónico</label>
-                                <input type="email" th:field="*{email}" class="form-control" id="email" placeholder="ejemplo@correo.com" />
+                                <input type="email" th:field="*{email}" class="form-control" id="email" th:errorclass="is-invalid" placeholder="ejemplo@correo.com" />
+                                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
                             </div>
                             <!-- Contacto de Emergencia -->
                             <div class="col-md-6 mb-3">
                                 <label for="emergencyContact" class="form-label">Número de Emergencia</label>
-                                <input type="text" th:field="*{emergencyContact}" class="form-control" id="emergencyContact" />
+                                <input type="text" th:field="*{emergencyContact}" class="form-control" id="emergencyContact" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('emergencyContact')}" th:errors="*{emergencyContact}" class="text-danger"></div>
                             </div>
                         </div>
 

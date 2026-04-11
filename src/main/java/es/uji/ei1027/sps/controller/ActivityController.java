@@ -37,6 +37,9 @@ public class ActivityController {
     @RequestMapping(value="/add", method= RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("activity") Activity activity,
                                    BindingResult bindingResult) {
+        ActivityValidator activityValidator = new ActivityValidator();
+        activityValidator.validate(activity, bindingResult);
+
         if (bindingResult.hasErrors())
             return "activity/add";
         activityDao.addActivity(activity);

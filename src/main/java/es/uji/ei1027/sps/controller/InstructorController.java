@@ -37,6 +37,9 @@ public class InstructorController {
     @RequestMapping(value="/add", method= RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("instructor") Instructor instructor,
                                    BindingResult bindingResult) {
+        InstructorValidator instructorValidator = new InstructorValidator();
+        instructorValidator.validate(instructor, bindingResult);
+
         if (bindingResult.hasErrors())
             return "instructor/add";
 

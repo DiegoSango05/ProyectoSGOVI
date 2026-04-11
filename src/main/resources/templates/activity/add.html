@@ -19,7 +19,8 @@
                         <!-- Título -->
                         <div class="mb-3">
                             <label for="title" class="form-label">Título</label>
-                            <input type="text" th:field="*{title}" class="form-control" id="title" required />
+                            <input type="text" th:field="*{title}" class="form-control" id="title" th:errorclass="is-invalid" />
+                            <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger"></div>
                         </div>
 
                         <!-- Descripción -->
@@ -37,7 +38,8 @@
                             <!-- Max Participantes -->
                             <div class="col-md-6 mb-3">
                                 <label for="maxParticipants" class="form-label">Máx. Participantes</label>
-                                <input type="number" th:field="*{maxParticipants}" class="form-control" id="maxParticipants" min="1" required />
+                                <input type="number" th:field="*{maxParticipants}" class="form-control" id="maxParticipants" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('maxParticipants')}" th:errors="*{maxParticipants}" class="text-danger"></div>
                             </div>
                         </div>
 
@@ -57,13 +59,15 @@
                         <!-- Ubicación -->
                         <div class="mb-3">
                             <label for="location" class="form-label">Ubicación</label>
-                            <input type="text" th:field="*{location}" class="form-control" id="location" />
+                            <input type="text" th:field="*{location}" class="form-control" id="location" th:errorclass="is-invalid" />
+                            <div th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="text-danger"></div>
                         </div>
 
                         <!-- DNI Instructor -->
                         <div class="mb-3">
                             <label for="dniInstructor" class="form-label">DNI Instructor Responsable</label>
-                            <input type="text" th:field="*{dniInstructor}" class="form-control" id="dniInstructor" required />
+                            <input type="text" th:field="*{dniInstructor}" class="form-control" id="dniInstructor" th:errorclass="is-invalid" />
+                            <div th:if="${#fields.hasErrors('dniInstructor')}" th:errors="*{dniInstructor}" class="text-danger"></div>
                             <div class="form-text">Debe ser un DNI válido ya registrado.</div>
                         </div>
 
