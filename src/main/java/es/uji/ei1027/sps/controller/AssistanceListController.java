@@ -21,8 +21,13 @@ public class AssistanceListController {
 
     // LISTAR
     @RequestMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("assistancesList", assistanceListDao.getAssistanceLists());
+    public String list(@RequestParam(value="idActivity", required=false) Integer idActivity, Model model) {
+        if (idActivity != null) {
+            model.addAttribute("assistancesList", assistanceListDao.getAssistanceListsByActivity(idActivity));
+            model.addAttribute("idActivity", idActivity);
+        } else {
+            model.addAttribute("assistancesList", assistanceListDao.getAssistanceLists());
+        }
         return "assistancelist/list";
     }
 

@@ -61,4 +61,14 @@ public class AssistanceListDao {
             return new ArrayList<AssistanceList>();
         }
     }
+
+    /* Obtener registros por ID de Actividad */
+    public List<AssistanceList> getAssistanceListsByActivity(int idActivity) {
+        try {
+            return jdbcTemplate.query("SELECT * FROM assistancelist WHERE id_activity=?",
+                    new AssistanceListRowMapper(), idActivity);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<AssistanceList>();
+        }
+    }
 }
