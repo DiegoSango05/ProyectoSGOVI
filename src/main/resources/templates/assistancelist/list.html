@@ -8,12 +8,16 @@
 <body class="container mt-5">
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Registro de Asistencias (AssistanceList)</h1>
-    <a href="/activity/list" class="btn btn-outline-secondary">Ver Actividades</a>
+    <h1 th:if="${idActivity == null}">Registro de Asistencias (AssistanceList)</h1>
+    <h1 th:if="${idActivity != null}">Asistencias - Actividad <span th:text="${idActivity}"></span></h1>
+    <div class="d-flex gap-2">
+        <a href="/assistancelist/add" class="btn btn-outline-primary">+ Añadir Asistente</a>
+        <a href="/activity/list" class="btn btn-outline-secondary">Ver Actividades</a>
+    </div>
 </div>
 
-<table class="table table-striped table-hover shadow-sm">
-    <thead class="table-dark">
+<table class="table table-striped mt-4">
+    <thead class="table-info">
     <tr>
         <th>ID</th>
         <th>Fecha Asistencia</th>
