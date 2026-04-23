@@ -43,4 +43,11 @@ public class PAPAssistantController {
         papAssistantDao.addPAPAssistant(assistant);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{dni}")
+    public String processDelete(@PathVariable String dni) {
+        papAssistantDao.deletePAPAssistant(dni);
+        return "redirect:../list";
+    }
 }

@@ -43,4 +43,11 @@ public class AssistanceRequestController {
         assistanceRequestDao.addAssistanceRequest(request);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{id}")
+    public String processDelete(@PathVariable int id) {
+        assistanceRequestDao.deleteAssistanceRequest(id);
+        return "redirect:../list";
+    }
 }

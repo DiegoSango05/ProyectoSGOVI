@@ -37,9 +37,38 @@ public class AssistanceListController {
     @RequestMapping(value="/add", method= RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("assistancelist") AssistanceList assistanceList,
                                    BindingResult bindingResult) {
+        AssistanceListValidator validator = new AssistanceListValidator();
+        validator.validate(assistanceList, bindingResult);
+
         if (bindingResult.hasErrors())
             return "assistancelist/add";
         assistanceListDao.addAssistanceList(assistanceList);
+        return "redirect:list";
+    }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{id_list}")
+    public String processDelete(@PathVariable int id_list) {
+        assistanceListDao.deleteAssistanceList(id_list);
+        return "redirect:../list";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{id_list}", method = RequestMethod.GET)
+    public String editAssistanceList(Model model, @PathVariable int id_list) {
+        model.addAttribute("assistancelist", assistanceListDao.getAssistanceList(id_list));
+        return "assistancelist/update";
+    }
+
+    // ACTUALIZAR (Procesar)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("assistancelist") AssistanceList assistanceList,
+                                      BindingResult bindingResult) {
+        AssistanceListValidator validator = new AssistanceListValidator();
+        validator.validate(assistanceList, bindingResult);
+        if (bindingResult.hasErrors())
+            return "assistancelist/update";
+        assistanceListDao.updateAssistanceList(assistanceList);
         return "redirect:list";
     }
 }

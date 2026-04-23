@@ -42,4 +42,29 @@ public class NegotiationController {
         negotiationDao.addNegotiation(negotiation);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{id}")
+    public String processDelete(@PathVariable int id) {
+        negotiationDao.deleteNegotiation(id);
+        return "redirect:../list";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{id}", method = RequestMethod.GET)
+    public String editNegotiation(Model model, @PathVariable int id) {
+        model.addAttribute("negotiation", negotiationDao.getNegotiation(id));
+        return "negotiation/update";
+    }
+
+    // ACTUALIZAR (Procesar)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("negotiation") Negotiation negotiation,
+                                      BindingResult bindingResult) {
+        // Aquí llamarías a su respectivo validador si lo tienes creado
+        if (bindingResult.hasErrors())
+            return "negotiation/update";
+        negotiationDao.updateNegotiation(negotiation);
+        return "redirect:list";
+    }
 }

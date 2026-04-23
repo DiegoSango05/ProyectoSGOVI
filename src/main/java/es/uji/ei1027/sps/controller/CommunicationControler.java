@@ -43,4 +43,30 @@ public class CommunicationControler {
         communicationDao.addCommunication(communication);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{id}")
+    public String processDelete(@PathVariable int id) {
+        communicationDao.deleteCommunication(id);
+        return "redirect:../list";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{id}", method = RequestMethod.GET)
+    public String editCommunication(Model model, @PathVariable int id) {
+        model.addAttribute("communication", communicationDao.getCommunication(id));
+        return "communication/update";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("communication") Communication communication,
+                                      BindingResult bindingResult) {
+        // Si creaste un CommunicationValidator, llámalo aquí
+        if (bindingResult.hasErrors())
+            return "communication/update";
+
+        communicationDao.updateCommunication(communication);
+        return "redirect:list";
+    }
 }

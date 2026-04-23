@@ -46,4 +46,30 @@ public class OVIUserController {
         oviUserDao.addOVIUser(oviUser);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{dni}")
+    public String processDelete(@PathVariable String dni) {
+        oviUserDao.deleteOVIUser(dni);
+        return "redirect:../list";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{dni}", method = RequestMethod.GET)
+    public String editOVIUser(Model model, @PathVariable String dni) {
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(dni));
+        return "oviuser/update";
+    }
+
+    // ACTUALIZAR (Procesar)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("oviuser") OVIUser oviUser,
+                                      BindingResult bindingResult) {
+        OVIUserValidator oviUserValidator = new OVIUserValidator();
+        oviUserValidator.validate(oviUser, bindingResult);
+        if (bindingResult.hasErrors())
+            return "oviuser/update";
+        oviUserDao.updateOVIUser(oviUser);
+        return "redirect:list";
+    }
 }

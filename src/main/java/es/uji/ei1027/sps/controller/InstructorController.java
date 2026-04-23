@@ -46,4 +46,31 @@ public class InstructorController {
         instructorDao.addInstructor(instructor);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{dni}")
+    public String processDelete(@PathVariable String dni) {
+        instructorDao.deleteInstructor(dni);
+        return "redirect:../list";
+    }
+
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{dni}", method = RequestMethod.GET)
+    public String editInstructor(Model model, @PathVariable String dni) {
+        model.addAttribute("instructor", instructorDao.getInstructor(dni));
+        return "instructor/update";
+    }
+
+    // ACTUALIZAR (Procesar)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("instructor") Instructor instructor,
+                                      BindingResult bindingResult) {
+        InstructorValidator instructorValidator = new InstructorValidator();
+        instructorValidator.validate(instructor, bindingResult);
+        if (bindingResult.hasErrors())
+            return "instructor/update";
+        instructorDao.updateInstructor(instructor);
+        return "redirect:list";
+    }
 }

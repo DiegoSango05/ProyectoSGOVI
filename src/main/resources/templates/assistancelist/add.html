@@ -19,38 +19,43 @@
                         <div class="row">
                             <!-- Fecha Asistencia -->
                             <div class="col-md-6 mb-3">
-                                <label for="assistanceDate" class="form-label">Fecha</label>
-                                <input type="date" th:field="*{assistanceDate}" class="form-control" id="assistanceDate" required />
+                                <label for="aDate" class="form-label">Fecha</label>
+                                <input type="date" th:field="*{assistanceDate}" class="form-control" id="aDate" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('assistanceDate')}" th:errors="*{assistanceDate}" class="text-danger"></div>
                             </div>
                             <!-- Hora Asistencia -->
                             <div class="col-md-6 mb-3">
-                                <label for="assistanceTime" class="form-label">Hora</label>
-                                <input type="time" th:field="*{assistanceTime}" class="form-control" id="assistanceTime" required />
+                                <label for="aTime" class="form-label">Hora</label>
+                                <input type="time" th:field="*{assistanceTime}" class="form-control" id="aTime" th:errorclass="is-invalid" />
+                                <div th:if="${#fields.hasErrors('assistanceTime')}" th:errors="*{assistanceTime}" class="text-danger"></div>
                             </div>
                         </div>
 
                         <!-- ID Actividad -->
                         <div class="mb-3">
-                            <label for="idActivity" class="form-label">ID de la Actividad</label>
-                            <input type="number" th:field="*{idActivity}" class="form-control" id="idActivity" required />
+                            <label for="idAct" class="form-label">ID de la Actividad</label>
+                            <input type="number" th:field="*{idActivity}" class="form-control" id="idAct" th:errorclass="is-invalid" />
+                            <div th:if="${#fields.hasErrors('idActivity')}" th:errors="*{idActivity}" class="text-danger"></div>
                         </div>
 
                         <!-- DNI Usuario OVI -->
                         <div class="mb-3">
-                            <label for="dniOVIUser" class="form-label">DNI Usuario OVI</label>
-                            <input type="text" th:field="*{dniOVIUser}" class="form-control" id="dniOVIUser" required />
+                            <label for="dniOVI" class="form-label">DNI Usuario OVI</label>
+                            <input type="text" th:field="*{dniOVIUser}" class="form-control" id="dniOVI" th:errorclass="is-invalid" />
+                            <div th:if="${#fields.hasErrors('dniOVIUser')}" th:errors="*{dniOVIUser}" class="text-danger"></div>
                         </div>
 
                         <!-- DNI Asistente (PAP) -->
                         <div class="mb-3">
-                            <label for="dniAssistant" class="form-label">DNI Asistente Personal</label>
-                            <input type="text" th:field="*{dniAssistant}" class="form-control" id="dniAssistant" required />
+                            <label for="dniAsist" class="form-label">DNI Asistente Personal</label>
+                            <input type="text" th:field="*{dniAssistant}" class="form-control" id="dniAsist" th:errorclass="is-invalid" />
+                            <div th:if="${#fields.hasErrors('dniAssistant')}" th:errors="*{dniAssistant}" class="text-danger"></div>
                         </div>
 
                         <!-- Participación (Boolean) -->
                         <div class="mb-3">
-                            <label for="participation" class="form-label">¿Ha participado?</label>
-                            <select th:field="*{participation}" class="form-select" id="participation">
+                            <label for="part" class="form-label">¿Ha participado?</label>
+                            <select th:field="*{participation}" class="form-select" id="part">
                                 <option th:value="true">Sí</option>
                                 <option th:value="false">No</option>
                             </select>

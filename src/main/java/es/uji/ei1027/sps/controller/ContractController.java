@@ -43,4 +43,11 @@ public class ContractController {
         contractDao.addContract(contract);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{id}")
+    public String processDelete(@PathVariable int id) {
+        contractDao.deleteContract(id);
+        return "redirect:../list";
+    }
 }

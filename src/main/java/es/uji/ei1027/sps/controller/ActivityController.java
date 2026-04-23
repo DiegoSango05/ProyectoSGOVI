@@ -45,4 +45,30 @@ public class ActivityController {
         activityDao.addActivity(activity);
         return "redirect:list";
     }
+
+    // ELIMINAR
+    @RequestMapping(value="/delete/{id}")
+    public String processDelete(@PathVariable int id) {
+        activityDao.deleteActivity(id);
+        return "redirect:../list";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{id}", method = RequestMethod.GET)
+    public String editActivity(Model model, @PathVariable int id) {
+        model.addAttribute("activity", activityDao.getActivity(id));
+        return "activity/update";
+    }
+
+    // ACTUALIZAR (Procesar)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("activity") Activity activity,
+                                      BindingResult bindingResult) {
+        ActivityValidator activityValidator = new ActivityValidator();
+        activityValidator.validate(activity, bindingResult);
+        if (bindingResult.hasErrors())
+            return "activity/update";
+        activityDao.updateActivity(activity);
+        return "redirect:list";
+    }
 }
