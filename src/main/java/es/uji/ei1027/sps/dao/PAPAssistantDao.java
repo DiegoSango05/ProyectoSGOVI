@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class PAPAssistantDao {
+public class    PAPAssistantDao {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -22,11 +22,11 @@ public class PAPAssistantDao {
 
     /* Añade un asistente PAP */
     public void addPAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("INSERT INTO pap_assistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update("INSERT INTO pap_assistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 assistant.getDni(), assistant.getName(), assistant.getBirthDate(),
                 assistant.getAssistanceType(), assistant.getProfessionalTraining(),
                 assistant.isPreviousExperience(), assistant.getAvailability(),
-                assistant.getLocation(), assistant.getStatus());
+                assistant.getLocation(), assistant.getStatus(), assistant.getPassword());
     }
 
     /* Borra un asistente por DNI */
@@ -36,11 +36,11 @@ public class PAPAssistantDao {
 
     /* Actualiza un asistente */
     public void updatePAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=? WHERE dni=?",
+        jdbcTemplate.update("UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=?, password=? WHERE dni=?",
                 assistant.getName(), assistant.getBirthDate(), assistant.getAssistanceType(),
                 assistant.getProfessionalTraining(), assistant.isPreviousExperience(),
                 assistant.getAvailability(), assistant.getLocation(), assistant.getStatus(),
-                assistant.getDni());
+                assistant.getPassword(), assistant.getDni());
     }
 
     /* Obtiene un asistente por DNI */
@@ -60,5 +60,17 @@ public class PAPAssistantDao {
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<PAPAssistant>();
         }
+    }
+
+    /* Login real */
+    public PAPAssistant loadUserByUsername(String dni, String password) {
+        PAPAssistant assistant = getPAPAssistant(dni);
+        if (assistant == null) return null;
+
+        if (assistant.getPassword().equals(password)) {
+            assistant.setPassword(null);
+            return assistant;
+        }
+        return null;
     }
 }

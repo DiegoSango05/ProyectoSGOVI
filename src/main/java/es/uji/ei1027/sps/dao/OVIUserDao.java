@@ -22,10 +22,10 @@ public class OVIUserDao {
 
     /* Añade un usuario OVI */
     public void addOVIUser(OVIUser oviUser) {
-        jdbcTemplate.update("INSERT INTO oviuser VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update("INSERT INTO oviuser VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 oviUser.getDni(), oviUser.getName(), oviUser.getBirthDate(),
                 oviUser.getEmail(), oviUser.getPhoneNumber(), oviUser.getAddress(),
-                oviUser.getEmergencyContact(), oviUser.getDocument());
+                oviUser.getEmergencyContact(), oviUser.getDocument(), oviUser.getPassword());
     }
 
     /* Borra un usuario por DNI */
@@ -35,10 +35,10 @@ public class OVIUserDao {
 
     /* Actualiza un usuario */
     public void updateOVIUser(OVIUser oviUser) {
-        jdbcTemplate.update("UPDATE oviuser SET name=?, birth_date=?, email=?, phone_number=?, address=?, emergency_contact=?, document=? WHERE dni=?",
+        jdbcTemplate.update("UPDATE oviuser SET name=?, birthdate=?, email=?, phonenumber=?, address=?, emergencycontact=?, document=?, password=? WHERE dni=?",
                 oviUser.getName(), oviUser.getBirthDate(), oviUser.getEmail(),
                 oviUser.getPhoneNumber(), oviUser.getAddress(), oviUser.getEmergencyContact(),
-                oviUser.getDocument(), oviUser.getDni());
+                oviUser.getDocument(), oviUser.getPassword(), oviUser.getDni());
     }
 
     /* Obtiene un usuario por DNI */
@@ -58,5 +58,18 @@ public class OVIUserDao {
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<OVIUser>();
         }
+    }
+
+    /* Login real */
+    public OVIUser loadUserByUsername(String dni, String password) {
+        OVIUser user = getOVIUser(dni);
+        if (user == null) return null; // Usuario no existe
+
+        if (user.getPassword().equals(password)) {
+            // Por seguridad, quitamos la contraseña antes de devolver el objeto
+            user.setPassword(null);
+            return user;
+        }
+        return null; // Contraseña incorrecta
     }
 }

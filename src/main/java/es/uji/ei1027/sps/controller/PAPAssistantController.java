@@ -1,7 +1,9 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
+import es.uji.ei1027.sps.model.OVIUser;
 import es.uji.ei1027.sps.model.PAPAssistant;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,5 +51,35 @@ public class PAPAssistantController {
     public String processDelete(@PathVariable String dni) {
         papAssistantDao.deletePAPAssistant(dni);
         return "redirect:../list";
+    }
+
+    // ACTUALIZAR (Formulario)
+    @RequestMapping(value="/update/{dni}", method = RequestMethod.GET)
+    public String editOVIUser(Model model, @PathVariable String dni) {
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(dni));
+        return "pap_assistant/update";
+    }
+
+    // ACTUALIZAR (Procesar)
+    @RequestMapping(value="/update", method = RequestMethod.POST)
+    public String processUpdateSubmit(@ModelAttribute("papassistant") PAPAssistant pap_assistant,
+                                      BindingResult bindingResult) {
+        PAPAssistantValidator validator = new PAPAssistantValidator();
+        validator.validate(pap_assistant, bindingResult);
+        if (bindingResult.hasErrors())
+            return "pap_assistant/update";
+        papAssistantDao.updatePAPAssistant(pap_assistant);
+        return "redirect:list";
+    }
+
+    // VISUALIZAR PERFIL
+    @RequestMapping("/profile")
+    public String viewProfile(HttpSession session, Model model) {
+        PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
+        if (assistant == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
+        return "pap_assistant/update";
     }
 }

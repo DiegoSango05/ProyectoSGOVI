@@ -2,6 +2,7 @@ package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.model.OVIUser;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,11 +66,22 @@ public class OVIUserController {
     @RequestMapping(value="/update", method = RequestMethod.POST)
     public String processUpdateSubmit(@ModelAttribute("oviuser") OVIUser oviUser,
                                       BindingResult bindingResult) {
-        OVIUserValidator oviUserValidator = new OVIUserValidator();
-        oviUserValidator.validate(oviUser, bindingResult);
+        OVIUserValidator validator = new OVIUserValidator();
+        validator.validate(oviUser, bindingResult);
         if (bindingResult.hasErrors())
             return "oviuser/update";
         oviUserDao.updateOVIUser(oviUser);
         return "redirect:list";
+    }
+
+    // VISUALIZAR PERFIL
+    @RequestMapping("/profile")
+    public String viewProfile(HttpSession session, Model model) {
+        OVIUser user = (OVIUser) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+        return "oviuser/update";
     }
 }

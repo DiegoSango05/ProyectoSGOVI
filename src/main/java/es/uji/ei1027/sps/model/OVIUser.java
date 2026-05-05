@@ -11,6 +11,7 @@ public class OVIUser {
     private String address;
     private String emergencyContact;
     private String document;
+    private String password;
 
     public OVIUser() {}
 
@@ -68,6 +69,13 @@ public class OVIUser {
     }
     public void setDocument(String document) {
         this.document = document;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

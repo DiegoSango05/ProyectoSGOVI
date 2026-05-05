@@ -12,6 +12,7 @@ public class PAPAssistant {
     private String availability;
     private String location;
     private String status;
+    private String password;
 
     public PAPAssistant() {}
 
@@ -77,6 +78,9 @@ public class PAPAssistant {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
     @Override
     public String toString() {
