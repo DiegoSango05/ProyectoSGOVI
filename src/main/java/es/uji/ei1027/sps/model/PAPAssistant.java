@@ -13,6 +13,7 @@ public class PAPAssistant {
     private String location;
     private String status;
     private String password;
+    private String phoneNumber;
 
     public PAPAssistant() {}
 
@@ -81,6 +82,14 @@ public class PAPAssistant {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     @Override
     public String toString() {

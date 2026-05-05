@@ -1,97 +1,203 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SPS - Registro de Asistente PAP</title>
     <meta charset="UTF-8" />
+    <title>SgOVI - Registro de Asistente PAP</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding-bottom: 50px;
+        }
+        .header-brand {
+            text-align: center;
+            padding: 30px 0;
+            background-color: #ffffff;
+        }
+        .brand-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+            padding: 3rem;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+        }
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #000;
+            display: inline-block;
+            margin-bottom: 25px;
+            padding-bottom: 5px;
+        }
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #444;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            color: #000;
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
+        /* Clase de Bootstrap para resaltar errores */
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #000;
+            box-shadow: none;
+        }
+        .btn-save {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-weight: 700;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+        .btn-save:hover { opacity: 0.8; color: #fff; }
+        .btn-cancel {
+            color: #666;
+            text-decoration: underline;
+            font-weight: 600;
+            padding: 12px 20px;
+        }
+        .input-group-text {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-weight: 600;
+        }
+        .phone-input {
+            border-left: none !important;
+            border-radius: 0 8px 8px 0 !important;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Nuevo Perfil de Asistente Personal (PAP)</h3>
+<body>
+
+<div class="header-brand">
+    <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" class="brand-logo">
+    <h1 class="brand-title">OFICINA VIDA INDEPENDENT</h1>
+    <p class="brand-subtitle">SOLE ARNAU RIPOLLÉS</p>
+</div>
+
+<div class="container">
+    <div class="form-container shadow-sm">
+        <h2 class="form-section-title">Registro de Asistente Personal</h2>
+
+        <form th:action="@{/pap_assistant/add}" th:object="${papassistant}" method="post">
+
+            <!-- Fila 1: Identificación básica -->
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <label for="dni" class="form-label">DNI / NIE</label>
+                    <input type="text" th:field="*{dni}" class="form-control" th:errorclass="is-invalid" id="dni" placeholder="Ej: 12345678X"/>
+                    <div th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}" class="error-message"></div>
                 </div>
-                <div class="card-body p-4">
-                    <form action="#" th:action="@{/papassistant/add}" th:object="${papassistant}" method="post">
-
-                        <div class="row">
-                            <!-- DNI -->
-                            <div class="col-md-4 mb-3">
-                                <label for="dni" class="form-label">DNI</label>
-                                <input type="text" th:field="*{dni}" class="form-control" id="dni" required />
-                            </div>
-                            <!-- Nombre -->
-                            <div class="col-md-8 mb-3">
-                                <label for="name" class="form-label">Nombre Completo</label>
-                                <input type="text" th:field="*{name}" class="form-control" id="name" required />
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <!-- Fecha Nacimiento -->
-                            <div class="col-md-4 mb-3">
-                                <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" th:field="*{birthDate}" class="form-control" id="birthDate" />
-                            </div>
-                            <!-- Tipo de Asistencia restringido a PAP o PATI -->
-                            <div class="col-md-4 mb-3">
-                                <label for="assistanceType" class="form-label">Tipo de Asistencia</label>
-                                <select th:field="*{assistanceType}" class="form-select" id="assistanceType" required>
-                                    <option value="PAP">PAP (Asistente Personal)</option>
-                                    <option value="PATI">PATI (Asistente de Transporte)</option>
-                                </select>
-                                <div class="form-text">Selecciona una de las modalidades válidas.</div>
-                            </div>
-                            <!-- Experiencia (Boolean) -->
-                            <div class="col-md-4 mb-3">
-                                <label for="previousExperience" class="form-label">¿Experiencia Previa?</label>
-                                <select th:field="*{previousExperience}" class="form-select" id="previousExperience">
-                                    <option th:value="true">Sí, tiene experiencia</option>
-                                    <option th:value="false">No tiene experiencia</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="professionalTraining" class="form-label">Formación Profesional</label>
-                            <input type="text" th:field="*{professionalTraining}" class="form-control" id="professionalTraining" placeholder="Títulos, cursos, certificaciones..." />
-                        </div>
-
-                        <div class="row">
-                            <!-- Disponibilidad -->
-                            <div class="col-md-6 mb-3">
-                                <label for="availability" class="form-label">Disponibilidad Horaria</label>
-                                <input type="text" th:field="*{availability}" class="form-control" id="availability" placeholder="Ej: Tardes, L-V..." />
-                            </div>
-                            <!-- Ubicación -->
-                            <div class="col-md-6 mb-3">
-                                <label for="location" class="form-label">Ubicación / Zona</label>
-                                <input type="text" th:field="*{location}" class="form-control" id="location" placeholder="Ciudad o barrio" />
-                            </div>
-                        </div>
-
-                        <!-- Estado (Status) -->
-                        <div class="mb-4">
-                            <label for="status" class="form-label">Estado Actual</label>
-                            <select th:field="*{status}" class="form-select" id="status">
-                                <option value="Accepted">Aceptado</option>
-                                <option value="Rejected">Rechazado</option>
-                            </select>
-                        </div>
-
-                        <hr>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="/papassistant/list" class="btn btn-outline-secondary me-md-2">Cancelar</a>
-                            <button type="submit" class="btn btn-success px-4">Registrar Asistente</button>
-                        </div>
-                    </form>
+                <div class="col-md-8 mb-4">
+                    <label for="name" class="form-label">Nombre Completo</label>
+                    <input type="text" th:field="*{name}" class="form-control" th:errorclass="is-invalid" id="name"/>
+                    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message"></div>
                 </div>
             </div>
-        </div>
+
+            <!-- Fila 2: Especialidad y Experiencia -->
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" th:field="*{birthDate}" class="form-control" id="birthDate" />
+                </div>
+                <div class="col-md-4 mb-4">
+                    <label for="assistanceType" class="form-label">Tipo de Asistencia</label>
+                    <select th:field="*{assistanceType}" class="form-select" id="assistanceType">
+                        <option value="PAP">PAP (Asistente Personal)</option>
+                        <option value="PATI">PATI (Asistente de Transporte)</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <label for="previousExperience" class="form-label">¿Experiencia?</label>
+                    <select th:field="*{previousExperience}" class="form-select" id="previousExperience">
+                        <option th:value="true">Sí, con experiencia</option>
+                        <option th:value="false">Sin experiencia previa</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Fila 3: Formación -->
+            <div class="mb-4">
+                <label for="professionalTraining" class="form-label">Formación Profesional y Títulos</label>
+                <textarea th:field="*{professionalTraining}" class="form-control" id="professionalTraining" rows="2" placeholder="Describa sus certificaciones..."></textarea>
+            </div>
+
+            <!-- Fila 4: Disponibilidad y Contacto -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="availability" class="form-label">Disponibilidad</label>
+                    <input type="text" th:field="*{availability}" class="form-control" th:errorclass="is-invalid" id="availability" placeholder="Mañanas, Fines de semana..." />
+                    <div th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}" class="error-message"></div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label for="location" class="form-label">Zona Geográfica</label>
+                    <input type="text" th:field="*{location}" class="form-control" th:errorclass="is-invalid" id="location" placeholder="Castellón, Almazora..." />
+                    <div th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="error-message"></div>
+                </div>
+            </div>
+
+            <!-- Teléfono de Contacto -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Teléfono de Contacto</label>
+                    <div class="input-group">
+                        <span class="input-group-text" th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid' : ''">🇪🇸 +34</span>
+                        <input type="text" th:field="*{phoneNumber}" class="form-control phone-input" th:errorclass="is-invalid" placeholder="600000000" />
+                    </div>
+                    <div th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end align-items-center border-top pt-4 mt-2">
+                <a th:href="@{/choose-registration}" class="btn-cancel me-3">Cancelar</a>
+                <button type="submit" class="btn-save shadow-sm">Registrar Asistente</button>
+            </div>
+        </form>
     </div>
 </div>
+
 </body>
 </html>

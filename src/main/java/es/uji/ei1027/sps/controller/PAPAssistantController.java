@@ -39,11 +39,25 @@ public class PAPAssistantController {
     @RequestMapping(value="/add", method=RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("papassistant") PAPAssistant assistant,
                                    BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
-            return "pap_assistant/add";
+        PAPAssistantValidator validator = new PAPAssistantValidator();
+        validator.validate(assistant, bindingResult);
 
-        papAssistantDao.addPAPAssistant(assistant);
-        return "redirect:list";
+        if (bindingResult.hasErrors()) {
+            return "pap_assistant/add";
+        }
+
+        // Forzamos el estado a Pendiente siempre
+        assistant.setStatus("Pending");
+
+        try {
+            papAssistantDao.addPAPAssistant(assistant);
+        } catch (Exception e) {
+            bindingResult.rejectValue("dni", "duplicado", "Este DNI ya está registrado");
+            return "pap_assistant/add";
+        }
+
+        // Redirigimos a una página de agradecimiento en lugar de a la lista
+        return "pap_assistant/registration_success";
     }
 
     // ELIMINAR

@@ -3,6 +3,7 @@ package es.uji.ei1027.sps.controller;
 import es.uji.ei1027.sps.model.OVIUser;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import java.time.LocalDate;
 
 public class OVIUserValidator implements Validator {
     @Override
@@ -14,32 +15,53 @@ public class OVIUserValidator implements Validator {
     public void validate(Object obj, Errors errors) {
         OVIUser oviUser = (OVIUser) obj;
 
-        // Validación DNI
-        if (oviUser.getDni().trim().isEmpty()) {
-            errors.rejectValue("dni", "obligatorio", "Es necesario introducir un DNI");
+        // 1. Validación DNI (Más estricta)
+        String dni = oviUser.getDni().trim();
+        if (dni.isEmpty()) {
+            errors.rejectValue("dni", "obligatorio", "Es necesario introducir un DNI/NIE");
+        } else if (!dni.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$|^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+            // Esta Regex valida tanto DNI español como NIE extranjero
+            errors.rejectValue("dni", "formato", "El formato del DNI/NIE no es válido");
         }
 
-        // Validación Nombre
+        // 2. Validación Nombre
         if (oviUser.getName().trim().isEmpty()) {
-            errors.rejectValue("name", "obligatorio", "El nombre es obligatorio");
-
+            errors.rejectValue("name", "obligatorio", "El nombre completo es obligatorio");
+        } else if (oviUser.getName().length() > 100) {
+            errors.rejectValue("name", "largo", "El nombre es demasiado largo (máximo 100 caracteres)");
         }
 
-        // Validación Email (que no esté vacío y tenga formato básico)
-        if (oviUser.getEmail().trim().isEmpty()) {
+        // 3. Validación Fecha de Nacimiento (¡Súper importante!)
+        if (oviUser.getBirthDate() == null) {
+            errors.rejectValue("birthDate", "obligatorio", "La fecha de nacimiento es obligatoria");
+        } else if (oviUser.getBirthDate().isAfter(LocalDate.now())) {
+            errors.rejectValue("birthDate", "futura", "La fecha de nacimiento no puede ser una fecha futura");
+        }
+
+        // 4. Validación Email (Regex oficial)
+        String email = oviUser.getEmail().trim();
+        if (email.isEmpty()) {
             errors.rejectValue("email", "obligatorio", "El correo electrónico es obligatorio");
-        } else if (!oviUser.getEmail().contains("@") || !oviUser.getEmail().contains(".")) {
-            errors.rejectValue("email", "formato", "El formato del correo no es válido");
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            errors.rejectValue("email", "formato", "El formato del correo electrónico no es válido");
         }
 
-        // Validación Teléfono (mínimo 9 dígitos)
-        if (oviUser.getPhoneNumber().trim().length() < 9) {
-            errors.rejectValue("phoneNumber", "corto", "El teléfono debe tener al menos 9 dígitos");
+        // 5. Validación Teléfono (9 dígitos)
+        String phone = oviUser.getPhoneNumber().trim();
+        if (phone.isEmpty()) {
+            errors.rejectValue("phoneNumber", "obligatorio", "Debe indicar un número de teléfono");
+        } else if (phone.length() != 9 || !phone.matches("\\d+")) {
+            errors.rejectValue("phoneNumber", "formato", "El teléfono debe tener exactamente 9 números");
         }
 
-        // Validación Contacto de Emergencia
-        if (oviUser.getEmergencyContact().trim().isEmpty()) {
+        // 6. Validación Contacto de Emergencia (También debe ser un número válido)
+        String emergency = oviUser.getEmergencyContact().trim();
+        if (emergency.isEmpty()) {
             errors.rejectValue("emergencyContact", "obligatorio", "Debe indicar un número de emergencia");
+        } else if (emergency.length() != 9 || !emergency.matches("\\d+")) {
+            errors.rejectValue("emergencyContact", "formato", "El número de emergencia debe tener 9 dígitos");
+        } else if (emergency.equals(phone)) {
+            errors.rejectValue("emergencyContact", "igual", "El contacto de emergencia no puede ser el mismo que tu teléfono personal");
         }
     }
 }

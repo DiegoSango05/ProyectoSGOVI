@@ -44,7 +44,12 @@ public class OVIUserController {
         if (bindingResult.hasErrors())
             return "oviuser/add";
 
-        oviUserDao.addOVIUser(oviUser);
+        try {
+            oviUserDao.addOVIUser(oviUser);
+        } catch (Exception e) {
+            bindingResult.rejectValue("dni", "duplicado", "Este DNI ya está registrado");
+            return "pap_assistant/add";
+        }
         return "redirect:list";
     }
 
