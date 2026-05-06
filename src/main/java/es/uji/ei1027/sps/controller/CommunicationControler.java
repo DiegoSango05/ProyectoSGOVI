@@ -2,6 +2,8 @@ package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.CommunicationDao;
 import es.uji.ei1027.sps.model.Communication;
+import es.uji.ei1027.sps.model.OVIUser;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +25,16 @@ public class CommunicationControler {
     @RequestMapping("/list")
     public String list(Model model) {
         model.addAttribute("communications", communicationDao.getCommunications());
+        return "communication/list";
+    }
+
+    @RequestMapping("/my-list")
+    public String myList(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("communications", communicationDao.getCommunicationsByOVIUser(user.getDni()));
         return "communication/list";
     }
 
@@ -68,5 +80,14 @@ public class CommunicationControler {
 
         communicationDao.updateCommunication(communication);
         return "redirect:list";
+    }
+
+    private OVIUser getLoggedOVIUser(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"ovi".equals(role) || !(user instanceof OVIUser)) {
+            return null;
+        }
+        return (OVIUser) user;
     }
 }

@@ -20,6 +20,26 @@ public class OVIUserController {
         this.oviUserDao = oviUserDao;
     }
 
+    @RequestMapping("")
+    public String index(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+        return "oviuser/index";
+    }
+
+    @RequestMapping("/requests-contracts")
+    public String requestsContractsIndex(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+        return "oviuser/requests-contracts";
+    }
+
     // LISTAR
     @RequestMapping("/list")
     public String list(Model model) {
@@ -40,7 +60,7 @@ public class OVIUserController {
                                    BindingResult bindingResult) {
         OVIUserValidator oviUserValidator = new OVIUserValidator();
         oviUserValidator.validate(oviUser, bindingResult);
-        
+
         if (bindingResult.hasErrors())
             return "oviuser/add";
 
@@ -82,11 +102,20 @@ public class OVIUserController {
     // VISUALIZAR PERFIL
     @RequestMapping("/profile")
     public String viewProfile(HttpSession session, Model model) {
-        OVIUser user = (OVIUser) session.getAttribute("user");
+        OVIUser user = getLoggedOVIUser(session);
         if (user == null) {
             return "redirect:/login";
         }
         model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
         return "oviuser/update";
+    }
+
+    private OVIUser getLoggedOVIUser(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"ovi".equals(role) || !(user instanceof OVIUser)) {
+            return null;
+        }
+        return (OVIUser) user;
     }
 }

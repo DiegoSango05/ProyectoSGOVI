@@ -59,4 +59,17 @@ public class ActivityDao {
             return new ArrayList<Activity>();
         }
     }
+
+    /* Obtiene las actividades asociadas a un usuario OVI */
+    public List<Activity> getActivitiesByOVIUser(String dniOVIUser) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT DISTINCT a.* FROM activity a " +
+                            "JOIN assistancelist al ON a.id = al.id_activity " +
+                            "WHERE al.dni_oviuser=?",
+                    new ActivityRowMapper(), dniOVIUser);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Activity>();
+        }
+    }
 }

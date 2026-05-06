@@ -61,4 +61,14 @@ public class AssistanceRequestDao {
         }
     }
 
+    /* Obtiene las solicitudes de un usuario OVI */
+    public List<AssistanceRequest> getAssistanceRequestsByOVIUser(String dniOVIUser) {
+        try {
+            return jdbcTemplate.query("SELECT * FROM assistancerequest WHERE dni_oviuser=?",
+                    new AssistanceRequestRowMapper(), dniOVIUser);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<AssistanceRequest>();
+        }
+    }
+
 }

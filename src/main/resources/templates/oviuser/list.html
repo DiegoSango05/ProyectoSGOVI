@@ -1,37 +1,190 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SPS - Usuarios OVI</title>
+    <title>SgOVI - Usuarios OVI</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 260px);
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name {
+            color: var(--ovi-orange);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .page-header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .page-title span {
+            color: var(--ovi-orange);
+        }
+
+        .content-panel {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--ovi-orange);
+            border-bottom: 0;
+            color: #fff;
+            font-size: 0.78rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) > * {
+            --bs-table-bg-type: #fffaf0;
+        }
+
+        .btn-main {
+            background-color: var(--ovi-orange);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.7rem 1.1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background-color: var(--ovi-orange-dark);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            border: 2px solid #000;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            padding: 0.58rem 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+        }
+
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
-<body class="container mt-5">
-<h1>Usuarios de la OVI</h1>
-<table class="table table-striped mt-4">
-    <thead class="table-info">
-    <tr>
-        <th>DNI</th>
-        <th>Nombre</th>
-        <th>Año de Nacimiento</th>
-        <th>Email</th>
-        <th>Teléfono</th>
-        <th>Dirección</th>
-        <th>Número de emergencia</th>
-        <th>Documento</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="u : ${oviusers}">
-        <td th:text="${u.dni}"></td>
-        <td th:text="${u.name}"></td>
-        <td th:text="${u.birthDate}"></td>
-        <td th:text="${u.email}"></td>
-        <td th:text="${u.phoneNumber}"></td>
-        <td th:text="${u.address}"></td>
-        <td th:text="${u.emergencyContact}"></td>
-        <td th:text="${u.document}"></td>
-    </tr>
-    </tbody>
-</table>
+<body>
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="brand-name">SgOVI</span>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    <div class="page-header d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <h1 class="page-title">Usuarios <span>OVI</span></h1>
+            <p class="text-muted mb-0">Consulta y gestiona los usuarios registrados en la Oficina de Vida Independent.</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-start gap-2">
+            <a th:href="@{/profiles-management}" class="btn-outline-custom">
+                <i class="bi bi-arrow-left me-1"></i> Perfiles
+            </a>
+            <a th:href="@{/oviuser/add}" class="btn-main">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo usuario
+            </a>
+        </div>
+    </div>
+
+    <div class="content-panel">
+        <div class="table-responsive" th:if="${oviusers != null and !oviusers.isEmpty()}">
+            <table class="table table-striped align-middle">
+                <thead>
+                <tr>
+                    <th>DNI</th>
+                    <th>Nombre</th>
+                    <th>Fecha de nacimiento</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                    <th>Direccion</th>
+                    <th>Contacto emergencia</th>
+                    <th>Documento</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${oviusers}">
+                    <td class="fw-semibold" th:text="${u.dni}"></td>
+                    <td th:text="${u.name}"></td>
+                    <td th:text="${u.birthDate}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.phoneNumber}"></td>
+                    <td th:text="${u.address}"></td>
+                    <td th:text="${u.emergencyContact}"></td>
+                    <td th:text="${u.document}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" th:if="${oviusers == null or oviusers.isEmpty()}">
+            <h2 class="h5 fw-bold mb-2">No hay usuarios OVI registrados</h2>
+            <p class="text-muted mb-4">Cuando se registre el primer usuario, aparecera en este listado.</p>
+            <a th:href="@{/oviuser/add}" class="btn-main">
+                <i class="bi bi-plus-lg me-1"></i> Crear usuario
+            </a>
+        </div>
+    </div>
+</main>
 </body>
 </html>

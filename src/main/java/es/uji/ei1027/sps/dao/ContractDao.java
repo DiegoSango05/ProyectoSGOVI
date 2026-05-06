@@ -57,4 +57,18 @@ public class ContractDao {
             return new ArrayList<Contract>();
         }
     }
+
+    /* Obtiene los contratos asociados a las solicitudes de un usuario OVI */
+    public List<Contract> getContractsByOVIUser(String dniOVIUser) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT c.* FROM contract c " +
+                            "JOIN negotiation n ON c.id_negotiation = n.id_negotiation " +
+                            "JOIN assistancerequest ar ON n.id_request = ar.id " +
+                            "WHERE ar.dni_oviuser=?",
+                    new ContractRowMapper(), dniOVIUser);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Contract>();
+        }
+    }
 }

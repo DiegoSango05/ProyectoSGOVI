@@ -2,6 +2,8 @@ package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.ActivityDao;
 import es.uji.ei1027.sps.model.Activity;
+import es.uji.ei1027.sps.model.OVIUser;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +25,16 @@ public class ActivityController {
     @RequestMapping("/list")
     public String listActivities(Model model) {
         model.addAttribute("activities", activityDao.getActivities());
+        return "activity/list";
+    }
+
+    @RequestMapping("/my-list")
+    public String myActivities(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("activities", activityDao.getActivitiesByOVIUser(user.getDni()));
         return "activity/list";
     }
 
@@ -70,5 +82,14 @@ public class ActivityController {
             return "activity/update";
         activityDao.updateActivity(activity);
         return "redirect:list";
+    }
+
+    private OVIUser getLoggedOVIUser(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"ovi".equals(role) || !(user instanceof OVIUser)) {
+            return null;
+        }
+        return (OVIUser) user;
     }
 }

@@ -52,7 +52,7 @@ public class LoginController {
         if (ovi != null) {
             session.setAttribute("user", ovi);
             session.setAttribute("role", "ovi");
-            return "redirect:/ovi/dashboard";
+            return "redirect:/oviuser";
         }
 
         // 3. COMPROBAR PAPASSISTANT (Modificado para estados)

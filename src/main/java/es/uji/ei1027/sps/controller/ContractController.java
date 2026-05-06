@@ -2,6 +2,8 @@ package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.ContractDao;
 import es.uji.ei1027.sps.model.Contract;
+import es.uji.ei1027.sps.model.OVIUser;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +25,16 @@ public class ContractController {
     @RequestMapping("/list")
     public String list(Model model) {
         model.addAttribute("contracts", contractDao.getContracts());
+        return "contract/list";
+    }
+
+    @RequestMapping("/my-list")
+    public String myList(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("contracts", contractDao.getContractsByOVIUser(user.getDni()));
         return "contract/list";
     }
 
@@ -49,5 +61,14 @@ public class ContractController {
     public String processDelete(@PathVariable int id) {
         contractDao.deleteContract(id);
         return "redirect:../list";
+    }
+
+    private OVIUser getLoggedOVIUser(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"ovi".equals(role) || !(user instanceof OVIUser)) {
+            return null;
+        }
+        return (OVIUser) user;
     }
 }

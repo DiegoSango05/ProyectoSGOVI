@@ -59,4 +59,18 @@ public class CommunicationDao {
             return new ArrayList<Communication>();
         }
     }
+
+    /* Obtiene las comunicaciones asociadas a un usuario OVI */
+    public List<Communication> getCommunicationsByOVIUser(String dniOVIUser) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT c.* FROM communication c " +
+                            "JOIN negotiation n ON c.id_negotiation = n.id_negotiation " +
+                            "JOIN assistancerequest ar ON n.id_request = ar.id " +
+                            "WHERE ar.dni_oviuser=?",
+                    new CommunicationRowMapper(), dniOVIUser);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Communication>();
+        }
+    }
 }
