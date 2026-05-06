@@ -4,9 +4,12 @@
     <title>SgOVI - Acceso</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
+        :root {
+            --ovi-orange: #da9f38;
+        }
         body {
-            background-color: #ffffff; /* Fondo Blanco */
-            color: #000000; /* Letras Negras */
+            background-color: #ffffff;
+            color: #000000;
             font-family: 'Inter', sans-serif;
             display: flex;
             align-items: center;
@@ -28,70 +31,72 @@
             font-weight: 700;
             letter-spacing: 1px;
             margin-bottom: 5px;
-            color: #000000; /* Título en Negro */
+            color: #000000; /* Vuelve a Negro */
         }
         .brand-subtitle {
             font-size: 0.85rem;
-            color: #555; /* Gris oscuro para el subtítulo */
+            color: #555;
             letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 40px;
         }
         .login-card {
-            background-color: #f8f9fa; /* Gris muy clarito para la tarjeta */
+            background-color: #fcfcfc;
             padding: 2.5rem;
             border-radius: 16px;
-            border: 1px solid #e0e0e0; /* Borde suave */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* Sombra suave para que resalte en el blanco */
+            border: 1px solid #eee;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
         .form-label {
             display: block;
             text-align: left;
             font-size: 0.8rem;
-            font-weight: 600;
-            color: #444; /* Etiquetas más visibles en fondo claro */
+            font-weight: 700;
+            color: #444;
             margin-bottom: 8px;
             text-transform: uppercase;
         }
         .form-control {
             background-color: #ffffff;
             border: 1px solid #ced4da;
-            color: #000; /* Texto al escribir en negro */
+            color: #000;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        .form-control::placeholder {
-            color: #adb5bd; /* Color del placeholder */
-        }
         .form-control:focus {
             background-color: #ffffff;
-            border-color: #000000; /* Borde negro al pinchar */
+            border-color: var(--ovi-orange);
             color: #000;
-            box-shadow: none;
+            box-shadow: 0 0 0 0.25rem rgba(218, 159, 56, 0.1);
         }
         .btn-submit {
-            background-color: #000000; /* Botón Negro */
-            color: #ffffff; /* Texto Blanco */
+            background-color: var(--ovi-orange); /* Se mantiene Naranja */
+            color: #ffffff;
             border: none;
             padding: 14px;
             width: 100%;
             font-weight: 700;
             border-radius: 8px;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
             margin-top: 10px;
+            text-transform: uppercase;
         }
         .btn-submit:hover {
-            opacity: 0.8;
+            background-color: #c48b2d;
+            transform: translateY(-1px);
         }
         .footer-links {
             margin-top: 30px;
             font-size: 0.9rem;
         }
         .footer-links a {
-            color: #000000; /* Enlace en Negro */
-            text-decoration: underline;
-            font-weight: 600;
+            color: #000000; /* Vuelve a Negro */
+            text-decoration: underline; /* Subrayado para indicar que es link */
+            font-weight: 700;
+        }
+        .footer-links a:hover {
+            color: var(--ovi-orange); /* Solo cambia a naranja al pasar el ratón */
         }
         .text-muted-small {
             color: #777;
@@ -111,21 +116,21 @@
         <form th:action="@{/login}" th:object="${user}" method="post">
             <div class="mb-3">
                 <label class="form-label">DNI / Usuario</label>
-                <input type="text" th:field="*{username}" class="form-control" placeholder="Introduce tu DNI">
+                <input type="text" th:field="*{username}" class="form-control" placeholder="Introduce tu DNI" required>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Contraseña</label>
-                <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••">
+                <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-submit">ENTRAR</button>
+            <button type="submit" class="btn-submit">ACCEDER</button>
         </form>
     </div>
 
     <div class="footer-links">
         <p class="text-muted-small mb-1">¿No tienes cuenta aún?</p>
-        <a th:href="@{/choose-registration}">Regístrate en SgOVI</a>
+        <a th:href="@{/choose-registration}">Regístrate ahora en SgOVI</a>
     </div>
 </div>
 

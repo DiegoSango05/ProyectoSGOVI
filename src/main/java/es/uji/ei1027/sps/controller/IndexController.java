@@ -9,10 +9,23 @@ public class IndexController {
 
     @RequestMapping("/")
     public String index(HttpSession session) {
+        // Si no hay nadie logueado, enseñamos la Landing Page (index.html)
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";
+            return "index";
         }
-        return "index-admin";
+
+        // Si ya hay una sesión, redirigimos según el rol para que no tengan que pasar por la landing
+        String role = (String) session.getAttribute("role");
+
+        if ("admin".equals(role)) {
+            return "index-admin";
+        } else if ("asistente".equals(role)) {
+            return "redirect:/pap_assistant/dashboard";
+        } else if ("ovi".equals(role)) {
+            return "redirect:/ovi/dashboard";
+        }
+
+        return "index";
     }
 
     @RequestMapping("/profiles-management")
