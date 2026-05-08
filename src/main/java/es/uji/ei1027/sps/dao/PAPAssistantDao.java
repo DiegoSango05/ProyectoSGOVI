@@ -1,5 +1,6 @@
 package es.uji.ei1027.sps.dao;
 
+import es.uji.ei1027.sps.model.AssistanceRequest;
 import es.uji.ei1027.sps.model.PAPAssistant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -72,5 +73,26 @@ public class PAPAssistantDao {
             return assistant;
         }
         return null;
+    }
+
+    /* Obtiene los asistentes recomendados para una petición específica */
+    public List<PAPAssistant> getCandidatesForRequest(AssistanceRequest request) {
+        // Ordenamos directamente en la consulta sin alterar el modelo PAPAssistant
+        String sql = "SELECT * FROM pap_assistant " +
+                "WHERE status = 'Accepted' " +
+                "ORDER BY " +
+                "  CASE " +
+                "    WHEN location = ? AND availability = ? AND assistance_type = ? THEN 1 " + // Match total
+                "    WHEN location = ? AND availability = ? THEN 2 " +                      // Match parcial (localidad y horario)
+                "    ELSE 3 " +                                                              // Resto
+                "  END ASC, name ASC";
+
+        try {
+            return jdbcTemplate.query(sql, new PAPAssistantRowMapper(),
+                    request.getLocation(), request.getSchedule(), request.getType(), // Parámetros para la prioridad 1
+                    request.getLocation(), request.getSchedule());                   // Parámetros para la prioridad 2
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
     }
 }

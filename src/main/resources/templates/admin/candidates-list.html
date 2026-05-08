@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Propuesta de Candidatos</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+            --ovi-admin-blue: #2c3e50;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name {
+            color: var(--ovi-orange);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .hero {
+            border-bottom: 1px solid #eee;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2.6rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-title span {
+            color: var(--ovi-orange);
+        }
+
+        /* Estilo unificado para tarjetas de contenido */
+        .content-card {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-card h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+            color: var(--ovi-orange); /* ¡AQUÍ ESTÁ EL CAMBIO! */
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.8rem;
+        }
+
+        /* Estilos de etiquetas descriptivas (imitando .form-label del login) */
+        .data-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .data-value {
+            font-size: 1rem;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        /* Botones unificados */
+        .btn-outline-custom {
+            border: 2px solid #000;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            padding: 0.58rem 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+        }
+
+        .btn-solid-custom {
+            background-color: var(--ovi-orange);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.58rem 1.5rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-solid-custom:hover {
+            background-color: var(--ovi-orange-dark);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Tabla adaptada al diseño */
+        .table > thead > tr > th {
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #444;
+            font-weight: 700;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 12px;
+        }
+
+        .table > tbody > tr > td {
+            vertical-align: middle;
+            color: #333;
+        }
+
+        .form-check-input {
+            width: 1.3rem;
+            height: 1.3rem;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--ovi-orange);
+            border-color: var(--ovi-orange);
+        }
+
+        /* Badges de Match */
+        .badge-match-total { background-color: #198754; color: white; }
+        .badge-match-parcial { background-color: var(--ovi-orange); color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom">Volver al panel</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <h1 class="hero-title">Propuesta de <span>Candidatos</span></h1>
+        <p class="text-muted mb-0">Selecciona y propone los asistentes idóneos para esta petición.</p>
+    </div>
+</header>
+
+<main class="container py-5">
+
+    <div th:if="${param.error != null and param.error[0] == 'nocandidates'}" class="alert alert-danger" style="border-radius: 12px; font-weight: 500;" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Debes seleccionar al menos un asistente antes de enviar la propuesta.
+    </div>
+
+    <section class="content-card" aria-labelledby="request-details-title">
+        <h2 id="request-details-title">Detalles de la Petición #<span th:text="${request.id}">1</span></h2>
+
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <span class="data-label">Tipo de Servicio</span>
+                <div class="data-value fw-bold" th:text="${request.type}">PAP</div>
+            </div>
+            <div class="col-md-3">
+                <span class="data-label">Localidad</span>
+                <div class="data-value" th:text="${request.location}">Castellón</div>
+            </div>
+            <div class="col-md-3">
+                <span class="data-label">Disponibilidad</span>
+                <div class="data-value" th:text="${request.schedule}">Mañanas</div>
+            </div>
+            <div class="col-md-3">
+                <span class="data-label">Requisitos / Descripción</span>
+                <div class="data-value text-muted" style="font-size: 0.9rem;" th:text="${request.description ?: 'Sin detalles extra'}">Acompañamiento a la UJI.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card" aria-labelledby="candidates-title">
+        <h2 id="candidates-title">Candidatos Disponibles</h2>
+
+        <form th:action="@{/admin/propose-candidates}" method="post" class="mt-4">
+            <input type="hidden" name="idRequest" th:value="${request.id}" />
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 5%;">Select</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Localidad</th>
+                        <th scope="col">Horario</th>
+                        <th scope="col">Perfil</th>
+                        <th scope="col">Idoneidad</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="candidato : ${candidatos}">
+                        <td>
+                            <label th:for="'check-' + ${candidato.dni}" class="visually-hidden">Seleccionar a <span th:text="${candidato.name}"></span></label>
+                            <input class="form-check-input" type="checkbox" name="selectedAssistants"
+                                   th:value="${candidato.dni}" th:id="'check-' + ${candidato.dni}" />
+                        </td>
+                        <td class="fw-bold" th:text="${candidato.name}">Carla Martínez</td>
+                        <td th:text="${candidato.location}">Castellón</td>
+                        <td th:text="${candidato.availability}">Mañanas</td>
+                        <td th:text="${candidato.assistanceType}">PAP</td>
+                        <td>
+                                <span th:if="${candidato.location == request.location and candidato.availability == request.schedule and candidato.assistanceType == request.type}"
+                                      class="badge badge-match-total px-2 py-1">
+                                    <i class="bi bi-star-fill me-1"></i> Match Total
+                                </span>
+
+                            <span th:if="${candidato.location == request.location and candidato.availability == request.schedule and candidato.assistanceType != request.type}"
+                                  class="badge badge-match-parcial px-2 py-1">
+                                    Horario/Lugar
+                                </span>
+
+                            <span th:unless="${candidato.location == request.location and candidato.availability == request.schedule}"
+                                  class="badge bg-secondary px-2 py-1">
+                                    Otros
+                                </span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(candidatos)}">
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No hay asistentes aprobados en el sistema en este momento.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end align-items-center mt-5 gap-3">
+                <a th:href="@{/admin/index}" class="text-muted text-decoration-none me-2 fw-bold" style="font-size: 0.9rem;">CANCELAR</a>
+                <button type="submit" class="btn-solid-custom" th:disabled="${#lists.isEmpty(candidatos)}">
+                    ENVIAR PROPUESTAS
+                </button>
+            </div>
+        </form>
+    </section>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Gestión de Solicitudes</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+
+        .hero { border-bottom: 1px solid #eee; padding: 3rem 0 2rem; text-align: center; }
+        .hero-title { font-size: 2.6rem; font-weight: 800; }
+        .hero-title span { color: var(--ovi-orange); }
+
+        /* ESTILO DE LAS "PASTILLAS" (STRIPS) */
+        .request-pill {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 50px; /* Forma de pastilla */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+
+        /* Añade esto a tu estilo para asegurar estabilidad */
+        .request-pill:hover {
+            border-color: var(--ovi-orange);
+            /* Si sigue parpadeando, comenta la línea de abajo */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .modal-backdrop.show {
+            backdrop-filter: blur(8px); /* Aumentamos el desenfoque para que quede más PRO */
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .pill-info { display: flex; align-items: center; gap: 30px; flex-grow: 1; }
+
+        .pill-label { font-size: 0.7rem; font-weight: 800; color: #888; text-transform: uppercase; display: block; }
+        .pill-data { font-size: 1rem; font-weight: 600; color: #000; }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+                /* Botones de acción */
+        .btn-action {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: 0.2s;
+            font-size: 1.2rem;
+        }
+        .btn-approve { background-color: var(--ovi-orange); color: white; }
+        .btn-reject { background-color: #f0f0f0; color: #666; }
+        .btn-reject:hover { color: #d63031; background-color: #ffeaea; }
+
+        /* Desenfoque del fondo para el modal */
+        .modal-backdrop.show { backdrop-filter: blur(4px); opacity: 0.5; }
+
+        .modal-content { border-radius: 16px; border: none; padding: 1rem; }
+        .btn-confirm { background-color: var(--ovi-orange); color: white; font-weight: 700; border-radius: 8px; }
+
+        .request-pill {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 20px; /* Reducido un poco para que quepa más info */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.2rem;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+
+        /* Grid para organizar mejor la información */
+        .pill-grid {
+            display: grid;
+            grid-template-columns: 80px 120px 100px 130px 150px 1fr; /* He ampliado un pelín el horario para que respire */
+            gap: 20px;
+            align-items: start; /* ¡AQUÍ ESTÁ LA MAGIA! Esto alinea todos los encabezados arriba */
+            flex-grow: 1;
+            margin-right: 20px;
+            margin-top: 5px; /* Un pequeño margen para equilibrar visualmente */
+        }
+
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--ovi-orange); /* Cambiado a naranja para resaltar */
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .pill-data {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #000;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .description-text {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+            border-left: 2px solid #eee;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom" style="border: 2px solid #000; border-radius: 8px; padding: 0.5rem 1rem; text-decoration: none; color: #000; font-weight: 700;">VOLVER</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <h1 class="hero-title">Gestión de <span>Solicitudes</span></h1>
+        <p class="text-muted">Revisa las peticiones entrantes y decide su aprobación.</p>
+    </div>
+</header>
+
+<main class="container py-5">
+    <div th:each="solicitud : ${solicitudes}">
+
+        <div class="request-pill">
+            <div class="pill-grid">
+                <div>
+                    <span class="pill-label">ID Petición</span>
+                    <span class="pill-data" th:text="${'#' + solicitud.id}">#1</span>
+                </div>
+                <div>
+                    <span class="pill-label">Usuario OVI</span>
+                    <span class="pill-data" th:text="${solicitud.dniOVIuser}">12345678X</span>
+                </div>
+                <div>
+                    <span class="pill-label">Servicio</span>
+                    <span class="pill-data" th:text="${solicitud.type}">PAP</span>
+                </div>
+                <div>
+                    <span class="pill-label">Lugar / Horario</span>
+                    <span class="pill-data" th:text="${solicitud.location}">Castellón</span>
+                </div>
+                <div>
+                    <span class="pill-label">Estado actual</span>
+                    <span th:class="${#strings.equalsIgnoreCase(solicitud.status, 'Pending') ? 'status-badge bg-warning text-dark' : 'status-badge bg-light text-dark border'}"
+                          th:text="${solicitud.status}">Pending</span>
+                </div>
+                <div class="description-text">
+                    <span class="pill-label">Preferencias</span>
+                    <span th:text="${#strings.abbreviate(solicitud.description, 40)}">Descripción...</span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2" th:if="${#strings.equalsIgnoreCase(solicitud.status, 'Pending')}">
+                <button class="btn-action btn-approve" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalApprove' + ${solicitud.id}">
+                    <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="btn-action btn-reject" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalReject' + ${solicitud.id}">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div> <div class="modal fade" th:id="'modalApprove' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="fw-bold mb-3">¿Aprobar Solicitud?</h2>
+                    <p class="text-muted mb-4">Vas a validar esta petición. El siguiente paso será proponer los asistentes más adecuados.</p>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
+                        <form th:action="@{/admin/approve/{id}(id=${solicitud.id})}" method="post">
+                            <button type="submit" class="btn-solid-custom px-4 py-2" style="background-color: var(--ovi-orange); color: white; border:none; border-radius:8px; font-weight:700;">SÍ, APROBAR</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="modal fade" th:id="'modalReject' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                    <div class="modal-body p-5 text-center">
+                        <div class="mb-4">
+                            <i class="bi bi-exclamation-octagon text-danger" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="fw-bold mb-3">¿Rechazar?</h2>
+                        <p class="text-muted mb-4">Esta acción marcará la solicitud como no apta. ¿Estás seguro de continuar?</p>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">VOLVER</button>
+                            <form th:action="@{/admin/reject/{id}(id=${solicitud.id})}" method="post">
+                                <button type="submit" class="btn btn-danger px-4 py-2 fw-bold" style="border-radius:8px;">SÍ, RECHAZAR</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
