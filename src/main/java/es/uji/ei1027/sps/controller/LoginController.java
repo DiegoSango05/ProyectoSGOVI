@@ -51,8 +51,7 @@ public class LoginController {
         if (admin != null) {
             session.setAttribute("user", admin); // Guardamos el objeto completo
             session.setAttribute("role", "admin");
-            // Redirigimos al panel de administración (index-admin)
-            return "redirect:/index-admin";
+            return "redirect:/admin/index";
         }
 
         // 2. COMPROBAR OVIUSER (DNI + Password)
@@ -60,7 +59,7 @@ public class LoginController {
         if (ovi != null) {
             session.setAttribute("user", ovi);
             session.setAttribute("role", "ovi");
-            return "redirect:/oviuser";
+            return "redirect:/oviuser/index";
         }
 
         // 3. COMPROBAR PAPASSISTANT (DNI + Password + Estados)
@@ -72,7 +71,7 @@ public class LoginController {
             switch (pap.getStatus()) {
                 case "Pending": return "pap_assistant/status_pending";
                 case "Rejected": return "pap_assistant/status_rejected";
-                case "Accepted": return "redirect:/pap_assistant/dashboard";
+                case "Accepted": return "redirect:/pap_assistant/index";
                 default: return "pap_assistant/status_pending";
             }
         }

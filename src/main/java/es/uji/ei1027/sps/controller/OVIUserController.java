@@ -20,7 +20,7 @@ public class OVIUserController {
         this.oviUserDao = oviUserDao;
     }
 
-    @RequestMapping("")
+    @RequestMapping("/index")
     public String index(HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
         if (user == null) {
@@ -68,7 +68,7 @@ public class OVIUserController {
             oviUserDao.addOVIUser(oviUser);
         } catch (Exception e) {
             bindingResult.rejectValue("dni", "duplicado", "Este DNI ya está registrado");
-            return "pap_assistant/add";
+            return "oviuser/add";
         }
         return "redirect:list";
     }

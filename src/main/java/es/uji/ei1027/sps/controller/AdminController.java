@@ -7,15 +7,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/admin") // Añadimos esto para que todas sus rutas empiecen por /admin
 public class AdminController {
 
-    @RequestMapping("/index-admin")
+    @RequestMapping("/index")
     public String indexAdmin(HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) {
             return "redirect:/login";
         }
-
-        return "index-admin";
+        model.addAttribute("adminName", user.getName());
+        return "admin/index";
     }
 }

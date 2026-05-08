@@ -4,127 +4,27 @@
     <meta charset="UTF-8" />
     <title>SgOVI - Registro de Asistente PAP</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        :root {
-            --ovi-orange: #da9f38;
-        }
-        body {
-            background-color: #ffffff;
-            color: #000000;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding-bottom: 50px;
-        }
-        .header-brand {
-            text-align: center;
-            padding: 30px 0;
-            background-color: #ffffff;
-        }
-        .brand-logo {
-            max-width: 150px;
-            margin-bottom: 15px;
-            transition: transform 0.2s;
-        }
-        .brand-logo:hover {
-            transform: scale(1.05);
-        }
-        .brand-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-        .brand-subtitle {
-            font-size: 0.85rem;
-            color: #555;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-        .form-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #fcfcfc;
-            padding: 3rem;
-            border-radius: 16px;
-            border: 1px solid #eee;
-        }
-        .form-section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid var(--ovi-orange); /* Línea naranja corporativa */
-            display: inline-block;
-            margin-bottom: 25px;
-            padding-bottom: 5px;
-        }
-        .form-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #444;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .form-control, .form-select {
-            background-color: #ffffff;
-            border: 1px solid var(--ovi-orange); /* Borde naranja de base */
-            color: #000;
-            padding: 10px 12px;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #c48b2d;
-            box-shadow: 0 0 0 0.25rem rgba(218, 159, 56, 0.15);
-            outline: none;
-        }
-        /* Clase de Bootstrap para resaltar errores */
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-        .error-message {
-            color: #dc3545;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-top: 5px;
-        }
-        .btn-save {
-            background-color: var(--ovi-orange); /* Botón naranja */
-            color: #fff;
-            border: none;
-            padding: 12px 30px;
-            font-weight: 700;
-            border-radius: 8px;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-        .btn-save:hover {
-            background-color: #c48b2d;
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(218, 159, 56, 0.2);
-        }
-        .btn-cancel {
-            color: #666;
-            text-decoration: underline;
-            font-weight: 600;
-            padding: 12px 20px;
-            font-size: 0.9rem;
-        }
-        .btn-cancel:hover {
-            color: var(--ovi-orange);
-        }
-        .input-group-text {
-            background-color: #ffffff;
-            border: 1px solid var(--ovi-orange); /* Borde naranja también en el prefijo */
-            border-right: none;
-            border-radius: 8px 0 0 8px;
-            font-weight: 600;
-        }
-        .phone-input {
-            border-radius: 0 8px 8px 0 !important;
-        }
+        :root { --ovi-orange: #da9f38; }
+        body { background-color: #ffffff; color: #000000; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
+        .header-brand { text-align: center; padding: 30px 0; background-color: #ffffff; }
+        .brand-logo { max-width: 150px; margin-bottom: 15px; transition: transform 0.2s; }
+        .brand-logo:hover { transform: scale(1.05); }
+        .brand-title { font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+        .brand-subtitle { font-size: 0.85rem; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+        .form-container { max-width: 900px; margin: 0 auto; background-color: #fcfcfc; padding: 3rem; border-radius: 16px; border: 1px solid #eee; }
+        .form-section-title { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--ovi-orange); display: inline-block; margin-bottom: 25px; padding-bottom: 5px; }
+        .form-label { font-size: 0.8rem; font-weight: 700; color: #444; text-transform: uppercase; margin-bottom: 8px; }
+        .form-control, .form-select { background-color: #ffffff; border: 1px solid var(--ovi-orange); color: #000; padding: 10px 12px; border-radius: 8px; transition: all 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: #c48b2d; box-shadow: 0 0 0 0.25rem rgba(218, 159, 56, 0.15); outline: none; }
+        .is-invalid { border-color: #dc3545 !important; }
+        .error-message { color: #dc3545; font-size: 0.75rem; font-weight: 700; margin-top: 5px; }
+        .btn-save { background-color: var(--ovi-orange); color: #fff; border: none; padding: 12px 30px; font-weight: 700; border-radius: 8px; text-transform: uppercase; transition: all 0.2s; }
+        .btn-save:hover { background-color: #c48b2d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(218, 159, 56, 0.2); }
+        .btn-cancel { color: #666; text-decoration: underline; font-weight: 600; padding: 12px 20px; font-size: 0.9rem; }
+        .input-group-text { background-color: #ffffff; border: 1px solid var(--ovi-orange); border-right: none; border-radius: 8px 0 0 8px; font-weight: 600; }
+        .phone-input { border-radius: 0 8px 8px 0 !important; }
     </style>
 </head>
 <body>
@@ -143,10 +43,9 @@
 
         <form th:action="@{/pap_assistant/add}" th:object="${papassistant}" method="post">
 
-            <!-- Fila 1: Identificación básica -->
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <label for="dni" class="form-label">DNI / NIE</label>
+                    <label for="dni" class="form-label">DNI / NIE (Usuario)</label>
                     <input type="text" th:field="*{dni}" class="form-control" th:errorclass="is-invalid" id="dni" placeholder="Ej: 12345678X"/>
                     <div th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}" class="error-message"></div>
                 </div>
@@ -157,12 +56,42 @@
                 </div>
             </div>
 
-            <!-- Fila 2: Especialidad y Experiencia -->
             <div class="row">
-                <div class="col-md-4 mb-4">
+                <div class="col-md-6 mb-4">
                     <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
                     <input type="date" th:field="*{birthDate}" class="form-control" id="birthDate" />
+                    <div th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}" class="error-message"></div>
                 </div>
+                <div class="col-md-6 mb-4">
+                    <label for="phoneNumber" class="form-label">Teléfono de Contacto</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <span style="font-size: 1.1rem; margin-right: 5px;">🇪🇸</span> +34
+                        </span>
+                        <input type="text" th:field="*{phoneNumber}" class="form-control phone-input" id="phoneNumber" />
+                    </div>
+                    <div th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="row bg-light p-3 rounded mb-4" style="border-left: 4px solid var(--ovi-orange); margin-left: 0; margin-right: 0;">
+                <div class="col-md-6 mb-2">
+                    <label for="password" class="form-label">Establecer Contraseña</label>
+                    <input type="password" th:field="*{password}" class="form-control" th:errorclass="is-invalid" id="password" placeholder="Mínimo 6 caracteres"/>
+                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                    <input type="password" name="confirmPassword" class="form-control" id="confirmPassword" placeholder="Repite la contraseña"/>
+                </div>
+                <div class="col-12">
+                    <p style="font-size: 0.7rem; color: #777; margin-top: 5px; margin-bottom: 0;">
+                        <i class="bi bi-info-circle text-warning"></i> Usarás tu DNI y esta contraseña para acceder al sistema.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-4 mb-4">
                     <label for="assistanceType" class="form-label">Tipo de Asistencia</label>
                     <select th:field="*{assistanceType}" class="form-select" id="assistanceType">
@@ -179,35 +108,19 @@
                 </div>
             </div>
 
-            <!-- Fila 3: Formación -->
             <div class="mb-4">
                 <label for="professionalTraining" class="form-label">Formación Profesional y Títulos</label>
                 <textarea th:field="*{professionalTraining}" class="form-control" id="professionalTraining" rows="2" placeholder="Describa sus certificaciones..."></textarea>
             </div>
 
-            <!-- Fila 4: Disponibilidad y Contacto -->
             <div class="row">
                 <div class="col-md-6 mb-4">
                     <label for="availability" class="form-label">Disponibilidad</label>
                     <input type="text" th:field="*{availability}" class="form-control" th:errorclass="is-invalid" id="availability" placeholder="Ej: Mañanas, Fines de semana..." />
-                    <div th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}" class="error-message"></div>
                 </div>
                 <div class="col-md-6 mb-4">
                     <label for="location" class="form-label">Zona Geográfica</label>
                     <input type="text" th:field="*{location}" class="form-control" th:errorclass="is-invalid" id="location" placeholder="Ej: Castellón, Almazora..." />
-                    <div th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="error-message"></div>
-                </div>
-            </div>
-
-            <!-- Teléfono de Contacto -->
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label class="form-label">Teléfono de Contacto</label>
-                    <div class="input-group">
-                        <span class="input-group-text" th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid' : ''">🇪🇸 +34</span>
-                        <input type="text" th:field="*{phoneNumber}" class="form-control phone-input" th:errorclass="is-invalid"/>
-                    </div>
-                    <div th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="error-message"></div>
                 </div>
             </div>
 

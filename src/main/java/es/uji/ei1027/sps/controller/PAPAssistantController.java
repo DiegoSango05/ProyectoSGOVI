@@ -21,6 +21,16 @@ public class PAPAssistantController {
         this.papAssistantDao = papAssistantDao;
     }
 
+    @RequestMapping("/index")
+    public String index(HttpSession session, Model model) {
+        PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
+        if (assistant == null || !"asistente".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
+        return "pap_assistant/index";
+    }
+
     // LISTAR
     @RequestMapping("/list")
     public String list(Model model) {

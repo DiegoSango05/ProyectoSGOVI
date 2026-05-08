@@ -63,5 +63,13 @@ public class OVIUserValidator implements Validator {
         } else if (emergency.equals(phone)) {
             errors.rejectValue("emergencyContact", "igual", "El contacto de emergencia no puede ser el mismo que tu teléfono personal");
         }
+
+        // 7. Validación de Contraseña para OVIUser
+        String password = oviUser.getPassword();
+        if (password == null || password.trim().isEmpty()) {
+            errors.rejectValue("password", "obligatorio", "La contraseña es obligatoria para el registro");
+        } else if (password.length() < 6) {
+            errors.rejectValue("password", "corto", "La contraseña debe tener al menos 6 caracteres");
+        }
     }
 }
