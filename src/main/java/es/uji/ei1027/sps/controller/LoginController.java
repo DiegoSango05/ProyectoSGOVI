@@ -3,8 +3,10 @@ package es.uji.ei1027.sps.controller;
 import jakarta.servlet.http.HttpSession;
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
+import es.uji.ei1027.sps.dao.SystemUserDao; // 1. Importamos el nuevo DAO
 import es.uji.ei1027.sps.model.OVIUser;
 import es.uji.ei1027.sps.model.PAPAssistant;
+import es.uji.ei1027.sps.model.SystemUser; // 2. Importamos el modelo
 import es.uji.ei1027.sps.model.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class LoginController {
+
+    @Autowired
+    private SystemUserDao systemUserDao; // 3. Inyectamos el DAO de gestión
+
     @Autowired
     private OVIUserDao oviUserDao;
 
@@ -40,14 +46,16 @@ public class LoginController {
             return "login";
         }
 
-        // 1. COMPROBAR ADMIN
-        if (username.equals("admin") && password.equals("admin")) {
-            session.setAttribute("user", "Administrador");
+        // 1. COMPROBAR ADMINISTRADORES (Múltiples administradores desde DB)
+        SystemUser admin = systemUserDao.loadUserByUsername(username, password);
+        if (admin != null) {
+            session.setAttribute("user", admin); // Guardamos el objeto completo
             session.setAttribute("role", "admin");
-            return "redirect:/";
+            // Redirigimos al panel de administración (index-admin)
+            return "redirect:/index-admin";
         }
 
-        // 2. COMPROBAR OVIUSER
+        // 2. COMPROBAR OVIUSER (DNI + Password)
         OVIUser ovi = oviUserDao.loadUserByUsername(username, password);
         if (ovi != null) {
             session.setAttribute("user", ovi);
@@ -55,27 +63,20 @@ public class LoginController {
             return "redirect:/oviuser";
         }
 
-        // 3. COMPROBAR PAPASSISTANT (Modificado para estados)
+        // 3. COMPROBAR PAPASSISTANT (DNI + Password + Estados)
         PAPAssistant pap = papAssistantDao.loadUserByUsername(username, password);
         if (pap != null) {
             session.setAttribute("user", pap);
             session.setAttribute("role", "asistente");
 
-            // Lógica de filtrado por estado de candidatura
             switch (pap.getStatus()) {
-                case "Pending":
-                    return "pap_assistant/status_pending";
-                case "Rejected":
-                    return "pap_assistant/status_rejected";
-                case "Accepted":
-                    return "redirect:/pap_assistant/dashboard";
-                default:
-                    // Por seguridad, si el estado no es ninguno de los anteriores
-                    return "pap_assistant/status_pending";
+                case "Pending": return "pap_assistant/status_pending";
+                case "Rejected": return "pap_assistant/status_rejected";
+                case "Accepted": return "redirect:/pap_assistant/dashboard";
+                default: return "pap_assistant/status_pending";
             }
         }
 
-        // 4. SI LLEGA AQUÍ: CREDENCIALES INVÁLIDAS
         bindingResult.rejectValue("password", "badpw", "Usuario o contraseña no válidos");
         return "login";
     }
@@ -83,6 +84,6 @@ public class LoginController {
     @RequestMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:/"; // Mejor redirigir a la Landing Page al cerrar sesión
     }
 }

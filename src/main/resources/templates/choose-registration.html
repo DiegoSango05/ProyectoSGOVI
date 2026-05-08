@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <title>SgOVI - Selección de Registro</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Iconos necesarios para el botón de inicio -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
+        :root {
+            --ovi-orange: #da9f38;
+        }
         body {
             background-color: #ffffff;
             color: #000000;
@@ -17,14 +22,17 @@
         }
         .selection-wrapper {
             width: 100%;
-            max-width: 700px; /* Más ancho para las dos columnas */
+            max-width: 700px;
             text-align: center;
             padding: 20px;
         }
-        /* CLONES DEL LOGIN PARA QUE NO CAMBIE EL TAMAÑO */
         .brand-logo {
-            max-width: 180px; /* Igual que en el Login */
+            max-width: 180px;
             margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        .brand-logo:hover {
+            transform: scale(1.02);
         }
         .brand-title {
             font-size: 1.4rem;
@@ -41,12 +49,11 @@
             margin-bottom: 40px;
         }
 
-        /* Tarjetas de selección */
         .option-card {
-            background-color: #f8f9fa;
+            background-color: #fcfcfc;
             padding: 2.5rem 1.5rem;
             border-radius: 16px;
-            border: 1px solid #e0e0e0;
+            border: 2px solid var(--ovi-orange);
             text-decoration: none;
             display: flex;
             flex-direction: column;
@@ -55,28 +62,31 @@
             height: 100%;
         }
         .option-card:hover {
-            border-color: #000000;
             background-color: #ffffff;
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(218, 159, 56, 0.15);
+            border-color: #c48b2d;
         }
+
         .icon-circle {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            border: 2px solid #ddd;
+            border: 2px solid var(--ovi-orange);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
             font-weight: 800;
-            color: #444;
+            color: var(--ovi-orange);
             margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
         .option-card:hover .icon-circle {
-            border-color: #000000;
-            color: #000000;
+            background-color: var(--ovi-orange);
+            color: #ffffff;
         }
+
         .option-title {
             color: #000000;
             font-size: 1.2rem;
@@ -88,45 +98,75 @@
             font-size: 0.9rem;
             line-height: 1.4;
         }
-        .back-link {
-            margin-top: 40px;
-            display: block;
-            color: #000000;
-            text-decoration: underline;
+
+        /* Nuevo Footer de Navegación */
+        .selection-footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 25px;
+        }
+        .footer-link {
+            color: #000;
+            text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .footer-link i {
+            margin-right: 5px;
+        }
+        .footer-link:hover {
+            color: var(--ovi-orange);
+            text-decoration: underline;
+        }
+        .divider {
+            color: #ddd;
+            font-weight: 300;
         }
     </style>
 </head>
 <body>
 
 <div class="selection-wrapper">
-    <!-- Encabezado idéntico al Login -->
-    <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" class="brand-logo">
+    <!-- El logo ahora permite volver a la Landing Page -->
+    <a th:href="@{/}">
+        <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" class="brand-logo">
+    </a>
     <h1 class="brand-title">OFICINA VIDA INDEPENDENT</h1>
     <p class="brand-subtitle">SOLE ARNAU RIPOLLÉS</p>
 
     <div class="row g-4">
-        <!-- Usuario OVI -->
         <div class="col-md-6">
             <a th:href="@{/oviuser/add}" class="option-card">
                 <div class="icon-circle">U</div>
                 <div class="option-title">Usuario OVI</div>
-                <p class="option-desc">Persona con necesidad de asistencia personalizada.</p>
+                <p class="option-desc">Persona con diversidad funcional que requiere asistencia.</p>
             </a>
         </div>
 
-        <!-- Asistente -->
         <div class="col-md-6">
             <a th:href="@{/pap_assistant/add}" class="option-card">
                 <div class="icon-circle">A</div>
                 <div class="option-title">Asistente Personal</div>
-                <p class="option-desc">Profesional PAP / PATI con certificación oficial.</p>
+                <p class="option-desc">Profesional cualificado para apoyo a la vida independiente.</p>
             </a>
         </div>
     </div>
 
-    <a th:href="@{/login}" class="back-link">← Volver al inicio de sesión</a>
+    <!-- Navegación de retorno inteligente -->
+    <div class="selection-footer">
+        <a th:href="@{/}" class="footer-link">
+            <i class="bi bi-house"></i> Ir a Inicio
+        </a>
+        <span class="divider">|</span>
+        <a th:href="@{/login}" class="footer-link">
+            Ya tengo cuenta (Login)
+        </a>
+    </div>
 </div>
 
 </body>
