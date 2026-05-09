@@ -29,9 +29,20 @@ public class AssistanceListDao {
                 assistanceList.getDniOVIUser());
     }
 
+
+    public int getNextId() {
+        Integer nextId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(id_list), 0) + 1 FROM assistancelist", Integer.class);
+        return nextId != null ? nextId : 1;
+    }
+
     /* Borrar de la lista por id_list */
     public void deleteAssistanceList(int id_list) {
         jdbcTemplate.update("DELETE FROM assistancelist WHERE id_list=?", id_list);
+    }
+
+    public void deleteOVIUserFromActivity(String dniOVIUser, int idActivity) {
+        jdbcTemplate.update("DELETE FROM assistancelist WHERE dni_oviuser=? AND id_activity=?",
+                dniOVIUser, idActivity);
     }
 
     /* Actualizar un registro de asistencia */
@@ -70,5 +81,13 @@ public class AssistanceListDao {
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<AssistanceList>();
         }
+    }
+
+
+    public boolean isOVIUserRegisteredInActivity(String dniOVIUser, int idActivity) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM assistancelist WHERE dni_oviuser=? AND id_activity=?",
+                Integer.class, dniOVIUser, idActivity);
+        return count != null && count > 0;
     }
 }

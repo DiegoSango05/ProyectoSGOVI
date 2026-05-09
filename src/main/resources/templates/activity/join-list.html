@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SgOVI - Mis solicitudes</title>
+    <title>SgOVI - Apuntarse a actividad</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -10,9 +10,6 @@
             --ovi-orange: #da9f38;
             --ovi-orange-dark: #c48b2d;
             --ovi-soft: #fffcf5;
-            --status-accepted: #198754;
-            --status-pending: #da9f38;
-            --status-rejected: #dc3545;
         }
 
         body {
@@ -64,6 +61,7 @@
         }
 
         .btn-outline-custom {
+            background-color: transparent;
             border: 2px solid #000;
             border-radius: 8px;
             color: #000;
@@ -79,7 +77,7 @@
             color: var(--ovi-orange);
         }
 
-        .request-card {
+        .activity-card {
             background-color: #fcfcfc;
             border: 1px solid #eee;
             border-left: 6px solid var(--ovi-orange);
@@ -89,27 +87,10 @@
             padding: 1.5rem;
         }
 
-        .status-pill {
-            border-radius: 999px;
-            color: #fff;
-            display: inline-flex;
-            font-size: 0.78rem;
+        .activity-card h2 {
+            font-size: 1.15rem;
             font-weight: 800;
-            letter-spacing: 0.04em;
-            padding: 0.42rem 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .status-accepted {
-            background-color: var(--status-accepted);
-        }
-
-        .status-rejected {
-            background-color: var(--status-rejected);
-        }
-
-        .status-pending {
-            background-color: var(--status-pending);
+            margin-bottom: 0.35rem;
         }
 
         .detail-label {
@@ -118,6 +99,28 @@
             font-size: 0.76rem;
             font-weight: 800;
             letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .type-pill {
+            background-color: rgba(218, 159, 56, 0.16);
+            border-radius: 999px;
+            color: #8b641f;
+            display: inline-flex;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 0.38rem 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .registered-pill {
+            background-color: #198754;
+            border-radius: 999px;
+            color: #fff;
+            display: inline-flex;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 0.42rem 0.8rem;
             text-transform: uppercase;
         }
 
@@ -146,70 +149,63 @@
 <main class="container py-4">
     <div class="page-header d-flex flex-column flex-lg-row justify-content-between gap-3">
         <div>
-            <h1 class="page-title">Mis <span>solicitudes</span></h1>
-            <p class="text-muted mb-0">Consulta el estado de tus solicitudes de asistencia.</p>
+            <h1 class="page-title">Apuntarse a <span>actividad</span></h1>
+            <p class="text-muted mb-0">Elige una actividad disponible en la base de datos.</p>
         </div>
-        <div class="d-flex flex-wrap align-items-start gap-2">
-            <a th:href="@{/oviuser/requests-contracts}" class="btn-outline-custom">
-                <i class="bi bi-arrow-left me-1"></i> Volver
-            </a>
-            <a th:href="@{/assistancerequest/ovi-add}" class="btn-main">
-                <i class="bi bi-plus-lg me-1"></i> Nueva solicitud
-            </a>
-        </div>
+        <a th:href="@{/activity/my-list}" class="btn-outline-custom align-self-start">
+            <i class="bi bi-arrow-left me-1"></i> Volver
+        </a>
     </div>
 
-    <div class="row g-4" th:if="${assistanceRequests != null and !assistanceRequests.isEmpty()}">
-        <div class="col-lg-6" th:each="request : ${assistanceRequests}">
-            <article class="request-card">
+    <div class="row g-4" th:if="${activities != null and !activities.isEmpty()}">
+        <div class="col-lg-6" th:each="activity : ${activities}">
+            <article class="activity-card">
                 <div class="d-flex justify-content-between gap-3 mb-3">
                     <div>
-                        <span class="detail-label">Solicitud</span>
-                        <h2 class="h5 fw-bold mb-0" th:text="${request.type}">Tipo</h2>
+                        <span class="detail-label">Actividad</span>
+                        <h2 th:text="${activity.title}">Titulo</h2>
                     </div>
-                    <span class="status-pill"
-                          th:classappend="${statusCssByRequestId[request.id]}"
-                          th:text="${request.status}">Estado</span>
+                    <span class="type-pill" th:text="${activity.type}">Tipo</span>
                 </div>
 
-                <p class="text-muted" th:text="${request.description}">Descripcion</p>
+                <p class="text-muted" th:text="${activity.description}">Descripcion</p>
 
-                <div class="row g-3 mb-3">
+                <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <span class="detail-label">Horario</span>
-                        <span th:text="${request.schedule}">Horario</span>
+                        <span class="detail-label">Fecha</span>
+                        <span th:text="${activity.activityDate}">Fecha</span>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="detail-label">Hora</span>
+                        <span th:text="${activity.activityTime}">Hora</span>
                     </div>
                     <div class="col-md-6">
                         <span class="detail-label">Lugar</span>
-                        <span th:text="${request.location}">Lugar</span>
+                        <span th:text="${activity.location}">Lugar</span>
                     </div>
-                    <div class="col-12">
-                        <span class="detail-label">Requisitos</span>
-                        <span th:text="${request.requirements}">Requisitos</span>
+                    <div class="col-md-6">
+                        <span class="detail-label">Plazas maximas</span>
+                        <span th:text="${activity.maxParticipants}">0</span>
                     </div>
                 </div>
 
-                <div th:if="${acceptedByRequestId[request.id] and negotiationsByRequestId[request.id] != null}">
-                    <div class="border-top pt-3 mt-3">
-                        <p class="small text-muted mb-3">
-                            Solicitud aceptada por
-                            <strong th:text="${negotiationsByRequestId[request.id].dniAssistant}">asistente</strong>.
-                        </p>
-                        <a th:href="@{/communication/start/{idNegotiation}(idNegotiation=${negotiationsByRequestId[request.id].idNegotiation})}" class="btn-main">
-                            <i class="bi bi-chat-dots me-1"></i> Iniciar chat
-                        </a>
-                    </div>
-                </div>
+                <form th:if="${registeredByActivityId[activity.id] == false}"
+                      th:action="@{/activity/join/{id}(id=${activity.id})}"
+                      method="post">
+                    <button type="submit" class="btn-main">
+                        <i class="bi bi-person-plus me-1"></i> Apuntarme
+                    </button>
+                </form>
+                <span th:if="${registeredByActivityId[activity.id]}" class="registered-pill">
+                    Ya inscrito
+                </span>
             </article>
         </div>
     </div>
 
-    <div class="empty-state" th:if="${assistanceRequests == null or assistanceRequests.isEmpty()}">
-        <h2 class="h5 fw-bold mb-2">No tienes solicitudes registradas</h2>
-        <p class="text-muted mb-4">Cuando crees una solicitud, aparecera aqui con su estado.</p>
-        <a th:href="@{/assistancerequest/ovi-add}" class="btn-main">
-            <i class="bi bi-plus-lg me-1"></i> Crear solicitud
-        </a>
+    <div class="empty-state" th:if="${activities == null or activities.isEmpty()}">
+        <h2 class="h5 fw-bold mb-2">No hay actividades disponibles</h2>
+        <p class="text-muted mb-0">Cuando se registren actividades en la base de datos, apareceran aqui.</p>
     </div>
 </main>
 </body>

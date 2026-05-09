@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Ver perfil</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 280px);
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name {
+            color: var(--ovi-orange);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .page-header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .page-title span {
+            color: var(--ovi-orange);
+        }
+
+        .profile-panel {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-left: 6px solid var(--ovi-orange);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .detail-label {
+            color: #777;
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-main {
+            background-color: var(--ovi-orange);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.7rem 1.1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background-color: var(--ovi-orange-dark);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            border: 2px solid #000;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            padding: 0.58rem 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/oviuser}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="brand-name">SgOVI</span>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    <div class="page-header d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <h1 class="page-title">Ver <span>perfil</span></h1>
+            <p class="text-muted mb-0">Informacion registrada en tu cuenta OVI.</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-start gap-2">
+            <a th:href="@{/oviuser/profile}" class="btn-outline-custom">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+            <a th:href="@{/oviuser/profile/config}" class="btn-main">
+                <i class="bi bi-gear me-1"></i> Configuracion
+            </a>
+        </div>
+    </div>
+
+    <section class="profile-panel">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <span class="detail-label">DNI</span>
+                <div class="detail-value" th:text="${oviuser.dni}">DNI</div>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-label">Nombre</span>
+                <div class="detail-value" th:text="${oviuser.name}">Nombre</div>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-label">Fecha de nacimiento</span>
+                <div class="detail-value" th:text="${oviuser.birthDate}">Fecha</div>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-label">Email</span>
+                <div class="detail-value" th:text="${oviuser.email}">Email</div>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-label">Telefono</span>
+                <div class="detail-value" th:text="${oviuser.phoneNumber}">Telefono</div>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-label">Contacto de emergencia</span>
+                <div class="detail-value" th:text="${oviuser.emergencyContact}">Contacto</div>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-label">Documento</span>
+                <div class="detail-value" th:text="${oviuser.document}">Documento</div>
+            </div>
+            <div class="col-12">
+                <span class="detail-label">Direccion</span>
+                <div class="detail-value" th:text="${oviuser.address}">Direccion</div>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

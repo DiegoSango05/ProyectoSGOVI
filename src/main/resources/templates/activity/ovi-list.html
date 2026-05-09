@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Mis actividades</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 280px);
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name {
+            color: var(--ovi-orange);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .page-header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .page-title span {
+            color: var(--ovi-orange);
+        }
+
+        .btn-main {
+            background-color: var(--ovi-orange);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.7rem 1.1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background-color: var(--ovi-orange-dark);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            border: 2px solid #000;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            padding: 0.58rem 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+        }
+
+        .btn-danger-custom {
+            background-color: transparent;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            color: #dc3545;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 0.48rem 0.8rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-danger-custom:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .table-panel,
+        .empty-state {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-left: 6px solid var(--ovi-orange);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .table thead th {
+            color: #555;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+        }
+
+        .activity-title {
+            font-weight: 800;
+        }
+
+        .type-pill {
+            background-color: rgba(218, 159, 56, 0.16);
+            border-radius: 999px;
+            color: #8b641f;
+            display: inline-flex;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 0.38rem 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/oviuser}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="brand-name">SgOVI</span>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    <div class="page-header d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <h1 class="page-title">Mis <span>actividades</span></h1>
+            <p class="text-muted mb-0">Consulta las actividades a las que estas inscrito.</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-start gap-2">
+            <a th:href="@{/oviuser}" class="btn-outline-custom">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+            <a th:href="@{/activity/join-list}" class="btn-main">
+                <i class="bi bi-person-plus me-1"></i> Apuntarse a una actividad
+            </a>
+        </div>
+    </div>
+
+    <div class="table-panel" th:if="${activities != null and !activities.isEmpty()}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Actividad</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Ubicacion</th>
+                    <th>Instructor</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="activity : ${activities}">
+                    <td>
+                        <div class="activity-title" th:text="${activity.title}">Titulo</div>
+                        <div class="small text-muted" th:text="${activity.description}">Descripcion</div>
+                    </td>
+                    <td><span class="type-pill" th:text="${activity.type}">Tipo</span></td>
+                    <td th:text="${activity.activityDate}">Fecha</td>
+                    <td th:text="${activity.activityTime}">Hora</td>
+                    <td th:text="${activity.location}">Ubicacion</td>
+                    <td th:text="${activity.dniInstructor}">Instructor</td>
+                    <td>
+                        <form th:action="@{/activity/leave/{id}(id=${activity.id})}" method="post">
+                            <button type="submit" class="btn-danger-custom">
+                                <i class="bi bi-x-lg me-1"></i> Borrarse
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="empty-state" th:if="${activities == null or activities.isEmpty()}">
+        <h2 class="h5 fw-bold mb-2">No tienes actividades inscritas</h2>
+        <p class="text-muted mb-4">Puedes apuntarte a una actividad disponible desde el listado general.</p>
+        <a th:href="@{/activity/join-list}" class="btn-main">
+            <i class="bi bi-person-plus me-1"></i> Apuntarse a una actividad
+        </a>
+    </div>
+</main>
+</body>
+</html>

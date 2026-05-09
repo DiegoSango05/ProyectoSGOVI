@@ -35,7 +35,7 @@ public class ContractController {
             return "redirect:/login";
         }
         model.addAttribute("contracts", contractDao.getContractsByOVIUser(user.getDni()));
-        return "contract/list";
+        return "contract/ovi-list";
     }
 
     // AÑADIR (Formulario)

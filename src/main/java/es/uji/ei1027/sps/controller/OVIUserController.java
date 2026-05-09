@@ -20,6 +20,11 @@ public class OVIUserController {
         this.oviUserDao = oviUserDao;
     }
 
+    @RequestMapping({"", "/"})
+    public String home() {
+        return "redirect:/oviuser/index";
+    }
+
     @RequestMapping("/index")
     public String index(HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
@@ -99,15 +104,55 @@ public class OVIUserController {
         return "redirect:list";
     }
 
-    // VISUALIZAR PERFIL
     @RequestMapping("/profile")
+    public String profile(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+        return "oviuser/profile";
+    }
+
+    @RequestMapping("/profile/view")
     public String viewProfile(HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
         if (user == null) {
             return "redirect:/login";
         }
         model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
-        return "oviuser/update";
+        return "oviuser/profile-view";
+    }
+
+    @RequestMapping(value="/profile/config", method = RequestMethod.GET)
+    public String configureProfile(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+        return "oviuser/profile-config";
+    }
+
+    @RequestMapping(value="/profile/config", method = RequestMethod.POST)
+    public String processConfigureProfile(@ModelAttribute("oviuser") OVIUser oviUser,
+                                          BindingResult bindingResult,
+                                          HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        oviUser.setDni(user.getDni());
+        OVIUserValidator validator = new OVIUserValidator();
+        validator.validate(oviUser, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return "oviuser/profile-config";
+        }
+
+        oviUserDao.updateOVIUser(oviUser);
+        session.setAttribute("user", oviUser);
+        return "redirect:/oviuser/profile/view";
     }
 
     private OVIUser getLoggedOVIUser(HttpSession session) {

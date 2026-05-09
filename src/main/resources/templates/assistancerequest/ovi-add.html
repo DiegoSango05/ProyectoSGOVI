@@ -59,15 +59,13 @@
             text-transform: uppercase;
         }
 
-        .form-control,
-        .form-select {
+        .form-control {
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 0.72rem 0.85rem;
         }
 
-        .form-control:focus,
-        .form-select:focus {
+        .form-control:focus {
             border-color: var(--ovi-orange);
             box-shadow: 0 0 0 0.2rem rgba(218, 159, 56, 0.18);
         }
@@ -126,26 +124,18 @@
             <h1 class="page-title">Nueva <span>solicitud</span></h1>
             <p class="text-muted mb-0">Crea una solicitud de asistencia vinculada a tu perfil OVI.</p>
         </div>
-        <a th:href="@{/assistancerequest/my-list}" class="btn-outline-custom align-self-start">
-            <i class="bi bi-arrow-left me-1"></i> Volver
+        <a th:href="@{/assistancerequest/my-list}" class="btn-outline-custom align-self-start">Ver mis Solicitudes</a>
+        <a th:href="@{/oviuser/index}" class="btn-outline-custom align-self-start">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
         </a>
     </div>
 
     <section class="form-panel">
-        <form action="#" th:action="@{/assistancerequest/add}" th:object="${assistancerequest}" method="post">
+        <form action="#" th:action="@{/assistancerequest/ovi-add}" th:object="${assistancerequest}" method="post">
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="type" class="form-label">Tipo de asistencia</label>
                     <input type="text" th:field="*{type}" class="form-control" id="type" placeholder="Ej: PAP/PATI" required />
-                </div>
-
-                <div class="col-md-6">
-                    <label for="status" class="form-label">Estado</label>
-                    <select th:field="*{status}" class="form-select" id="status">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Proceso">En Proceso</option>
-                        <option value="Completada">Completada</option>
-                    </select>
                 </div>
 
                 <div class="col-12">
@@ -166,11 +156,6 @@
                 <div class="col-md-6">
                     <label for="requirements" class="form-label">Requerimientos especiales</label>
                     <input type="text" th:field="*{requirements}" class="form-control" id="requirements" placeholder="Ej: Apoyo visual y guia" />
-                </div>
-
-                <div class="col-md-6">
-                    <label for="dniOVIuser" class="form-label">DNI usuario OVI</label>
-                    <input type="text" th:field="*{dniOVIuser}" class="form-control" id="dniOVIuser" required />
                 </div>
             </div>
 

@@ -1,7 +1,9 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
+import es.uji.ei1027.sps.dao.NegotiationDao;
 import es.uji.ei1027.sps.model.AssistanceRequest;
+import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +12,25 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Controller
 @RequestMapping("/assistancerequest")
 public class AssistanceRequestController {
 
     private AssistanceRequestDao assistanceRequestDao;
+    private NegotiationDao negotiationDao;
 
     @Autowired
     public void setAssistanceRequestDao(AssistanceRequestDao assistanceRequestDao) {
         this.assistanceRequestDao = assistanceRequestDao;
+    }
+
+    @Autowired
+    public void setNegotiationDao(NegotiationDao negotiationDao) {
+        this.negotiationDao = negotiationDao;
     }
 
     // LISTAR
@@ -34,8 +46,10 @@ public class AssistanceRequestController {
         if (user == null) {
             return "redirect:/login";
         }
-        model.addAttribute("assistanceRequests", assistanceRequestDao.getAssistanceRequestsByOVIUser(user.getDni()));
-        return "assistancerequest/list";
+        List<AssistanceRequest> assistanceRequests = assistanceRequestDao.getAssistanceRequestsByOVIUser(user.getDni());
+        model.addAttribute("assistanceRequests", assistanceRequests);
+        addOVIListAttributes(model, assistanceRequests);
+        return "assistancerequest/ovi-list";
     }
 
     // AÑADIR (Formulario)
@@ -45,15 +59,50 @@ public class AssistanceRequestController {
         return "assistancerequest/add";
     }
 
+    @RequestMapping("/ovi-add")
+    public String addOVIAssistanceRequest(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        AssistanceRequest request = new AssistanceRequest();
+        request.setStatus("Pendiente");
+        request.setDniOVIuser(user.getDni());
+        model.addAttribute("assistancerequest", request);
+        return "assistancerequest/ovi-add";
+    }
+
     // AÑADIR (Procesar)
     @RequestMapping(value="/add", method= RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("assistancerequest") AssistanceRequest request,
-                                   BindingResult bindingResult) {
+                                   BindingResult bindingResult,
+                                   HttpSession session) {
         if (bindingResult.hasErrors())
             return "assistancerequest/add";
 
         assistanceRequestDao.addAssistanceRequest(request);
+        if (getLoggedOVIUser(session) != null) {
+            return "redirect:my-list";
+        }
         return "redirect:list";
+    }
+
+    @RequestMapping(value="/ovi-add", method= RequestMethod.POST)
+    public String processOVIAddSubmit(@ModelAttribute("assistancerequest") AssistanceRequest request,
+                                      BindingResult bindingResult,
+                                      HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        if (bindingResult.hasErrors()) {
+            return "assistancerequest/ovi-add";
+        }
+
+        request.setStatus("Pendiente");
+        request.setDniOVIuser(user.getDni());
+        assistanceRequestDao.addAssistanceRequest(request);
+        return "redirect:my-list";
     }
 
     // ELIMINAR
@@ -70,5 +119,42 @@ public class AssistanceRequestController {
             return null;
         }
         return (OVIUser) user;
+    }
+
+    private void addOVIListAttributes(Model model, List<AssistanceRequest> assistanceRequests) {
+        Map<Integer, String> statusCssByRequestId = new HashMap<Integer, String>();
+        Map<Integer, Boolean> acceptedByRequestId = new HashMap<Integer, Boolean>();
+        Map<Integer, Negotiation> negotiationsByRequestId = new HashMap<Integer, Negotiation>();
+
+        for (AssistanceRequest request : assistanceRequests) {
+            statusCssByRequestId.put(request.getId(), getStatusCssClass(request.getStatus()));
+            acceptedByRequestId.put(request.getId(), false);
+        }
+
+        for (Negotiation negotiation : negotiationDao.getNegotiations()) {
+            int requestId = negotiation.getIdRequest();
+            if (acceptedByRequestId.containsKey(requestId) && isAccepted(negotiation.getStatus())) {
+                acceptedByRequestId.put(requestId, true);
+                negotiationsByRequestId.put(requestId, negotiation);
+            }
+        }
+
+        model.addAttribute("statusCssByRequestId", statusCssByRequestId);
+        model.addAttribute("acceptedByRequestId", acceptedByRequestId);
+        model.addAttribute("negotiationsByRequestId", negotiationsByRequestId);
+    }
+
+    private String getStatusCssClass(String status) {
+        if ("Accepted".equalsIgnoreCase(status)) {
+            return "status-accepted";
+        }
+        if ("Rejected".equalsIgnoreCase(status)) {
+            return "status-rejected";
+        }
+        return "status-pending";
+    }
+
+    private boolean isAccepted(String status) {
+        return "Accepted".equalsIgnoreCase(status);
     }
 }
