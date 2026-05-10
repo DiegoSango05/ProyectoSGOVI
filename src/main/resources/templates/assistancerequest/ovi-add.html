@@ -59,13 +59,13 @@
             text-transform: uppercase;
         }
 
-        .form-control {
+        .form-control, .form-select {
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 0.72rem 0.85rem;
         }
 
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: var(--ovi-orange);
             box-shadow: 0 0 0 0.2rem rgba(218, 159, 56, 0.18);
         }
@@ -124,39 +124,185 @@
             <h1 class="page-title">Nueva <span>solicitud</span></h1>
             <p class="text-muted mb-0">Crea una solicitud de asistencia vinculada a tu perfil OVI.</p>
         </div>
-        <a th:href="@{/assistancerequest/my-list}" class="btn-outline-custom align-self-start">Ver mis Solicitudes</a>
-        <a th:href="@{/oviuser/index}" class="btn-outline-custom align-self-start">
-            <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
-        </a>
+        <div class="d-flex gap-2 align-self-start">
+            <a th:href="@{/assistancerequest/my-list}" class="btn-outline-custom">Ver mis Solicitudes</a>
+            <a th:href="@{/oviuser/index}" class="btn-outline-custom">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
+            </a>
+        </div>
     </div>
 
     <section class="form-panel">
         <form action="#" th:action="@{/assistancerequest/ovi-add}" th:object="${assistancerequest}" method="post">
             <div class="row g-3">
+
                 <div class="col-md-6">
                     <label for="type" class="form-label">Tipo de asistencia</label>
-                    <input type="text" th:field="*{type}" class="form-control" id="type" placeholder="Ej: PAP/PATI" required />
-                </div>
-
-                <div class="col-12">
-                    <label for="description" class="form-label">Descripcion detallada</label>
-                    <textarea th:field="*{description}" class="form-control" id="description" rows="3" required></textarea>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="schedule" class="form-label">Horario / tiempo</label>
-                    <input type="text" th:field="*{schedule}" class="form-control" id="schedule" placeholder="Ej: Lunes 10:00-12:00" />
-                </div>
-
-                <div class="col-md-6">
-                    <label for="location" class="form-label">Ubicacion</label>
-                    <input type="text" th:field="*{location}" class="form-control" id="location" />
+                    <select th:field="*{type}" class="form-select" id="type" required>
+                        <option value="" disabled selected hidden>Seleccionar opción...</option>
+                        <option value="PAP">PAP</option>
+                        <option value="PATI">PATI</option>
+                    </select>
                 </div>
 
                 <div class="col-md-6">
                     <label for="requirements" class="form-label">Requerimientos especiales</label>
                     <input type="text" th:field="*{requirements}" class="form-control" id="requirements" placeholder="Ej: Apoyo visual y guia" />
                 </div>
+
+                <div class="col-md-6">
+                    <label for="schedule" class="form-label">Disponibilidad requerida:</label>
+                    <select th:field="*{schedule}" class="form-select" id="schedule" required>
+                        <option value="" disabled selected hidden>Seleccionar opción...</option>
+                        <option value="Mañanas">Mañanas</option>
+                        <option value="Tardes">Tardes</option>
+                        <option value="Noches">Noches</option>
+                        <option value="Fines de semana">Fines de semana</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="location" class="form-label">Localidad:</label>
+                    <select th:field="*{location}" class="form-select" id="location" required>
+                        <option value="" disabled selected hidden>Seleccionar opción...</option>
+                        <option value="Aín">Aín</option>
+                        <option value="Albocàsser">Albocàsser</option>
+                        <option value="Alcalà de Xivert">Alcalà de Xivert</option>
+                        <option value="Alcúdia de Veo">Alcúdia de Veo</option>
+                        <option value="Alfondeguilla">Alfondeguilla</option>
+                        <option value="Algimia de Almonacid">Algimia de Almonacid</option>
+                        <option value="Almassora">Almassora</option>
+                        <option value="Almedíjar">Almedíjar</option>
+                        <option value="Almenara">Almenara</option>
+                        <option value="Altura">Altura</option>
+                        <option value="Arañuel">Arañuel</option>
+                        <option value="Ares del Maestrat">Ares del Maestrat</option>
+                        <option value="Argelita">Argelita</option>
+                        <option value="Artana">Artana</option>
+                        <option value="Ayódar">Ayódar</option>
+                        <option value="Azuébar">Azuébar</option>
+                        <option value="Barracas">Barracas</option>
+                        <option value="Bejís">Bejís</option>
+                        <option value="Benafer">Benafer</option>
+                        <option value="Benafigos">Benafigos</option>
+                        <option value="Benassal">Benassal</option>
+                        <option value="Benicarló">Benicarló</option>
+                        <option value="Benicasim">Benicasim</option>
+                        <option value="Benlloc">Benlloc</option>
+                        <option value="Betxí">Betxí</option>
+                        <option value="Borriol">Borriol</option>
+                        <option value="Burriana">Burriana</option>
+                        <option value="Cabanes">Cabanes</option>
+                        <option value="Càlig">Càlig</option>
+                        <option value="Canet lo Roig">Canet lo Roig</option>
+                        <option value="Castell de Cabres">Castell de Cabres</option>
+                        <option value="Castellfort">Castellfort</option>
+                        <option value="Castellnovo">Castellnovo</option>
+                        <option value="Castellón de la Plana">Castellón de la Plana</option>
+                        <option value="Castillo de Villamalefa">Castillo de Villamalefa</option>
+                        <option value="Catí">Catí</option>
+                        <option value="Caudiel">Caudiel</option>
+                        <option value="Cervera del Maestre">Cervera del Maestre</option>
+                        <option value="Chilches">Chilches</option>
+                        <option value="Chodos">Chodos</option>
+                        <option value="Chóvar">Chóvar</option>
+                        <option value="Cinctorres">Cinctorres</option>
+                        <option value="Cirat">Cirat</option>
+                        <option value="Cortes de Arenoso">Cortes de Arenoso</option>
+                        <option value="Costur">Costur</option>
+                        <option value="Culla">Culla</option>
+                        <option value="El Toro">El Toro</option>
+                        <option value="Eslida">Eslida</option>
+                        <option value="Espadilla">Espadilla</option>
+                        <option value="Fanzara">Fanzara</option>
+                        <option value="Figueroles">Figueroles</option>
+                        <option value="Forcall">Forcall</option>
+                        <option value="Fuente la Reina">Fuente la Reina</option>
+                        <option value="Fuentes de Ayódar">Fuentes de Ayódar</option>
+                        <option value="Gaibiel">Gaibiel</option>
+                        <option value="Geldo">Geldo</option>
+                        <option value="Herbés">Herbés</option>
+                        <option value="Higueras">Higueras</option>
+                        <option value="Jérica">Jérica</option>
+                        <option value="L'Alcora">L'Alcora</option>
+                        <option value="La Jana">La Jana</option>
+                        <option value="La Llosa">La Llosa</option>
+                        <option value="La Mata de Morella">La Mata de Morella</option>
+                        <option value="La Pobla de Benifassà">La Pobla de Benifassà</option>
+                        <option value="La Pobla Tornesa">La Pobla Tornesa</option>
+                        <option value="La Salzadella">La Salzadella</option>
+                        <option value="La Torre d'En Besora">La Torre d'En Besora</option>
+                        <option value="La Torre d'en Doménec">La Torre d'en Doménec</option>
+                        <option value="La Vall d'Uixó">La Vall d'Uixó</option>
+                        <option value="La Vilavella">La Vilavella</option>
+                        <option value="Les Useres">Les Useres</option>
+                        <option value="Lucena del Cid">Lucena del Cid</option>
+                        <option value="Ludiente">Ludiente</option>
+                        <option value="Matet">Matet</option>
+                        <option value="Moncofa">Moncofa</option>
+                        <option value="Montán">Montán</option>
+                        <option value="Montanejos">Montanejos</option>
+                        <option value="Morella">Morella</option>
+                        <option value="Navajas">Navajas</option>
+                        <option value="Nules">Nules</option>
+                        <option value="Olocau del Rey">Olocau del Rey</option>
+                        <option value="Onda">Onda</option>
+                        <option value="Oropesa del Mar">Oropesa del Mar</option>
+                        <option value="Palanques">Palanques</option>
+                        <option value="Pavías">Pavías</option>
+                        <option value="Peñíscola">Peñíscola</option>
+                        <option value="Pina de Montalgrao">Pina de Montalgrao</option>
+                        <option value="Portell de Morella">Portell de Morella</option>
+                        <option value="Puebla de Arenoso">Puebla de Arenoso</option>
+                        <option value="Ribesalbes">Ribesalbes</option>
+                        <option value="Rossell">Rossell</option>
+                        <option value="Sacañet">Sacañet</option>
+                        <option value="San Rafael del Río">San Rafael del Río</option>
+                        <option value="Sant Joan de Moró">Sant Joan de Moró</option>
+                        <option value="Sant Jordi">Sant Jordi</option>
+                        <option value="Sant Mateu">Sant Mateu</option>
+                        <option value="Santa Magdalena de Pulpis">Santa Magdalena de Pulpis</option>
+                        <option value="Sarratella">Sarratella</option>
+                        <option value="Segorbe">Segorbe</option>
+                        <option value="Sierra Engarcerán">Sierra Engarcerán</option>
+                        <option value="Soneja">Soneja</option>
+                        <option value="Sot de Ferrer">Sot de Ferrer</option>
+                        <option value="Sueras">Sueras</option>
+                        <option value="Tales">Tales</option>
+                        <option value="Teresa">Teresa</option>
+                        <option value="Tírig">Tírig</option>
+                        <option value="Todolella">Todolella</option>
+                        <option value="Toga">Toga</option>
+                        <option value="Torás">Torás</option>
+                        <option value="Torralba del Pinar">Torralba del Pinar</option>
+                        <option value="Torreblanca">Torreblanca</option>
+                        <option value="Torrechiva">Torrechiva</option>
+                        <option value="Traiguera">Traiguera</option>
+                        <option value="Vall d'Alba">Vall d'Alba</option>
+                        <option value="Vall de Almonacid">Vall de Almonacid</option>
+                        <option value="Vallat">Vallat</option>
+                        <option value="Vallibona">Vallibona</option>
+                        <option value="Vilafamés">Vilafamés</option>
+                        <option value="Vilanova d'Alcolea">Vilanova d'Alcolea</option>
+                        <option value="Vilar de Canes">Vilar de Canes</option>
+                        <option value="Vila-real">Vila-real</option>
+                        <option value="Villafranca del Cid">Villafranca del Cid</option>
+                        <option value="Villahermosa del Río">Villahermosa del Río</option>
+                        <option value="Villamalur">Villamalur</option>
+                        <option value="Villanueva de Viver">Villanueva de Viver</option>
+                        <option value="Vinaròs">Vinaròs</option>
+                        <option value="Vistabella del Maestrazgo">Vistabella del Maestrazgo</option>
+                        <option value="Viver">Viver</option>
+                        <option value="Zorita del Maestrazgo">Zorita del Maestrazgo</option>
+                        <option value="Zucaina">Zucaina</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label for="description" class="form-label">Detalles exactos (Ej: Lunes a las 16:00 en la UJI):</label>
+                    <textarea th:field="*{description}" class="form-control" id="description" rows="3" required></textarea>
+                </div>
+
             </div>
 
             <div class="border-top mt-4 pt-4 d-flex flex-column flex-md-row justify-content-end gap-2">
