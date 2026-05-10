@@ -58,7 +58,6 @@
         .data-label { font-size: 0.75rem; font-weight: 800; color: #888; text-transform: uppercase; display: block; }
         .data-value { font-size: 1.1rem; font-weight: 600; color: #000; margin-bottom: 20px; }
 
-        /* ESTILO DE BOTONES GEMELOS */
         .btn-custom {
             width: 280px;
             height: 55px;
@@ -71,10 +70,9 @@
             justify-content: center;
             border: none;
             text-decoration: none;
-            color: white !important; /* Texto siempre blanco para botones sólidos */
+            color: white !important;
         }
 
-        /* BOTÓN VERDE SÓLIDO */
         .btn-confirm-green {
             background-color: var(--ovi-success-green);
         }
@@ -83,7 +81,6 @@
             transform: translateY(-2px);
         }
 
-        /* BOTÓN ROJO SÓLIDO (Actualizado) */
         .btn-danger-solid {
             background-color: var(--ovi-danger-red);
         }
@@ -113,9 +110,22 @@
     <div class="content-card">
         <h2>Información Personal</h2>
         <div class="row">
-            <div class="col-md-4"><span class="data-label">Nombre Completo</span><div class="data-value" th:text="${asistente.name}">Sergio Valls Moreno</div></div>
-            <div class="col-md-4"><span class="data-label">DNI / NIE</span><div class="data-value" th:text="${asistente.dni}">24681357E</div></div>
-            <div class="col-md-4"><span class="data-label">Fecha de Nacimiento</span><div class="data-value" th:text="${asistente.birthDate}">1987-09-07</div></div>
+            <div class="col-md-3">
+                <span class="data-label">Nombre Completo</span>
+                <div class="data-value" th:text="${asistente.name}">Sergio Valls Moreno</div>
+            </div>
+            <div class="col-md-3">
+                <span class="data-label">DNI / NIE</span>
+                <div class="data-value" th:text="${asistente.dni}">24681357E</div>
+            </div>
+            <div class="col-md-3">
+                <span class="data-label">Teléfono</span>
+                <div class="data-value" th:text="${asistente.phoneNumber}">600123123</div>
+            </div>
+            <div class="col-md-3">
+                <span class="data-label">Fecha de Nacimiento</span>
+                <div class="data-value" th:text="${asistente.birthDate}">1987-09-07</div>
+            </div>
         </div>
     </div>
 

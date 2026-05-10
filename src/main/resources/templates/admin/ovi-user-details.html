@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Perfil de Usuario OVI</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+            --ovi-success-green: #198754;
+            --ovi-success-green-dark: #146c43;
+            --ovi-danger-red: #dc3545;
+            --ovi-danger-red-dark: #bb2d3b;
+        }
+
+        body { background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px); font-family: 'Inter', sans-serif; }
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+
+        .btn-outline-custom-nav {
+            border: 2px solid #000; border-radius: 8px; padding: 0.5rem 1.5rem;
+            text-decoration: none; color: #000; font-weight: 700; transition: all 0.3s ease; display: inline-block;
+        }
+        .btn-outline-custom-nav:hover { border-color: var(--ovi-orange) !important; color: var(--ovi-orange) !important; }
+
+        .content-card {
+            background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px;
+            padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .content-card h2 {
+            font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--ovi-orange);
+            border-bottom: 2px solid #f0f0f0; padding-bottom: 0.8rem; margin-bottom: 1.5rem;
+        }
+        .data-label { font-size: 0.75rem; font-weight: 800; color: #888; text-transform: uppercase; display: block; }
+        .data-value { font-size: 1.1rem; font-weight: 600; color: #000; margin-bottom: 20px; }
+
+        .btn-custom {
+            width: 280px; height: 55px; font-weight: 700; text-transform: uppercase;
+            border-radius: 8px; transition: 0.3s; display: flex; align-items: center;
+            justify-content: center; border: none; text-decoration: none; color: white !important;
+        }
+        .btn-confirm-green { background-color: var(--ovi-success-green); }
+        .btn-confirm-green:hover { background-color: var(--ovi-success-green-dark); transform: translateY(-2px); }
+        .btn-danger-solid { background-color: var(--ovi-danger-red); }
+        .btn-danger-solid:hover { background-color: var(--ovi-danger-red-dark); transform: translateY(-2px); }
+
+        .modal-backdrop.show { backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.4); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/ovi-users}" class="btn-outline-custom-nav">VOLVER AL LISTADO</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-5">
+    <div class="content-card">
+        <h2>Información Personal</h2>
+        <div class="row">
+            <div class="col-md-4"><span class="data-label">Nombre Completo</span><div class="data-value" th:text="${usuario.name}">Juan Pérez</div></div>
+            <div class="col-md-4"><span class="data-label">DNI / NIE</span><div class="data-value" th:text="${usuario.dni}">12345678Z</div></div>
+            <div class="col-md-4"><span class="data-label">Fecha de Nacimiento</span><div class="data-value" th:text="${usuario.birthDate}">1990-01-01</div></div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h2>Documentación de Verificación</h2>
+        <div class="d-flex align-items-center gap-4 p-3" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #ccc;">
+            <div style="font-size: 2.5rem; color: var(--ovi-orange);"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+            <div>
+                <span class="data-label">Certificado de Discapacidad</span>
+                <div class="data-value mb-0"><span th:text="${usuario.document}">certificado.pdf</span></div>
+                <small class="text-muted">Documento subido para validar la condición de discapacidad.</small>
+            </div>
+            <div class="ms-auto">
+                <a th:href="@{'/uploads/' + ${usuario.document}}" target="_blank" class="btn btn-sm btn-dark px-4 fw-bold">VER ARCHIVO</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h2>Contacto y Localización</h2>
+        <div class="row">
+            <div class="col-md-4"><span class="data-label">Email</span><div class="data-value" th:text="${usuario.email}">email@ejemplo.com</div></div>
+            <div class="col-md-4"><span class="data-label">Teléfono</span><div class="data-value" th:text="${usuario.phoneNumber}">600000000</div></div>
+            <div class="col-md-4"><span class="data-label">Domicilio</span><div class="data-value" th:text="${usuario.address}">Calle Principal 123</div></div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-4"><span class="data-label">Contacto de Emergencia</span><div class="data-value" th:text="${usuario.emergencyContact}">Madre - 655444333</div></div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center gap-4 mt-5">
+        <th:block th:if="${#strings.equalsIgnoreCase(usuario.status, 'Pending')}">
+            <button type="button" class="btn-custom btn-danger-solid" data-bs-toggle="modal" data-bs-target="#modalConfirmReject">RECHAZAR REGISTRO</button>
+            <button type="button" class="btn-custom btn-confirm-green" data-bs-toggle="modal" data-bs-target="#modalConfirmApprove">APROBAR REGISTRO</button>
+        </th:block>
+        <th:block th:if="${#strings.equalsIgnoreCase(usuario.status, 'Accepted')}">
+            <button type="button" class="btn-custom btn-danger-solid" data-bs-toggle="modal" data-bs-target="#modalConfirmReject">ELIMINAR REGISTRO</button>
+        </th:block>
+        <th:block th:if="${#strings.equalsIgnoreCase(usuario.status, 'Rejected')}">
+            <button type="button" class="btn-custom btn-confirm-green" data-bs-toggle="modal" data-bs-target="#modalConfirmApprove">RESTAURAR REGISTRO</button>
+        </th:block>
+    </div>
+</main>
+
+<div class="modal fade" id="modalConfirmApprove" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-body p-5 text-center">
+                <i class="bi bi-check2-circle text-success mb-4" style="font-size: 4rem;"></i>
+                <h3 class="fw-bold">¿Confirmar registro?</h3>
+                <p class="text-muted">¿Deseas dar de alta a <b th:text="${usuario.name}">Nombre</b>?</p>
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
+                    <form th:action="@{/admin/ovi-users/approve/{dni}(dni=${usuario.dni})}" method="post">
+                        <button type="submit" class="btn-custom btn-confirm-green py-2" style="width: auto; min-width: 160px; height: 45px;">SÍ, CONFIRMAR</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmReject" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-body p-5 text-center">
+                <i class="bi bi-exclamation-triangle text-danger mb-4" style="font-size: 4rem;"></i>
+                <h3 class="fw-bold">¿Confirmar acción?</h3>
+                <p class="text-muted">¿Deseas rechazar a <b th:text="${usuario.name}">Nombre</b>?</p>
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
+                    <form th:action="@{/admin/ovi-users/reject/{dni}(dni=${usuario.dni})}" method="post">
+                        <button type="submit" class="btn-custom btn-danger-solid py-2" style="width: auto; min-width: 160px; height: 45px;">SÍ, PROCEDER</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

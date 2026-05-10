@@ -46,20 +46,23 @@ public class OVIUserValidator implements Validator {
             errors.rejectValue("email", "formato", "El formato del correo electrónico no es válido");
         }
 
-        // 5. Validación Teléfono (9 dígitos)
-        String phone = oviUser.getPhoneNumber().trim();
+        // 5. Validación Teléfono (9 dígitos exactos, solo números)
+        // Quitamos espacios por si el usuario escribe "600 000 000"
+        String phone = oviUser.getPhoneNumber().replace(" ", "");
         if (phone.isEmpty()) {
             errors.rejectValue("phoneNumber", "obligatorio", "Debe indicar un número de teléfono");
-        } else if (phone.length() != 9 || !phone.matches("\\d+")) {
-            errors.rejectValue("phoneNumber", "formato", "El teléfono debe tener exactamente 9 números");
+        } else if (phone.startsWith("+")) {
+            errors.rejectValue("phoneNumber", "formato", "No incluya el prefijo internacional (+34), solo los 9 dígitos");
+        } else if (!phone.matches("^[0-9]{9}$")) {
+            errors.rejectValue("phoneNumber", "formato", "El teléfono debe tener exactamente 9 números (ej: 600123123)");
         }
 
-        // 6. Validación Contacto de Emergencia (También debe ser un número válido)
-        String emergency = oviUser.getEmergencyContact().trim();
+        // 6. Validación Contacto de Emergencia
+        String emergency = oviUser.getEmergencyContact().replace(" ", "");
         if (emergency.isEmpty()) {
             errors.rejectValue("emergencyContact", "obligatorio", "Debe indicar un número de emergencia");
-        } else if (emergency.length() != 9 || !emergency.matches("\\d+")) {
-            errors.rejectValue("emergencyContact", "formato", "El número de emergencia debe tener 9 dígitos");
+        } else if (!emergency.matches("^[0-9]{9}$")) {
+            errors.rejectValue("emergencyContact", "formato", "El número de emergencia debe tener 9 dígitos numéricos");
         } else if (emergency.equals(phone)) {
             errors.rejectValue("emergencyContact", "igual", "El contacto de emergencia no puede ser el mismo que tu teléfono personal");
         }

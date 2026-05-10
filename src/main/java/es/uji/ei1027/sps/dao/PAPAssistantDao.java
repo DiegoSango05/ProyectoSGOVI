@@ -23,11 +23,18 @@ public class PAPAssistantDao {
 
     /* Añade un asistente PAP */
     public void addPAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("INSERT INTO pap_assistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                assistant.getDni(), assistant.getName(), assistant.getBirthDate(),
-                assistant.getAssistanceType(), assistant.getProfessionalTraining(),
-                assistant.isPreviousExperience(), assistant.getAvailability(),
-                assistant.getLocation(), assistant.getStatus(), assistant.getPassword());
+        jdbcTemplate.update("INSERT INTO pap_assistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                assistant.getDni(),
+                assistant.getName(),
+                assistant.getBirthDate(),
+                assistant.getAssistanceType(),
+                assistant.getProfessionalTraining(),
+                assistant.isPreviousExperience(),
+                assistant.getAvailability(),
+                assistant.getLocation(),
+                assistant.getStatus(),
+                assistant.getPassword(),
+                assistant.getPhoneNumber());
     }
 
     /* Borra un asistente por DNI */
@@ -37,11 +44,18 @@ public class PAPAssistantDao {
 
     /* Actualiza un asistente */
     public void updatePAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=?, password=? WHERE dni=?",
-                assistant.getName(), assistant.getBirthDate(), assistant.getAssistanceType(),
-                assistant.getProfessionalTraining(), assistant.isPreviousExperience(),
-                assistant.getAvailability(), assistant.getLocation(), assistant.getStatus(),
-                assistant.getPassword(), assistant.getDni());
+        jdbcTemplate.update("UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=?, password=?, phonenumber=? WHERE dni=?",
+                assistant.getName(),
+                assistant.getBirthDate(),
+                assistant.getAssistanceType(),
+                assistant.getProfessionalTraining(),
+                assistant.isPreviousExperience(),
+                assistant.getAvailability(),
+                assistant.getLocation(),
+                assistant.getStatus(),
+                assistant.getPassword(),
+                assistant.getPhoneNumber(),
+                assistant.getDni());
     }
 
     /* Obtiene un asistente por DNI */

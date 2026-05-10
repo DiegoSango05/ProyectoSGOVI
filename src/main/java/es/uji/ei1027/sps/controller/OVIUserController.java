@@ -59,7 +59,7 @@ public class OVIUserController {
         return "oviuser/add";
     }
 
-    // AÑADIR (Procesar)
+    // AÑADIR (Procesar Registro)
     @RequestMapping(value="/add", method=RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("oviuser") OVIUser oviUser,
                                    BindingResult bindingResult) {
@@ -75,7 +75,9 @@ public class OVIUserController {
             bindingResult.rejectValue("dni", "duplicado", "Este DNI ya está registrado");
             return "oviuser/add";
         }
-        return "redirect:list";
+
+        // Cambiamos la redirección a la pantalla de éxito de registro
+        return "oviuser/register-success";
     }
 
     // ELIMINAR

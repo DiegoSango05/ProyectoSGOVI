@@ -59,7 +59,18 @@ public class LoginController {
         if (ovi != null) {
             session.setAttribute("user", ovi);
             session.setAttribute("role", "ovi");
-            return "redirect:/oviuser/index";
+
+            // Implementación de estados para OVIUser
+            switch (ovi.getStatus()) {
+                case "Pending":
+                    return "oviuser/status-pending";
+                case "Rejected":
+                    return "oviuser/status-rejected";
+                case "Accepted":
+                    return "redirect:/oviuser/index";
+                default:
+                    return "oviuser/status-pending";
+            }
         }
 
         // 3. COMPROBAR PAPASSISTANT (DNI + Password + Estados)

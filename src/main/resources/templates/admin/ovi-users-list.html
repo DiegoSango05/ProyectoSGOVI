@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SgOVI - Gestión de Asistentes</title>
+    <title>SgOVI - Gestión de Usuarios OVI</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -24,7 +24,6 @@
         .hero-title { font-size: 2.6rem; font-weight: 800; }
         .hero-title span { color: var(--ovi-orange); }
 
-        /* BOTÓN DE NAVEGACIÓN CON ANIMACIÓN NARANJA */
         .btn-outline-custom-nav {
             border: 2px solid #000;
             border-radius: 8px;
@@ -60,11 +59,10 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        /* AJUSTE DEL GRID PARA INCLUIR TELÉFONO */
         .pill-grid {
             display: grid;
-            grid-template-columns: 100px 180px 110px 90px 120px 120px 1fr;
-            gap: 15px;
+            grid-template-columns: 120px 200px 120px 150px 150px 1fr;
+            gap: 20px;
             align-items: start;
             flex-grow: 1;
             margin-right: 20px;
@@ -80,7 +78,7 @@
         }
 
         .pill-data {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             color: #000;
             display: block;
@@ -103,7 +101,6 @@
             transition: 0.3s;
             text-decoration: none;
             font-size: 0.85rem;
-            white-space: nowrap;
         }
         .btn-ficha:hover {
             background-color: var(--ovi-orange);
@@ -111,11 +108,11 @@
         }
 
         .description-text {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #666;
             font-style: italic;
             border-left: 2px solid #eee;
-            padding-left: 10px;
+            padding-left: 15px;
         }
     </style>
 </head>
@@ -135,35 +132,33 @@
 
 <header class="hero">
     <div class="container">
-        <h1 class="hero-title">Gestión de <span>Asistentes</span></h1>
-        <p class="text-muted">Listado completo de profesionales registrados y pendientes de validación.</p>
+        <h1 class="hero-title">Gestión de <span>Usuarios OVI</span></h1>
+        <p class="text-muted">Listado de personas usuarias registradas en la oficina.</p>
     </div>
 </header>
 
 <main class="container py-5">
-    <div th:each="asistente : ${assistants}">
+    <div th:each="usuario : ${users}">
         <div class="assistant-pill">
             <div class="pill-grid">
-                <div><span class="pill-label">DNI</span><span class="pill-data" th:text="${asistente.dni}">12345678Z</span></div>
-                <div><span class="pill-label">Nombre</span><span class="pill-data" th:text="${asistente.name}">Nombre</span></div>
-                <div><span class="pill-label">Teléfono</span><span class="pill-data" th:text="${asistente.phoneNumber}">600123123</span></div>
-
-                <div><span class="pill-label">Tipo</span><span class="pill-data" th:text="${asistente.assistanceType}">PAP</span></div>
-                <div><span class="pill-label">Localidad</span><span class="pill-data" th:text="${asistente.location}">Castellón</span></div>
+                <div><span class="pill-label">DNI</span><span class="pill-data" th:text="${usuario.dni}">12345678Z</span></div>
+                <div><span class="pill-label">Nombre</span><span class="pill-data" th:text="${usuario.name}">Nombre Usuario</span></div>
+                <div><span class="pill-label">Teléfono</span><span class="pill-data" th:text="${usuario.phoneNumber}">600000000</span></div>
+                <div><span class="pill-label">Localidad</span><span class="pill-data" th:text="${usuario.address}">Castellón</span></div>
                 <div>
                     <span class="pill-label">Estado</span>
-                    <span th:class="${#strings.equalsIgnoreCase(asistente.status, 'Pending') ? 'status-badge bg-warning text-dark' :
-                                  (#strings.equalsIgnoreCase(asistente.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
-                          th:text="${asistente.status}">Pending</span>
+                    <span th:class="${#strings.equalsIgnoreCase(usuario.status, 'Pending') ? 'status-badge bg-warning text-dark' :
+                                  (#strings.equalsIgnoreCase(usuario.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
+                          th:text="${usuario.status}">Pending</span>
                 </div>
                 <div class="description-text">
-                    <span class="pill-label">Formación</span>
-                    <span th:text="${#strings.abbreviate(asistente.professionalTraining, 25)}">Detalles...</span>
+                    <span class="pill-label">Contacto Emergencia</span>
+                    <span th:text="${usuario.emergencyContact}">Familiar - 611...</span>
                 </div>
             </div>
 
             <div>
-                <a th:href="@{/admin/assistants/details/{dni}(dni=${asistente.dni})}" class="btn-ficha">VER FICHA</a>
+                <a th:href="@{/admin/ovi-users/details/{dni}(dni=${usuario.dni})}" class="btn-ficha">VER FICHA</a>
             </div>
         </div>
     </div>

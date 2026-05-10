@@ -1,8 +1,10 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
+import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
 import es.uji.ei1027.sps.model.AssistanceRequest;
+import es.uji.ei1027.sps.model.OVIUser;
 import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
 import es.uji.ei1027.sps.model.SystemUser;
@@ -21,6 +23,9 @@ public class AdminController {
 
     @Autowired
     private PAPAssistantDao papAssistantDao;
+
+    @Autowired
+    private OVIUserDao oviUserDao;
 
     @RequestMapping("/index")
     public String indexAdmin(HttpSession session, Model model) {
@@ -131,5 +136,50 @@ public class AdminController {
             model.addAttribute("asistente", assistant);
         }
         return "admin/assistant-details"; // Nueva vista
+    }
+
+    // Listado de Usuarios OVI
+    @GetMapping("/ovi-users")
+    public String listOVIUsers(HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        model.addAttribute("users", oviUserDao.getOVIUsers());
+        return "admin/ovi-users-list";
+    }
+
+    // Ficha de detalle del Usuario OVI
+    @GetMapping("/ovi-users/details/{dni}")
+    public String oviUserDetails(@PathVariable String dni, HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        OVIUser oviUser = oviUserDao.getOVIUser(dni);
+        if (oviUser != null) {
+            model.addAttribute("usuario", oviUser);
+        }
+        return "admin/ovi-user-details";
+    }
+
+    // Aprobar Usuario OVI
+    @PostMapping("/ovi-users/approve/{dni}")
+    public String approveOVIUser(@PathVariable String dni) {
+        OVIUser oviUser = oviUserDao.getOVIUser(dni);
+        if (oviUser != null) {
+            oviUser.setStatus("Accepted");
+            oviUserDao.updateOVIUser(oviUser);
+        }
+        return "redirect:/admin/ovi-users";
+    }
+
+    // Rechazar/Eliminar Usuario OVI
+    @PostMapping("/ovi-users/reject/{dni}")
+    public String rejectOVIUser(@PathVariable String dni) {
+        OVIUser oviUser = oviUserDao.getOVIUser(dni);
+        if (oviUser != null) {
+            oviUser.setStatus("Rejected");
+            oviUserDao.updateOVIUser(oviUser);
+        }
+        return "redirect:/admin/ovi-users";
     }
 }
