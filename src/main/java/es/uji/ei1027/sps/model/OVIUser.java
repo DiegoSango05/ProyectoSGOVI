@@ -12,6 +12,7 @@ public class OVIUser {
     private String emergencyContact;
     private String document;
     private String password;
+    private String status;
 
     public OVIUser() {}
 
@@ -76,6 +77,14 @@ public class OVIUser {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

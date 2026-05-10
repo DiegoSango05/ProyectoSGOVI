@@ -19,6 +19,7 @@ public final class OVIUserRowMapper implements RowMapper<OVIUser> {
         oviUser.setEmergencyContact(rs.getString("emergencycontact"));
         oviUser.setDocument(rs.getString("document"));
         oviUser.setPassword(rs.getString("password"));
+        oviUser.setStatus(rs.getString("status"));
         return oviUser;
     }
 }

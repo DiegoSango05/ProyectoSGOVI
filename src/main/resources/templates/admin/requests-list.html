@@ -24,37 +24,65 @@
         .hero-title { font-size: 2.6rem; font-weight: 800; }
         .hero-title span { color: var(--ovi-orange); }
 
-        /* ESTILO DE LAS "PASTILLAS" (STRIPS) */
+        /* BOTÓN DE NAVEGACIÓN CON ANIMACIÓN NARANJA */
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+            background-color: transparent;
+        }
+
         .request-pill {
             background-color: #fcfcfc;
             border: 1px solid #eee;
-            border-radius: 50px; /* Forma de pastilla */
+            border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1rem;
-            padding: 1rem 2rem;
+            margin-bottom: 1.2rem;
+            padding: 1.5rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             transition: 0.2s;
         }
 
-        /* Añade esto a tu estilo para asegurar estabilidad */
         .request-pill:hover {
             border-color: var(--ovi-orange);
-            /* Si sigue parpadeando, comenta la línea de abajo */
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
         .modal-backdrop.show {
-            backdrop-filter: blur(8px); /* Aumentamos el desenfoque para que quede más PRO */
+            backdrop-filter: blur(8px);
             background-color: rgba(0,0,0,0.4);
         }
 
-        .pill-info { display: flex; align-items: center; gap: 30px; flex-grow: 1; }
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--ovi-orange);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
 
-        .pill-label { font-size: 0.7rem; font-weight: 800; color: #888; text-transform: uppercase; display: block; }
-        .pill-data { font-size: 1rem; font-weight: 600; color: #000; }
+        .pill-data {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #000;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         .status-badge {
             font-size: 0.75rem;
@@ -64,7 +92,6 @@
             text-transform: uppercase;
         }
 
-                /* Botones de acción */
         .btn-action {
             width: 45px;
             height: 45px;
@@ -80,53 +107,28 @@
         .btn-reject { background-color: #f0f0f0; color: #666; }
         .btn-reject:hover { color: #d63031; background-color: #ffeaea; }
 
-        /* Desenfoque del fondo para el modal */
-        .modal-backdrop.show { backdrop-filter: blur(4px); opacity: 0.5; }
-
         .modal-content { border-radius: 16px; border: none; padding: 1rem; }
-        .btn-confirm { background-color: var(--ovi-orange); color: white; font-weight: 700; border-radius: 8px; }
-
-        .request-pill {
-            background-color: #fcfcfc;
-            border: 1px solid #eee;
-            border-radius: 20px; /* Reducido un poco para que quepa más info */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.2rem;
-            padding: 1.5rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: 0.2s;
+        .btn-solid-custom {
+            background-color: var(--ovi-orange);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.58rem 1.5rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: inline-block;
+            text-decoration: none;
         }
 
-        /* Grid para organizar mejor la información */
         .pill-grid {
             display: grid;
-            grid-template-columns: 80px 120px 100px 130px 150px 1fr; /* He ampliado un pelín el horario para que respire */
+            grid-template-columns: 80px 120px 100px 130px 150px 1fr;
             gap: 20px;
-            align-items: start; /* ¡AQUÍ ESTÁ LA MAGIA! Esto alinea todos los encabezados arriba */
+            align-items: start;
             flex-grow: 1;
             margin-right: 20px;
-            margin-top: 5px; /* Un pequeño margen para equilibrar visualmente */
-        }
-
-        .pill-label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: var(--ovi-orange); /* Cambiado a naranja para resaltar */
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .pill-data {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #000;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-top: 5px;
         }
 
         .description-text {
@@ -147,7 +149,7 @@
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="brand-name">SgOVI</span>
-            <a th:href="@{/admin/index}" class="btn-outline-custom" style="border: 2px solid #000; border-radius: 8px; padding: 0.5rem 1rem; text-decoration: none; color: #000; font-weight: 700;">VOLVER</a>
+            <a th:href="@{/admin/index}" class="btn-outline-custom-nav">VOLVER</a>
         </div>
     </div>
 </nav>
@@ -182,7 +184,8 @@
                 </div>
                 <div>
                     <span class="pill-label">Estado actual</span>
-                    <span th:class="${#strings.equalsIgnoreCase(solicitud.status, 'Pending') ? 'status-badge bg-warning text-dark' : 'status-badge bg-light text-dark border'}"
+                    <span th:class="${#strings.equalsIgnoreCase(solicitud.status, 'Pending') ? 'status-badge bg-warning text-dark' :
+                                  (#strings.equalsIgnoreCase(solicitud.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
                           th:text="${solicitud.status}">Pending</span>
                 </div>
                 <div class="description-text">
@@ -199,25 +202,26 @@
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-        </div> <div class="modal fade" th:id="'modalApprove' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-body p-5 text-center">
-                    <div class="mb-4">
-                        <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
-                    </div>
-                    <h2 class="fw-bold mb-3">¿Aprobar Solicitud?</h2>
-                    <p class="text-muted mb-4">Vas a validar esta petición. El siguiente paso será proponer los asistentes más adecuados.</p>
-                    <div class="d-flex gap-3 justify-content-center">
-                        <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
-                        <form th:action="@{/admin/approve/{id}(id=${solicitud.id})}" method="post">
-                            <button type="submit" class="btn-solid-custom px-4 py-2" style="background-color: var(--ovi-orange); color: white; border:none; border-radius:8px; font-weight:700;">SÍ, APROBAR</button>
-                        </form>
+        </div>
+
+        <div class="modal fade" th:id="'modalApprove' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                    <div class="modal-body p-5 text-center">
+                        <div class="mb-4">
+                            <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="fw-bold mb-3">¿Aprobar Solicitud?</h2>
+                        <p class="text-muted mb-4">Vas a validar esta petición. El siguiente paso será proponer los asistentes más adecuados.</p>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
+
+                            <a th:href="@{/admin/request-details/{id}(id=${solicitud.id})}" class="btn-solid-custom px-4 py-2">SÍ, APROBAR</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
         <div class="modal fade" th:id="'modalReject' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
