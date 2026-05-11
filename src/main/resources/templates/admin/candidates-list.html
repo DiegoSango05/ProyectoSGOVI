@@ -43,7 +43,6 @@
             color: var(--ovi-orange);
         }
 
-        /* Estilo unificado para tarjetas de contenido */
         .content-card {
             background-color: #fcfcfc;
             border: 1px solid #eee;
@@ -58,12 +57,11 @@
             font-weight: 800;
             margin-bottom: 1.2rem;
             text-transform: uppercase;
-            color: var(--ovi-orange); /* ¡AQUÍ ESTÁ EL CAMBIO! */
+            color: var(--ovi-orange);
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 0.8rem;
         }
 
-        /* Estilos de etiquetas descriptivas (imitando .form-label del login) */
         .data-label {
             display: block;
             font-size: 0.8rem;
@@ -79,7 +77,6 @@
             margin-bottom: 15px;
         }
 
-        /* Botones unificados */
         .btn-outline-custom {
             border: 2px solid #000;
             border-radius: 8px;
@@ -115,7 +112,6 @@
             transform: translateY(-2px);
         }
 
-        /* Tabla adaptada al diseño */
         .table > thead > tr > th {
             text-transform: uppercase;
             font-size: 0.85rem;
@@ -141,7 +137,6 @@
             border-color: var(--ovi-orange);
         }
 
-        /* Badges de Match */
         .badge-match-total { background-color: #198754; color: white; }
         .badge-match-parcial { background-color: var(--ovi-orange); color: white; }
     </style>
@@ -155,7 +150,7 @@
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="brand-name">SgOVI</span>
-            <a th:href="@{/admin/index}" class="btn-outline-custom">Volver al panel</a>
+            <a th:href="@{/admin/requests}" class="btn-outline-custom">Volver a Solicitudes</a>
         </div>
     </div>
 </nav>
@@ -200,14 +195,13 @@
     <section class="content-card" aria-labelledby="candidates-title">
         <h2 id="candidates-title">Candidatos Disponibles</h2>
 
-        <form th:action="@{/admin/propose-candidates}" method="post" class="mt-4">
-            <input type="hidden" name="idRequest" th:value="${request.id}" />
+        <form th:action="@{/admin/requests/approve/{id}(id=${request.id})}" method="post" class="mt-4">
 
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th scope="col" style="width: 5%;">Select</th>
+                        <th scope="col" style="width: 5%;"></th>
                         <th scope="col">Nombre</th>
                         <th scope="col">Localidad</th>
                         <th scope="col">Horario</th>
@@ -227,20 +221,20 @@
                         <td th:text="${candidato.availability}">Mañanas</td>
                         <td th:text="${candidato.assistanceType}">PAP</td>
                         <td>
-                                <span th:if="${candidato.location == request.location and candidato.availability == request.schedule and candidato.assistanceType == request.type}"
-                                      class="badge badge-match-total px-2 py-1">
-                                    <i class="bi bi-star-fill me-1"></i> Match Total
-                                </span>
+                            <span th:if="${candidato.location == request.location and candidato.availability == request.schedule and candidato.assistanceType == request.type}"
+                                  class="badge badge-match-total px-2 py-1">
+                                <i class="bi bi-star-fill me-1"></i> Match Total
+                            </span>
 
                             <span th:if="${candidato.location == request.location and candidato.availability == request.schedule and candidato.assistanceType != request.type}"
                                   class="badge badge-match-parcial px-2 py-1">
-                                    Horario/Lugar
-                                </span>
+                                Horario/Lugar
+                            </span>
 
                             <span th:unless="${candidato.location == request.location and candidato.availability == request.schedule}"
                                   class="badge bg-secondary px-2 py-1">
-                                    Otros
-                                </span>
+                                Otros
+                            </span>
                         </td>
                     </tr>
 
@@ -255,7 +249,7 @@
             </div>
 
             <div class="d-flex justify-content-end align-items-center mt-5 gap-3">
-                <a th:href="@{/admin/index}" class="text-muted text-decoration-none me-2 fw-bold" style="font-size: 0.9rem;">CANCELAR</a>
+                <a th:href="@{/admin/requests}" class="text-muted text-decoration-none me-2 fw-bold" style="font-size: 0.9rem;">CANCELAR</a>
                 <button type="submit" class="btn-solid-custom" th:disabled="${#lists.isEmpty(candidatos)}">
                     ENVIAR PROPUESTAS
                 </button>

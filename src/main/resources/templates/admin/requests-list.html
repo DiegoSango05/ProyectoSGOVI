@@ -10,6 +10,8 @@
             --ovi-orange: #da9f38;
             --ovi-orange-dark: #c48b2d;
             --ovi-soft: #fffcf5;
+            --ovi-success: #198754;
+            --ovi-success-dark: #157347;
         }
 
         body {
@@ -108,8 +110,10 @@
         .btn-reject:hover { color: #d63031; background-color: #ffeaea; }
 
         .modal-content { border-radius: 16px; border: none; padding: 1rem; }
-        .btn-solid-custom {
-            background-color: var(--ovi-orange);
+
+        /* NUEVO BOTÓN VERDE PARA APROBACIÓN */
+        .btn-solid-success {
+            background-color: var(--ovi-success);
             color: #ffffff;
             border: none;
             border-radius: 8px;
@@ -119,6 +123,12 @@
             transition: all 0.2s;
             display: inline-block;
             text-decoration: none;
+        }
+
+        .btn-solid-success:hover {
+            background-color: var(--ovi-success-dark);
+            color: #ffffff;
+            transform: translateY(-2px);
         }
 
         .pill-grid {
@@ -216,7 +226,7 @@
                         <div class="d-flex gap-3 justify-content-center">
                             <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
 
-                            <a th:href="@{/admin/request-details/{id}(id=${solicitud.id})}" class="btn-solid-custom px-4 py-2">SÍ, APROBAR</a>
+                            <a th:href="@{/admin/request-details/{id}(id=${solicitud.id})}" class="btn-solid-success px-4 py-2">SÍ, APROBAR</a>
                         </div>
                     </div>
                 </div>

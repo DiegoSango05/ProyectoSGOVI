@@ -71,4 +71,10 @@ public class AssistanceRequestDao {
         }
     }
 
+    /* Actualiza solo el estado de la solicitud */
+    public void updateStatus(int id, String status) {
+        jdbcTemplate.update("UPDATE assistancerequest SET status=? WHERE id=?",
+                status, id);
+    }
+
 }

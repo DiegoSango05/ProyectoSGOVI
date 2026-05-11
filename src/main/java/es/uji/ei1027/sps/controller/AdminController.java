@@ -3,11 +3,9 @@ package es.uji.ei1027.sps.controller;
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
-import es.uji.ei1027.sps.model.AssistanceRequest;
-import es.uji.ei1027.sps.model.OVIUser;
-import es.uji.ei1027.sps.model.PAPAssistant;
+import es.uji.ei1027.sps.dao.SelectionDao;
+import es.uji.ei1027.sps.model.*;
 import jakarta.servlet.http.HttpSession;
-import es.uji.ei1027.sps.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +24,9 @@ public class AdminController {
 
     @Autowired
     private OVIUserDao oviUserDao;
+
+    @Autowired
+    private SelectionDao selectionDao;
 
     @RequestMapping("/index")
     public String indexAdmin(HttpSession session, Model model) {
@@ -62,22 +63,6 @@ public class AdminController {
         List<AssistanceRequest> solicitudes = assistanceRequestDao.getAssistanceRequests();
         model.addAttribute("solicitudes", solicitudes);
         return "admin/requests-list";
-    }
-
-    @PostMapping("/propose-candidates")
-    public String processPropose(@RequestParam int idRequest,
-                                 @RequestParam(required = false) List<String> selectedAssistants) {
-
-        if (selectedAssistants == null || selectedAssistants.isEmpty()) {
-            return "redirect:/admin/request-details/" + idRequest + "?error=nocandidates";
-        }
-
-        AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(idRequest);
-        if (request != null) {
-            request.setStatus("Accepted");
-            assistanceRequestDao.updateAssistanceRequest(request);
-        }
-        return "redirect:/admin/requests";
     }
 
     @PostMapping("/reject/{id}")
@@ -181,5 +166,27 @@ public class AdminController {
             oviUserDao.updateOVIUser(oviUser);
         }
         return "redirect:/admin/ovi-users";
+    }
+
+    @PostMapping("/requests/approve/{id}")
+    public String approveRequest(@PathVariable int id,
+                                 @RequestParam(value = "selectedAssistants", required = false) List<String> selectedAssistants) {
+
+        // 1. Actualizamos el estado de la solicitud
+        assistanceRequestDao.updateStatus(id, "Accepted");
+
+        // 2. Limpiamos selecciones previas por si acaso
+        selectionDao.deleteSelectionsByRequest(id);
+
+        // 3. Guardamos los nuevos asistentes recomendados
+        if (selectedAssistants != null) {
+            for (String dni : selectedAssistants) {
+                Selection selection = new Selection();
+                selection.setIdRequest(id);
+                selection.setDniAssistant(dni);
+                selectionDao.addSelection(selection);
+            }
+        }
+        return "redirect:/admin/requests";
     }
 }

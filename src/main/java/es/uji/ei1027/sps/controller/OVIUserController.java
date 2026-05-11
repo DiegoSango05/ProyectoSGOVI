@@ -1,6 +1,7 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.OVIUserDao;
+import es.uji.ei1027.sps.dao.SelectionDao;
 import es.uji.ei1027.sps.model.OVIUser;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class OVIUserController {
 
     private OVIUserDao oviUserDao;
+
+    @Autowired
+    private SelectionDao selectionDao;
 
     @Autowired
     public void setOviUserDao(OVIUserDao oviUserDao) {
