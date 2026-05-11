@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Gestión de Participantes</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+            --ovi-danger: #d63031;
+        }
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+
+        /* NAVBAR ADMINISTRACIÓN */
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover {
+            border-color: var(--ovi-orange) !important;
+            color: var(--ovi-orange) !important;
+            background-color: transparent !important;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--ovi-orange);
+            color: white;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-add:hover {
+            background-color: var(--ovi-orange-dark);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: var(--ovi-orange);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+
+        .badge-user { background-color: #0dcaf0; color: #000; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; }
+        .badge-assistant { background-color: #6c757d; color: #fff; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; }
+
+        /* Botón de borrar con estilo píldora circular */
+        .btn-delete-pill {
+            border: 2px solid var(--ovi-danger);
+            color: var(--ovi-danger);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            background: transparent;
+            text-decoration: none;
+        }
+        .btn-delete-pill:hover {
+            background-color: var(--ovi-danger);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4 mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/activity/list}" class="btn-outline-custom-nav">VOLVER AL LISTADO</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-2">
+    <div class="content-card mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="fw-bold mb-1" th:text="${activity.title}">Nombre de la Actividad</h1>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    <span th:text="${activity.activityDate + ' a las ' + activity.activityTime}">Fecha y Hora</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="content-card h-100">
+                <h3 class="section-title"><i class="bi bi-person-fill me-2"></i>Añadir Usuario OVI</h3>
+                <form th:action="@{/activity/add-participant-manual}" method="post">
+                    <input type="hidden" name="idActivity" th:value="${activity.id}" />
+                    <div class="mb-3">
+                        <select name="dniUser" class="form-select py-2">
+                            <option value="">Selecciona un usuario...</option>
+                            <option th:each="user : ${allUsers}" th:value="${user.dni}" th:text="${user.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-add w-100 py-2">INSCRIBIR USUARIO</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="content-card h-100">
+                <h3 class="section-title"><i class="bi bi-person-badge-fill me-2"></i>Añadir Asistente PAP</h3>
+                <form th:action="@{/activity/add-participant-manual}" method="post">
+                    <input type="hidden" name="idActivity" th:value="${activity.id}" />
+                    <div class="mb-3">
+                        <select name="dniAssistant" class="form-select py-2">
+                            <option value="">Selecciona un asistente...</option>
+                            <option th:each="assistant : ${allAssistants}" th:value="${assistant.dni}" th:text="${assistant.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-add w-100 py-2">INSCRIBIR ASISTENTE</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card shadow-sm border-0">
+        <h3 class="section-title">Participantes Inscritos</h3>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th class="ps-3">DNI Participante</th>
+                    <th>Tipo</th>
+                    <th class="text-end pe-3">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="participant : ${currentParticipants}">
+                    <td class="fw-bold ps-3" th:text="${participant.dniOVIUser != null ? participant.dniOVIUser : participant.dniAssistant}">DNI</td>
+                    <td>
+                        <span th:if="${participant.dniOVIUser != null}" class="badge badge-user">Usuario OVI</span>
+                        <span th:if="${participant.dniAssistant != null}" class="badge badge-assistant">Asistente</span>
+                    </td>
+                    <td class="text-end pe-3">
+                        <a th:href="@{/assistancelist/delete/{id_list}(id_list=${participant.id_list})}" class="btn-delete-pill">
+                            <i class="bi bi-trash3-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(currentParticipants)}">
+                    <td colspan="3" class="text-center text-muted py-5">
+                        <i class="bi bi-people mb-2 d-block fs-2"></i>
+                        No hay participantes inscritos todavía.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

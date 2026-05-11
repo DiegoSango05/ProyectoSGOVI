@@ -189,4 +189,14 @@ public class AdminController {
         }
         return "redirect:/admin/requests";
     }
+
+    @GetMapping("/activities")
+    public String listActivitiesAdmin(HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) {
+            return "redirect:/login";
+        }
+        // Redirigimos al controlador de actividades que ya tiene la lógica de listar
+        return "redirect:/activity/list";
+    }
 }

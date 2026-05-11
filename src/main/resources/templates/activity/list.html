@@ -1,46 +1,221 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Lista de Actividades</title>
+    <title>SgOVI - Actividades</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #da9f38;
+            --ovi-orange-dark: #c48b2d;
+            --ovi-soft: #fffcf5;
+            --ovi-danger: #d63031;
+        }
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+        .hero { border-bottom: 1px solid #eee; padding: 3rem 0 2rem; text-align: center; }
+        .hero-title { font-size: 2.6rem; font-weight: 800; }
+        .hero-title span { color: var(--ovi-orange); }
+
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
+
+        .request-pill {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.2rem;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .request-pill:hover { border-color: var(--ovi-orange); transform: translateY(-2px); }
+
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--ovi-orange);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .pill-data { font-size: 0.95rem; font-weight: 600; color: #000; display: block; }
+
+        .pill-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1.2fr 1fr 1fr 2.2fr;
+            gap: 15px;
+            align-items: start;
+            flex-grow: 1;
+        }
+
+        .btn-ovi-action {
+            border: 2px solid var(--ovi-orange);
+            color: var(--ovi-orange);
+            border-radius: 20px;
+            font-weight: 700;
+            padding: 0.4rem 1.2rem;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-ovi-action:hover { background-color: var(--ovi-orange); color: white; }
+
+        .btn-ovi-danger {
+            border: 2px solid var(--ovi-danger);
+            color: var(--ovi-danger);
+            border-radius: 20px;
+            font-weight: 700;
+            padding: 0.4rem 1.2rem;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+        }
+        .btn-ovi-danger:hover { background-color: var(--ovi-danger); color: white; }
+
+        /* BOTÓN + NUEVA ACTIVIDAD CON ANIMACIÓN */
+        .btn-solid-custom {
+            background-color: var(--ovi-orange);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.6rem 1.5rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-solid-custom:hover {
+            background-color: var(--ovi-orange-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(218, 159, 56, 0.3);
+        }
+
+        .modal-content { border-radius: 20px; border: none; }
+        .modal-backdrop.show { backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.4); }
+
+        .btn-danger-solid {
+            background-color: var(--ovi-danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.5rem 1.5rem;
+            transition: 0.2s;
+        }
+        .btn-danger-solid:hover { background-color: #b32626; transform: translateY(-2px); }
+    </style>
 </head>
-<body class="container mt-5">
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Lista de Actividades</h1>
-    <a href="/activity/add" class="btn btn-outline-primary">+ Nueva Actividad</a>
-    <a href="/" class="btn btn-outline-primary">Volver al Inicio</a>
-</div>
-<table class="table table-striped mt-4">
-    <thead class="table-info">
-    <tr>
-        <th>ID</th>
-        <th>Descripción</th>
-        <th>Título</th>
-        <th>Tipo</th>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Ubicación</th>
-        <th>DNI Instructor</th>
-        <th>Acciones</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="activity : ${activities}">
-        <td th:text="${activity.id}"></td>
-        <td th:text="${activity.description}"></td>
-        <td th:text="${activity.title}"></td>
-        <td th:text="${activity.type}"></td>
-        <td th:text="${activity.activityDate}"></td>
-        <td th:text="${activity.activityTime}"></td>
-        <td th:text="${activity.location}"></td>
-        <td th:text="${activity.dniInstructor}"></td>
-        <td><a th:href="@{/assistancelist/list(idActivity=${activity.id})}" class="btn btn-sm btn-outline-primary">Ver lista asistencia</a></td>
-    </tr>
-    </tbody>
-</table>
-<div th:if="${activities.isEmpty()}">
-    <p class="alert alert-warning">No hay actividades registradas en la base de datos.</p>
-</div>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom-nav">VOLVER</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <h1 class="hero-title">Gestión de <span>Actividades</span></h1>
+        <p class="text-muted">Listado de eventos y talleres programados en el sistema.</p>
+        <a th:href="@{/activity/add}" class="btn-solid-custom mt-3">+ NUEVA ACTIVIDAD</a>
+    </div>
+</header>
+
+<main class="container py-5">
+    <div th:each="activity : ${activities}">
+        <div class="request-pill">
+            <div class="pill-grid">
+                <div>
+                    <span class="pill-label">Título</span>
+                    <span class="pill-data" th:text="${activity.title}">Título</span>
+                </div>
+                <div>
+                    <span class="pill-label">Tipo</span>
+                    <span class="pill-data" th:text="${activity.type}">Tipo</span>
+                </div>
+                <div>
+                    <span class="pill-label">Fecha y Hora</span>
+                    <span class="pill-data" th:text="${activity.activityDate + ' - ' + activity.activityTime}">Fecha</span>
+                </div>
+                <div>
+                    <span class="pill-label">Ubicación</span>
+                    <span class="pill-data" th:text="${activity.location}">Ubicación</span>
+                </div>
+                <div>
+                    <span class="pill-label">Instructor</span>
+                    <span class="pill-data" th:text="${activity.dniInstructor}">DNI</span>
+                </div>
+                <div class="d-flex gap-2 justify-content-end align-items-center">
+                    <a th:href="@{/activity/manage-participants/{id}(id=${activity.id})}" class="btn-ovi-action"> VER PARTICIPANTES </a>
+                    <button class="btn-ovi-danger" type="button"
+                            data-bs-toggle="modal" th:data-bs-target="'#modalDelete' + ${activity.id}">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" th:id="'modalDelete' + ${activity.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-body p-5 text-center">
+                        <div class="mb-4">
+                            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">¿Eliminar actividad?</h3>
+                        <p class="text-muted mb-4">Estás a punto de borrar permanentemente la actividad: <br>
+                            <b class="text-dark" th:text="${activity.title}">Nombre de la actividad</b>.
+                        </p>
+                        <div class="d-flex gap-3 justify-content-center mt-4">
+                            <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 8px;">CANCELAR</button>
+                            <form th:action="@{/activity/delete/{id}(id=${activity.id})}" method="post">
+                                <button type="submit" class="btn-danger-solid">SÍ, ELIMINAR</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${activities.isEmpty()}" class="text-center py-5">
+        <i class="bi bi-calendar-x fs-1 text-muted"></i>
+        <p class="text-muted mt-2">No hay actividades registradas actualmente.</p>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

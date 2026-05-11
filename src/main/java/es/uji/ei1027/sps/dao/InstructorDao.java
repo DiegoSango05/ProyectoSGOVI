@@ -55,4 +55,16 @@ public class InstructorDao {
             return new ArrayList<Instructor>();
         }
     }
+
+    /* Obtiene instructores priorizando los que coinciden con el tipo de actividad */
+    public List<Instructor> getInstructorsBySpecialty(String type) {
+        try {
+            // Usamos una lógica de ordenación en SQL:
+            // Si specialization = type, le asignamos prioridad 1, si no 0.
+            String sql = "SELECT * FROM instructor ORDER BY (specialization = ?) DESC, name ASC";
+            return jdbcTemplate.query(sql, new InstructorRowMapper(), type);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Instructor>();
+        }
+    }
 }

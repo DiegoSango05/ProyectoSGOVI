@@ -22,8 +22,8 @@ public class ActivityDao {
 
     /* Añade la actividad a la base de datos */
     public void addActivity(Activity activity) {
-        jdbcTemplate.update("INSERT INTO activity VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                activity.getId(), activity.getDescription(), activity.getTitle(),
+        jdbcTemplate.update("INSERT INTO activity (description, title, type, max_participants, activity_date, activity_time, location, dni_instructor) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                activity.getDescription(), activity.getTitle(),
                 activity.getType(), activity.getMaxParticipants(), activity.getActivityDate(),
                 activity.getActivityTime(), activity.getLocation(), activity.getDniInstructor());
     }

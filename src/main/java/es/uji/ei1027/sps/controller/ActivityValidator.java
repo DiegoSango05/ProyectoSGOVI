@@ -29,9 +29,9 @@ public class ActivityValidator implements Validator {
             errors.rejectValue("location", "obligatorio", "Es necesario indicar un lugar para la actividad");
         }
 
-        // Validación del DNI del Instructor
-        if (activity.getDniInstructor().trim().isEmpty()) {
-            errors.rejectValue("dniInstructor", "obligatorio", "El DNI del instructor es obligatorio");
+        // Validación del Instructor
+        if (activity.getDniInstructor() == null || activity.getDniInstructor().trim().isEmpty()) {
+            errors.rejectValue("dniInstructor", "obligatorio", "Debes seleccionar un instructor para la actividad");
         }
     }
 }

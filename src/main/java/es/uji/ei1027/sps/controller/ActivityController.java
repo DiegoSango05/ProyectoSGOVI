@@ -1,10 +1,10 @@
 package es.uji.ei1027.sps.controller;
 
-import es.uji.ei1027.sps.dao.ActivityDao;
-import es.uji.ei1027.sps.dao.AssistanceListDao;
+import es.uji.ei1027.sps.dao.*;
 import es.uji.ei1027.sps.model.AssistanceList;
 import es.uji.ei1027.sps.model.Activity;
 import es.uji.ei1027.sps.model.OVIUser;
+import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +24,15 @@ public class ActivityController {
 
     private ActivityDao activityDao;
     private AssistanceListDao assistanceListDao;
+
+    @Autowired
+    private InstructorDao instructorDao;
+
+    @Autowired
+    private PAPAssistantDao papAssistantDao;
+
+    @Autowired
+    private OVIUserDao oviUserDao;
 
     @Autowired
     public void setActivityDao(ActivityDao activityDao) {
@@ -97,21 +106,40 @@ public class ActivityController {
     }
 
     // AÑADIR (Formulario)
-    @RequestMapping("/add")
-    public String addActivity(Model model) {
-        model.addAttribute("activity", new Activity());
+    @RequestMapping(value="/add", method=RequestMethod.GET)
+    public String addActivity(Model model, @RequestParam(required=false) String type) {
+        Activity activity = new Activity();
+        activity.setMaxParticipants(1);
+        if (type != null) activity.setType(type);
+
+        model.addAttribute("activity", activity);
+
+        // Si ya tenemos el tipo, buscamos instructores con el "Match"
+        if (type != null && !type.isEmpty()) {
+            model.addAttribute("instructors", instructorDao.getInstructorsBySpecialty(type));
+        } else {
+            model.addAttribute("instructors", instructorDao.getInstructors());
+        }
         return "activity/add";
     }
 
     // AÑADIR (Procesar)
     @RequestMapping(value="/add", method= RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("activity") Activity activity,
-                                   BindingResult bindingResult) {
+                                   BindingResult bindingResult, Model model) {
         ActivityValidator activityValidator = new ActivityValidator();
         activityValidator.validate(activity, bindingResult);
 
-        if (bindingResult.hasErrors())
+        if (bindingResult.hasErrors()) {
+            if (activity.getType() != null && !activity.getType().trim().isEmpty()) {
+                model.addAttribute("instructors", instructorDao.getInstructorsBySpecialty(activity.getType()));
+            } else {
+                model.addAttribute("instructors", instructorDao.getInstructors());
+            }
+
             return "activity/add";
+        }
+
         activityDao.addActivity(activity);
         return "redirect:list";
     }
@@ -159,5 +187,64 @@ public class ActivityController {
                     assistanceListDao.isOVIUserRegisteredInActivity(dniOVIUser, activity.getId()));
         }
         return registeredByActivityId;
+    }
+
+    @GetMapping("/manage-participants/{id}")
+    public String manageParticipants(@PathVariable int id, Model model) {
+        Activity activity = activityDao.getActivity(id);
+        List<AssistanceList> inscritos = assistanceListDao.getAssistanceListsByActivity(id);
+
+        // 1. Conseguimos todos los usuarios y asistentes
+        List<OVIUser> allUsers = oviUserDao.getOVIUsers();
+        List<PAPAssistant> allAssistants = papAssistantDao.getPAPAssistants();
+
+        // 2. Filtramos: Solo dejamos los que NO están en la lista de 'inscritos'
+        List<OVIUser> availableUsers = allUsers.stream()
+                .filter(u -> inscritos.stream().noneMatch(p -> u.getDni().equals(p.getDniOVIUser())))
+                .toList();
+
+        List<PAPAssistant> availableAssistants = allAssistants.stream()
+                .filter(a -> inscritos.stream().noneMatch(p -> a.getDni().equals(p.getDniAssistant())))
+                .toList();
+
+        model.addAttribute("activity", activity);
+        model.addAttribute("currentParticipants", inscritos);
+        model.addAttribute("allUsers", availableUsers);
+        model.addAttribute("allAssistants", availableAssistants);
+
+        return "admin/manage-participants";
+    }
+
+    @PostMapping("/add-participant-manual")
+    public String addParticipantManual(@RequestParam int idActivity,
+                                       @RequestParam(required = false) String dniUser,
+                                       @RequestParam(required = false) String dniAssistant) {
+
+        boolean yaInscrito = false;
+
+        // Comprobamos según lo que nos haya llegado
+        if (dniUser != null && !dniUser.isEmpty()) {
+            yaInscrito = assistanceListDao.isOVIUserRegisteredInActivity(dniUser, idActivity);
+        } else if (dniAssistant != null && !dniAssistant.isEmpty()) {
+            yaInscrito = assistanceListDao.isAssistantRegisteredInActivity(dniAssistant, idActivity);
+        }
+
+        // Si NO está inscrito, lo añadimos
+        if (!yaInscrito && ((dniUser != null && !dniUser.isEmpty()) || (dniAssistant != null && !dniAssistant.isEmpty()))) {
+            AssistanceList participation = new AssistanceList();
+
+            // Generamos el ID automáticamente con tu método getNextId()
+            participation.setId_list(assistanceListDao.getNextId());
+            participation.setIdActivity(idActivity);
+            participation.setDniOVIUser(dniUser);
+            participation.setDniAssistant(dniAssistant);
+
+            // Valores por defecto para fecha/hora o participación si tu modelo los requiere
+            participation.setParticipation(true);
+
+            assistanceListDao.addAssistanceList(participation);
+        }
+
+        return "redirect:/activity/manage-participants/" + idActivity;
     }
 }

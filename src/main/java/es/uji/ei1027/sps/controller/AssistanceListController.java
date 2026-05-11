@@ -54,8 +54,15 @@ public class AssistanceListController {
     // ELIMINAR
     @RequestMapping(value="/delete/{id_list}")
     public String processDelete(@PathVariable int id_list) {
-        assistanceListDao.deleteAssistanceList(id_list);
-        return "redirect:../list";
+        AssistanceList assistance = assistanceListDao.getAssistanceList(id_list);
+
+        if (assistance != null) {
+            int idActivity = assistance.getIdActivity();
+            assistanceListDao.deleteAssistanceList(id_list);
+            return "redirect:/activity/manage-participants/" + idActivity;
+        }
+
+        return "redirect:/activity/list";
     }
 
     // ACTUALIZAR (Formulario)

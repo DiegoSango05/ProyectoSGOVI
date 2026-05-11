@@ -90,4 +90,11 @@ public class AssistanceListDao {
                 Integer.class, dniOVIUser, idActivity);
         return count != null && count > 0;
     }
+
+    public boolean isAssistantRegisteredInActivity(String dniAssistant, int idActivity) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM assistancelist WHERE dni_assistant=? AND id_activity=?",
+                Integer.class, dniAssistant, idActivity);
+        return count != null && count > 0;
+    }
 }
