@@ -2,9 +2,11 @@ package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
 import es.uji.ei1027.sps.dao.NegotiationDao;
+import es.uji.ei1027.sps.dao.SelectionDao;
 import es.uji.ei1027.sps.model.AssistanceRequest;
 import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
+import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,8 @@ public class AssistanceRequestController {
     public void setAssistanceRequestDao(AssistanceRequestDao assistanceRequestDao) {
         this.assistanceRequestDao = assistanceRequestDao;
     }
+    @Autowired
+    private SelectionDao selectionDao;
 
     @Autowired
     public void setNegotiationDao(NegotiationDao negotiationDao) {
@@ -66,7 +70,8 @@ public class AssistanceRequestController {
             return "redirect:/login";
         }
         AssistanceRequest request = new AssistanceRequest();
-        request.setStatus("Pendiente");
+        // CORRECCIÓN: Usar "Pending" en lugar de "Pendiente" por la restricción de la BBDD
+        request.setStatus("Pending");
         request.setDniOVIuser(user.getDni());
         model.addAttribute("assistancerequest", request);
         return "assistancerequest/ovi-add";
@@ -90,19 +95,23 @@ public class AssistanceRequestController {
     @RequestMapping(value="/ovi-add", method= RequestMethod.POST)
     public String processOVIAddSubmit(@ModelAttribute("assistancerequest") AssistanceRequest request,
                                       BindingResult bindingResult,
-                                      HttpSession session) {
+                                      HttpSession session,
+                                      Model model) {
         OVIUser user = getLoggedOVIUser(session);
         if (user == null) {
             return "redirect:/login";
         }
+
+        request.setStatus("Pending");
+        request.setDniOVIuser(user.getDni());
+
         if (bindingResult.hasErrors()) {
             return "assistancerequest/ovi-add";
         }
 
-        request.setStatus("Pendiente");
-        request.setDniOVIuser(user.getDni());
         assistanceRequestDao.addAssistanceRequest(request);
-        return "redirect:my-list";
+        model.addAttribute("savedRequest", request);
+        return "assistancerequest/ovi-add-confirm";
     }
 
     // ELIMINAR
@@ -157,4 +166,24 @@ public class AssistanceRequestController {
     private boolean isAccepted(String status) {
         return "Accepted".equalsIgnoreCase(status);
     }
+
+    @GetMapping("/candidates/{id}")
+    public String listCandidates(@PathVariable int id, HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) return "redirect:/login";
+
+        AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(id);
+
+        // Solo permitimos ver candidatos si la solicitud es del usuario y está aceptada
+        if (request == null || !request.getDniOVIuser().equals(user.getDni())) {
+            return "redirect:/assistancerequest/my-list";
+        }
+
+        List<PAPAssistant> candidates = selectionDao.getAssistantsForRequest(id);
+        model.addAttribute("request", request);
+        model.addAttribute("candidates", candidates);
+
+        return "assistancerequest/ovi-candidates";
+    }
+
 }

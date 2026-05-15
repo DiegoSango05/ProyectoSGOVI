@@ -10,12 +10,12 @@ public final class AssistanceRequestRowMapper implements RowMapper<AssistanceReq
     public AssistanceRequest mapRow(ResultSet rs, int rowNum) throws SQLException {
         AssistanceRequest assistanceRequest = new AssistanceRequest();
         assistanceRequest.setId(rs.getInt("id"));
-        assistanceRequest.setType(rs.getString("type"));
         assistanceRequest.setDescription(rs.getString("description"));
+        assistanceRequest.setType(rs.getString("type"));
         assistanceRequest.setSchedule(rs.getString("schedule"));
         assistanceRequest.setLocation(rs.getString("location"));
-        assistanceRequest.setStatus(rs.getString("status"));
         assistanceRequest.setRequirements(rs.getString("requirements"));
+        assistanceRequest.setStatus(rs.getString("status"));
         assistanceRequest.setDniOVIuser(rs.getString("dni_oviuser"));
         return assistanceRequest;
     }

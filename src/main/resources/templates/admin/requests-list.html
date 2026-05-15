@@ -180,10 +180,20 @@
                     <span class="pill-label">ID Petición</span>
                     <span class="pill-data" th:text="${'#' + solicitud.id}">#1</span>
                 </div>
+
                 <div>
                     <span class="pill-label">Usuario OVI</span>
-                    <span class="pill-data" th:text="${solicitud.dniOVIuser}">12345678X</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pill-data" th:text="${solicitud.dniOVIuser}">12345678X</span>
+
+                        <a th:href="@{/admin/request-user-details/{dni}(dni=${solicitud.dniOVIuser}, requestId=${solicitud.id})}"
+                           class="btn-view-profile"
+                           title="Consultar perfil completo del solicitante">
+                            <i class="bi bi-arrow-right-circle-fill"></i>
+                        </a>
+                    </div>
                 </div>
+
                 <div>
                     <span class="pill-label">Servicio</span>
                     <span class="pill-data" th:text="${solicitud.type}">PAP</span>

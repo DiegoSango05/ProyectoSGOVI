@@ -21,11 +21,18 @@ public class AssistanceRequestDao {
 
     /* Añade la solicitud */
     public void addAssistanceRequest(AssistanceRequest assistanceRequest) {
-        jdbcTemplate.update("INSERT INTO assistancerequest VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-                assistanceRequest.getId(), assistanceRequest.getType(),
-                assistanceRequest.getDescription(), assistanceRequest.getSchedule(),
-                assistanceRequest.getLocation(), assistanceRequest.getStatus(),
-                assistanceRequest.getRequirements(), assistanceRequest.getDniOVIuser());
+        String sql = "INSERT INTO assistancerequest (description, type, schedule, location, requirements, status, dni_oviuser) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(sql,
+                assistanceRequest.getDescription(),  // 1. description
+                assistanceRequest.getType(),         // 2. type
+                assistanceRequest.getSchedule(),     // 3. schedule
+                assistanceRequest.getLocation(),      // 4. location
+                assistanceRequest.getRequirements(),  // 5. requirements
+                assistanceRequest.getStatus(),       // 6. status  <-- ¡ESTE ES EL QUE SE MOVIÓ!
+                assistanceRequest.getDniOVIuser()    // 7. dni_oviuser
+        );
     }
 
     /* Borra la solicitud */

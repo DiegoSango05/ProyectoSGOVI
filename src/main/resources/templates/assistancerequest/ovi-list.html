@@ -189,6 +189,15 @@
                     </div>
                 </div>
 
+                <div class="border-top pt-3 mt-3" th:if="${#strings.equalsIgnoreCase(request.status, 'Accepted') and !acceptedByRequestId[request.id]}">
+                    <p class="small text-muted mb-3">
+                        <i class="bi bi-info-circle me-1"></i> El administrador ha propuesto asistentes para esta solicitud.
+                    </p>
+                    <a th:href="@{/assistancerequest/candidates/{id}(id=${request.id})}" class="btn-main">
+                        <i class="bi bi-people-fill me-1"></i> Ver candidatos propuestos
+                    </a>
+                </div>
+
                 <div th:if="${acceptedByRequestId[request.id] and negotiationsByRequestId[request.id] != null}">
                     <div class="border-top pt-3 mt-3">
                         <p class="small text-muted mb-3">

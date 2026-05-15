@@ -20,11 +20,12 @@ public class NegotiationDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    /* Añade una negociación */
     public void addNegotiation(Negotiation negotiation) {
-        jdbcTemplate.update("INSERT INTO negotiation VALUES(?, ?, ?, ?, ?)",
-                negotiation.getIdNegotiation(), negotiation.getStatus(),
-                negotiation.getNegotiationDate(), negotiation.getIdRequest(),
+        String sql = "INSERT INTO negotiation (status, negotiation_date, id_request, dni_assistant) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sql,
+                negotiation.getStatus(),
+                negotiation.getNegotiationDate(),
+                negotiation.getIdRequest(),
                 negotiation.getDniAssistant());
     }
 

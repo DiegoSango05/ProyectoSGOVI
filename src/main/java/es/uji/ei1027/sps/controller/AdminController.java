@@ -171,22 +171,22 @@ public class AdminController {
     @PostMapping("/requests/approve/{id}")
     public String approveRequest(@PathVariable int id,
                                  @RequestParam(value = "selectedAssistants", required = false) List<String> selectedAssistants) {
+        
+        if (selectedAssistants == null || selectedAssistants.isEmpty()) {
+            return "redirect:/admin/request-details/" + id + "?error=nocandidates";
+        }
 
-        // 1. Actualizamos el estado de la solicitud
         assistanceRequestDao.updateStatus(id, "Accepted");
 
-        // 2. Limpiamos selecciones previas por si acaso
         selectionDao.deleteSelectionsByRequest(id);
 
-        // 3. Guardamos los nuevos asistentes recomendados
-        if (selectedAssistants != null) {
-            for (String dni : selectedAssistants) {
-                Selection selection = new Selection();
-                selection.setIdRequest(id);
-                selection.setDniAssistant(dni);
-                selectionDao.addSelection(selection);
-            }
+        for (String dni : selectedAssistants) {
+            Selection selection = new Selection();
+            selection.setIdRequest(id);
+            selection.setDniAssistant(dni);
+            selectionDao.addSelection(selection);
         }
+
         return "redirect:/admin/requests";
     }
 
@@ -196,7 +196,24 @@ public class AdminController {
         if (user == null || !session.getAttribute("role").equals("admin")) {
             return "redirect:/login";
         }
-        // Redirigimos al controlador de actividades que ya tiene la lógica de listar
         return "redirect:/activity/list";
+    }
+
+    @GetMapping("/request-user-details/{dni}")
+    public String requestUserDetails(@PathVariable String dni,
+                                     @RequestParam Integer requestId,
+                                     HttpSession session, Model model) {
+
+
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        OVIUser oviUser = oviUserDao.getOVIUser(dni);
+        if (oviUser != null) {
+            model.addAttribute("usuario", oviUser);
+            model.addAttribute("requestId", requestId); // Pasamos el ID para el botón de volver
+        }
+
+        return "admin/request-user-details";
     }
 }

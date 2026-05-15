@@ -1,19 +1,23 @@
 package es.uji.ei1027.sps.controller;
 
+import es.uji.ei1027.sps.dao.AssistanceRequestDao;
 import es.uji.ei1027.sps.dao.NegotiationDao;
 import es.uji.ei1027.sps.model.Negotiation;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @Controller
 @RequestMapping("/negotiation")
 public class NegotiationController {
 
+    @Autowired
     private NegotiationDao negotiationDao;
-
     @Autowired
     public void setNegotiationDao(NegotiationDao negotiationDao) {
         this.negotiationDao = negotiationDao;
@@ -66,5 +70,27 @@ public class NegotiationController {
             return "negotiation/update";
         negotiationDao.updateNegotiation(negotiation);
         return "redirect:list";
+    }
+
+    @Autowired
+    private AssistanceRequestDao assistanceRequestDao;
+
+    @PostMapping("/start")
+    public String startNegotiation(@RequestParam("idRequest") int idRequest,
+                                   @RequestParam("dniAssistant") String dniAssistant,
+                                   HttpSession session) {
+
+        // 1. Crear el objeto Negociación
+        Negotiation negotiation = new Negotiation();
+
+        negotiation.setStatus("Pending"); // Estado inicial de la negociación
+        negotiation.setNegotiationDate(LocalDate.now());
+        negotiation.setIdRequest(idRequest);
+        negotiation.setDniAssistant(dniAssistant);
+
+        // 2. Guardar en la base de datos
+        negotiationDao.addNegotiation(negotiation);
+
+        return "redirect:/assistancerequest/my-list";
     }
 }
