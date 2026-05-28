@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Gestión de Perfiles</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+
+        .hero { border-bottom: 1px solid #eee; padding: 3rem 0 2rem; text-align: center; }
+        .hero-title { font-size: 2.6rem; font-weight: 800; }
+        .hero-title span { color: var(--ovi-orange); }
+
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
+
+        /* ESTILOS DE LAS PESTAÑAS (TABS) AL 100% DE ANCHO */
+        .custom-tabs {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 2rem;
+            display: flex;
+            width: 100%;
+        }
+        .tab-link {
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 700;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-decoration: none;
+            flex: 1;
+            text-align: center;
+        }
+        .tab-link:hover {
+            color: var(--ovi-orange);
+            background-color: rgba(133, 77, 0, 0.03);
+        }
+        .tab-link.active {
+            color: var(--ovi-orange);
+            border-bottom-color: var(--ovi-orange);
+        }
+
+        .profile-pill {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.2rem;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+        .profile-pill:hover { border-color: var(--ovi-orange); transform: translateY(-2px); }
+
+        .pill-grid {
+            display: grid;
+            grid-template-columns: 120px 220px 150px 1fr;
+            gap: 20px;
+            align-items: start;
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--ovi-orange);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .pill-data { font-size: 0.95rem; font-weight: 600; color: #000; display: block; }
+
+        .btn-ovi-action {
+            border: 2px solid var(--ovi-orange);
+            color: var(--ovi-orange);
+            border-radius: 20px;
+            font-weight: 700;
+            padding: 0.4rem 1.2rem;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .btn-ovi-action:hover { background-color: var(--ovi-orange); color: white; }
+
+        .btn-ovi-secondary {
+            border: 2px solid #000;
+            color: #000;
+            border-radius: 20px;
+            font-weight: 700;
+            padding: 0.4rem 1.2rem;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .btn-ovi-secondary:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
+
+        .btn-solid-custom {
+            background-color: var(--ovi-orange);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.6rem 1.5rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-solid-custom:hover {
+            background-color: var(--ovi-orange-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(218, 159, 56, 0.3);
+        }
+
+        .modal-content { border-radius: 20px; border: none; }
+        .modal-backdrop.show { backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.4); }
+        .choice-card {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: #000;
+            display: block;
+            transition: 0.2s;
+        }
+        .choice-card:hover {
+            border-color: var(--ovi-orange);
+            background-color: var(--ovi-soft);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom-nav">VOLVER</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <h1 class="hero-title">Gestión de <span>Perfiles</span></h1>
+        <p class="text-muted">Administración integral de credenciales, datos y roles del personal y usuarios.</p>
+        <button type="button" class="btn-solid-custom mt-3" data-bs-toggle="modal" data-bs-target="#modalCreateChoice">
+            + CREAR PERFIL
+        </button>
+    </div>
+</header>
+
+<main class="container py-5">
+
+    <!-- PESTAÑAS DE FILTRADO -->
+    <div class="custom-tabs">
+        <a th:href="@{/admin/manage-profiles(type='usuario')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentType, 'usuario')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-people-fill me-1"></i> Usuarios OVI
+        </a>
+        <a th:href="@{/admin/manage-profiles(type='asistente')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentType, 'asistente')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-person-badge-fill me-1"></i> Asistentes PAP
+        </a>
+    </div>
+
+    <!-- LISTADO DE PERFILES -->
+    <div id="profiles-container">
+        <div th:each="perfil : ${perfiles}">
+            <div class="profile-pill">
+                <div class="pill-grid">
+                    <div>
+                        <span class="pill-label">DNI</span>
+                        <span class="pill-data" th:text="${perfil.dni}">12345678Z</span>
+                    </div>
+                    <div>
+                        <span class="pill-label">Nombre</span>
+                        <span class="pill-data" th:text="${perfil.name}">Nombre Apellido</span>
+                    </div>
+                    <div>
+                        <span class="pill-label">Teléfono</span>
+                        <span class="pill-data" th:text="${perfil.phoneNumber}">600000000</span>
+                    </div>
+                    <div>
+                        <!-- BLINDAJE AQUÍ: Si estamos en la pestaña de usuario muestra el email, si es asistente muestra el tipo de asistencia -->
+                        <span class="pill-label" th:text="${currentType == 'usuario' ? 'Correo Electrónico' : 'Tipo Asistencia'}">Dato</span>
+                        <span class="pill-data" th:text="${currentType == 'usuario' ? perfil.email : perfil.assistanceType}">correo@ejemplo.com</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/profiles/edit/{type}/{dni}(type=${currentType}, dni=${perfil.dni})}" class="btn-ovi-secondary">
+                        <i class="bi bi-pencil-square me-1"></i> MODIFICAR PERFIL
+                    </a>
+                    <a th:href="@{/admin/profiles/view/{type}/{dni}(type=${currentType}, dni=${perfil.dni})}" class="btn-ovi-action">
+                        <i class="bi bi-eye-fill me-1"></i> VER PERFIL
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(perfiles)}" class="text-center text-muted py-5">
+            <i class="bi bi-person-exclamation mb-2 d-block fs-1"></i>
+            No hay perfiles registrados en esta categoría.
+        </div>
+    </div>
+</main>
+
+<div class="modal fade" id="modalCreateChoice" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <h3 class="fw-bold mb-2">Nuevo Perfil Manual</h3>
+                <p class="text-muted mb-4">Selecciona qué tipo de cuenta deseas dar de alta en el sistema:</p>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a th:href="@{/admin/profiles/create/usuario}" class="choice-card">
+                            <i class="bi bi-people text-warning fs-1 mb-2 d-block"></i>
+                            <span class="fw-bold d-block text-uppercase small">Usuario OVI</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a th:href="@{/admin/profiles/create/asistente}" class="choice-card">
+                            <i class="bi bi-person-badge text-warning fs-1 mb-2 d-block"></i>
+                            <span class="fw-bold d-block text-uppercase small">Asistente PAP</span>
+                        </a>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-light w-100 mt-4 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 8px;">
+                    CANCELAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@
     <style>
         :root { --ovi-orange: #854d00;
             --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
         }
         body { background-color: #ffffff; color: #000000; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
         .header-brand { text-align: center; padding: 30px 0; background-color: #ffffff; }
@@ -23,13 +24,12 @@
         .is-invalid { border-color: #dc3545 !important; }
         .error-message { color: #dc3545; font-size: 0.75rem; font-weight: 700; margin-top: 5px; }
 
+        /* CORREGIDO: Animación, sombra de elevación y color de hover idénticos al botón del usuario */
         .btn-save { background-color: var(--ovi-orange); color: #fff; border: none; padding: 12px 30px; font-weight: 700; border-radius: 8px; text-transform: uppercase; transition: all 0.2s; }
-        .btn-save:hover { background-color: #c48b2d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(133, 77, 0, 0.2); }
+        .btn-save:hover { background-color: #c48b2d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(218, 159, 56, 0.2); }
 
-        /* CORREGIDO: Botón cancelar idéntico a las vistas del Admin (mayúsculas, sin subrayar, hover corporativo) */
         .btn-cancel { color: #000; text-decoration: none; font-weight: 700; padding: 12px 20px; font-size: 0.85rem; text-transform: uppercase; transition: color 0.2s ease; }
         .btn-cancel:hover { color: var(--ovi-orange); }
-
         .input-group-text { background-color: #ffffff; border: 1px solid var(--ovi-orange); border-right: none; border-radius: 8px 0 0 8px; font-weight: 600; }
         .phone-input { border-radius: 0 8px 8px 0 !important; }
     </style>
@@ -37,7 +37,7 @@
 <body>
 
 <div class="header-brand">
-    <a th:href="@{/}">
+    <a th:href="@{/admin/index}">
         <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" class="brand-logo">
     </a>
     <h1 class="brand-title">OFICINA VIDA INDEPENDENT</h1>
@@ -48,7 +48,9 @@
     <div class="form-container shadow-sm">
         <h2 class="form-section-title">Registro de Asistente Personal</h2>
 
-        <form th:action="@{/pap_assistant/add}" th:object="${papassistant}" method="post">
+        <form th:action="@{/admin/profiles/create/asistente}" th:object="${perfil}" method="post">
+
+            <input type="hidden" th:field="*{status}" />
 
             <div class="row">
                 <div class="col-md-4 mb-4">
@@ -132,9 +134,8 @@
             </div>
 
             <div class="d-flex justify-content-end align-items-center border-top pt-4 mt-2">
-                <!-- CORREGIDO: Texto unificado en mayúsculas -->
-                <a th:href="@{/choose-registration}" class="btn-cancel me-3">CANCELAR</a>
-                <button type="submit" class="btn-save shadow-sm">Registrarse</button>
+                <a th:href="@{/admin/manage-profiles(type='asistente')}" class="btn-cancel me-3">CANCELAR</a>
+                <button type="submit" class="btn-save shadow-sm">CREAR PERFIL</button>
             </div>
         </form>
     </div>

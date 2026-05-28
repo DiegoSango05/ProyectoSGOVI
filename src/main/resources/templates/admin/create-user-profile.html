@@ -18,6 +18,7 @@
         .brand-subtitle { font-size: 0.85rem; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
         .form-container { max-width: 850px; margin: 0 auto; background-color: #fcfcfc; padding: 3rem; border-radius: 16px; border: 1px solid #eee; }
 
+        /* CORREGIDO: Título de la sección forzado a negro absoluto para consistencia */
         .form-section-title { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--ovi-orange); display: inline-block; margin-bottom: 25px; padding-bottom: 5px; color: #000000; }
 
         .form-label { font-size: 0.8rem; font-weight: 700; color: #444; text-transform: uppercase; margin-bottom: 8px; }
@@ -27,7 +28,7 @@
         .btn-save { background-color: var(--ovi-orange); color: #fff; border: none; padding: 12px 30px; font-weight: 700; border-radius: 8px; text-transform: uppercase; transition: all 0.2s; }
         .btn-save:hover { background-color: #c48b2d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(218, 159, 56, 0.2); }
 
-        /* CORREGIDO: Botón cancelar idéntico a las vistas del Admin (mayúsculas, sin subrayar, hover corporativo) */
+        /* CORREGIDO: Botón CANCELAR adaptado al estilo del administrador (mayúsculas, sin subrayado y hover corporativo) */
         .btn-cancel { color: #000; text-decoration: none; font-weight: 700; padding: 12px 20px; font-size: 0.85rem; text-transform: uppercase; transition: color 0.2s ease; }
         .btn-cancel:hover { color: var(--ovi-orange); }
 
@@ -38,7 +39,7 @@
 <body>
 
 <div class="header-brand">
-    <a th:href="@{/}">
+    <a th:href="@{/admin/index}">
         <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" class="brand-logo">
     </a>
     <h1 class="brand-title">OFICINA VIDA INDEPENDENT</h1>
@@ -49,7 +50,10 @@
     <div class="form-container shadow-sm">
         <h2 class="form-section-title">Registro de Usuario OVI</h2>
 
-        <form th:action="@{/oviuser/add}" th:object="${oviuser}" method="post">
+        <!-- Enviando a la ruta de administración correspondiente -->
+        <form th:action="@{/admin/profiles/create/usuario}" th:object="${perfil}" method="post">
+
+            <input type="hidden" th:field="*{status}" />
 
             <div class="row mt-3">
                 <div class="col-md-4 mb-4">
@@ -128,9 +132,8 @@
             </div>
 
             <div class="d-flex justify-content-end align-items-center border-top pt-4">
-                <!-- CORREGIDO: Texto unificado en mayúsculas -->
-                <a th:href="@{/choose-registration}" class="btn-cancel me-3">CANCELAR</a>
-                <button type="submit" class="btn-save shadow-sm">Registrarse</button>
+                <a th:href="@{/admin/manage-profiles(type='usuario')}" class="btn-cancel me-3">CANCELAR</a>
+                <button type="submit" class="btn-save shadow-sm">CREAR PERFIL</button>
             </div>
         </form>
     </div>

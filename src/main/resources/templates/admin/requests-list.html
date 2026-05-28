@@ -26,7 +26,6 @@
         .hero-title { font-size: 2.6rem; font-weight: 800; }
         .hero-title span { color: var(--ovi-orange); }
 
-        /* BOTÓN DE NAVEGACIÓN CON ANIMACIÓN NARANJA */
         .btn-outline-custom-nav {
             border: 2px solid #000;
             border-radius: 8px;
@@ -41,6 +40,34 @@
             border-color: var(--ovi-orange);
             color: var(--ovi-orange);
             background-color: transparent;
+        }
+
+        /* ESTILOS DE LAS PESTAÑAS (TABS) AL 100% DE ANCHO */
+        .custom-tabs {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 2rem;
+            display: flex;
+            width: 100%;
+        }
+        .tab-link {
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 700;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-decoration: none;
+            flex: 1;
+            text-align: center;
+        }
+        .tab-link:hover {
+            color: var(--ovi-orange);
+            background-color: rgba(133, 77, 0, 0.03);
+        }
+        .tab-link.active {
+            color: var(--ovi-orange);
+            border-bottom-color: var(--ovi-orange);
         }
 
         .request-pill {
@@ -111,7 +138,6 @@
 
         .modal-content { border-radius: 16px; border: none; padding: 1rem; }
 
-        /* NUEVO BOTÓN VERDE PARA APROBACIÓN */
         .btn-solid-success {
             background-color: var(--ovi-success);
             color: #ffffff;
@@ -124,7 +150,6 @@
             display: inline-block;
             text-decoration: none;
         }
-
         .btn-solid-success:hover {
             background-color: var(--ovi-success-dark);
             color: #ffffff;
@@ -148,6 +173,9 @@
             border-left: 2px solid #eee;
             padding-left: 15px;
         }
+
+        .btn-view-profile { color: var(--ovi-orange); font-size: 1.1rem; transition: 0.2s; }
+        .btn-view-profile:hover { color: var(--ovi-orange-dark); }
     </style>
 </head>
 <body>
@@ -172,95 +200,119 @@
 </header>
 
 <main class="container py-5">
-    <div th:each="solicitud : ${solicitudes}">
 
-        <div class="request-pill">
-            <div class="pill-grid">
-                <div>
-                    <span class="pill-label">ID Petición</span>
-                    <span class="pill-data" th:text="${'#' + solicitud.id}">#1</span>
-                </div>
+    <!-- PESTAÑAS DE FILTRADO SIN JAVASCRIPT (Usan URLs de Thymeleaf) -->
+    <div class="custom-tabs">
+        <a th:href="@{/admin/requests(status='Pending')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Pending')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-clock-history me-1"></i> Pendientes
+        </a>
+        <a th:href="@{/admin/requests(status='Accepted')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Accepted')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-check-circle me-1"></i> Aceptadas
+        </a>
+        <a th:href="@{/admin/requests(status='Rejected')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Rejected')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-x-circle me-1"></i> Rechazadas
+        </a>
+    </div>
 
-                <div>
-                    <span class="pill-label">Usuario OVI</span>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="pill-data" th:text="${solicitud.dniOVIuser}">12345678X</span>
+    <!-- CONTENEDOR DE SOLICITUDES -->
+    <div id="requests-container">
+        <div th:each="solicitud : ${solicitudes}">
 
-                        <a th:href="@{/admin/request-user-details/{dni}(dni=${solicitud.dniOVIuser}, requestId=${solicitud.id})}"
-                           class="btn-view-profile"
-                           title="Consultar perfil completo del solicitante">
-                            <i class="bi bi-arrow-right-circle-fill"></i>
-                        </a>
+            <div class="request-pill">
+                <div class="pill-grid">
+                    <div>
+                        <span class="pill-label">ID Petición</span>
+                        <span class="pill-data" th:text="${'#' + solicitud.id}">#1</span>
+                    </div>
+                    <div>
+                        <span class="pill-label">Usuario OVI</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="pill-data" th:text="${solicitud.dniOVIuser}">12345678X</span>
+                            <a th:href="@{/admin/request-user-details/{dni}(dni=${solicitud.dniOVIuser}, requestId=${solicitud.id})}"
+                               class="btn-view-profile" title="Consultar perfil completo del solicitante">
+                                <i class="bi bi-arrow-right-circle-fill"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="pill-label">Servicio</span>
+                        <span class="pill-data" th:text="${solicitud.type}">PAP</span>
+                    </div>
+                    <div>
+                        <span class="pill-label">Lugar / Horario</span>
+                        <span class="pill-data" th:text="${solicitud.location}">Castellón</span>
+                    </div>
+                    <div>
+                        <span class="pill-label">Estado actual</span>
+                        <span th:class="${#strings.equalsIgnoreCase(solicitud.status, 'Pending') ? 'status-badge bg-warning text-dark' :
+                                      (#strings.equalsIgnoreCase(solicitud.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
+                              th:text="${solicitud.status}">Pending</span>
+                    </div>
+                    <div class="description-text">
+                        <span class="pill-label">Preferencias</span>
+                        <span th:text="${#strings.abbreviate(solicitud.description, 40)}">Descripción...</span>
                     </div>
                 </div>
 
-                <div>
-                    <span class="pill-label">Servicio</span>
-                    <span class="pill-data" th:text="${solicitud.type}">PAP</span>
-                </div>
-                <div>
-                    <span class="pill-label">Lugar / Horario</span>
-                    <span class="pill-data" th:text="${solicitud.location}">Castellón</span>
-                </div>
-                <div>
-                    <span class="pill-label">Estado actual</span>
-                    <span th:class="${#strings.equalsIgnoreCase(solicitud.status, 'Pending') ? 'status-badge bg-warning text-dark' :
-                                  (#strings.equalsIgnoreCase(solicitud.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
-                          th:text="${solicitud.status}">Pending</span>
-                </div>
-                <div class="description-text">
-                    <span class="pill-label">Preferencias</span>
-                    <span th:text="${#strings.abbreviate(solicitud.description, 40)}">Descripción...</span>
+                <div class="d-flex gap-2" th:if="${#strings.equalsIgnoreCase(solicitud.status, 'Pending')}">
+                    <button class="btn-action btn-approve" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalApprove' + ${solicitud.id}">
+                        <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="btn-action btn-reject" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalReject' + ${solicitud.id}">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="d-flex gap-2" th:if="${#strings.equalsIgnoreCase(solicitud.status, 'Pending')}">
-                <button class="btn-action btn-approve" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalApprove' + ${solicitud.id}">
-                    <i class="bi bi-check-lg"></i>
-                </button>
-                <button class="btn-action btn-reject" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalReject' + ${solicitud.id}">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+            <!-- MODAL APROBAR -->
+            <div class="modal fade" th:id="'modalApprove' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                        <div class="modal-body p-5 text-center">
+                            <div class="mb-4">
+                                <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
+                            </div>
+                            <h2 class="fw-bold mb-3">¿Aprobar Solicitud?</h2>
+                            <p class="text-muted mb-4">Vas a validar esta petición. El siguiente paso será proponer los asistentes más adecuados.</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
+                                <a th:href="@{/admin/request-details/{id}(id=${solicitud.id})}" class="btn-solid-success px-4 py-2">SÍ, APROBAR</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- MODAL RECHAZAR -->
+            <div class="modal fade" th:id="'modalReject' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                        <div class="modal-body p-5 text-center">
+                            <div class="mb-4">
+                                <i class="bi bi-exclamation-octagon text-danger" style="font-size: 4rem;"></i>
+                            </div>
+                            <h2 class="fw-bold mb-3">¿Rechazar?</h2>
+                            <p class="text-muted mb-4">Esta acción marcará la solicitud como no apta. ¿Estás seguro de continuar?</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">VOLVER</button>
+                                <form th:action="@{/admin/reject/{id}(id=${solicitud.id})}" method="post">
+                                    <button type="submit" class="btn btn-danger px-4 py-2 fw-bold" style="border-radius:8px;">SÍ, RECHAZAR</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="modal fade" th:id="'modalApprove' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                    <div class="modal-body p-5 text-center">
-                        <div class="mb-4">
-                            <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
-                        </div>
-                        <h2 class="fw-bold mb-3">¿Aprobar Solicitud?</h2>
-                        <p class="text-muted mb-4">Vas a validar esta petición. El siguiente paso será proponer los asistentes más adecuados.</p>
-                        <div class="d-flex gap-3 justify-content-center">
-                            <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
-
-                            <a th:href="@{/admin/request-details/{id}(id=${solicitud.id})}" class="btn-solid-success px-4 py-2">SÍ, APROBAR</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" th:id="'modalReject' + ${solicitud.id}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                    <div class="modal-body p-5 text-center">
-                        <div class="mb-4">
-                            <i class="bi bi-exclamation-octagon text-danger" style="font-size: 4rem;"></i>
-                        </div>
-                        <h2 class="fw-bold mb-3">¿Rechazar?</h2>
-                        <p class="text-muted mb-4">Esta acción marcará la solicitud como no apta. ¿Estás seguro de continuar?</p>
-                        <div class="d-flex gap-3 justify-content-center">
-                            <button type="button" class="btn btn-light px-4 py-2 fw-bold" data-bs-dismiss="modal">VOLVER</button>
-                            <form th:action="@{/admin/reject/{id}(id=${solicitud.id})}" method="post">
-                                <button type="submit" class="btn btn-danger px-4 py-2 fw-bold" style="border-radius:8px;">SÍ, RECHAZAR</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Mensaje si la lista viene vacía desde el servidor -->
+        <div th:if="${#lists.isEmpty(solicitudes)}" class="text-center text-muted py-5">
+            <i class="bi bi-clipboard-x mb-2 d-block fs-1"></i>
+            No hay solicitudes en esta sección.
         </div>
     </div>
 </main>

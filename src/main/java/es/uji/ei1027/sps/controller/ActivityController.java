@@ -1,10 +1,7 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.*;
-import es.uji.ei1027.sps.model.AssistanceList;
-import es.uji.ei1027.sps.model.Activity;
-import es.uji.ei1027.sps.model.OVIUser;
-import es.uji.ei1027.sps.model.PAPAssistant;
+import es.uji.ei1027.sps.model.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -44,77 +41,26 @@ public class ActivityController {
         this.assistanceListDao = assistanceListDao;
     }
 
-    // LISTAR
+    // --- MÉTODOS ACCESIBLES POR ADMIN (Pepe López) ---
+
     @RequestMapping("/list")
-    public String listActivities(Model model) {
+    public String listActivities(HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         model.addAttribute("activities", activityDao.getActivities());
         return "activity/list";
     }
 
-    @RequestMapping("/my-list")
-    public String myActivities(HttpSession session, Model model) {
-        OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("activities", activityDao.getActivitiesByOVIUser(user.getDni()));
-        return "activity/ovi-list";
-    }
-
-    @RequestMapping("/join-list")
-    public String joinList(HttpSession session, Model model) {
-        OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
-            return "redirect:/login";
-        }
-
-        List<Activity> activities = activityDao.getActivities();
-        model.addAttribute("activities", activities);
-        model.addAttribute("registeredByActivityId", getRegisteredByActivityId(user.getDni(), activities));
-        return "activity/join-list";
-    }
-
-    @RequestMapping(value="/join/{id}", method= RequestMethod.POST)
-    public String joinActivity(@PathVariable int id, HttpSession session) {
-        OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
-            return "redirect:/login";
-        }
-        if (!assistanceListDao.isOVIUserRegisteredInActivity(user.getDni(), id)) {
-            AssistanceList assistanceList = new AssistanceList();
-            assistanceList.setId_list(assistanceListDao.getNextId());
-            assistanceList.setAssistanceDate(LocalDate.now());
-            assistanceList.setAssistanceTime(LocalTime.now());
-            assistanceList.setParticipation(true);
-            assistanceList.setIdActivity(id);
-            assistanceList.setDniAssistant(null);
-            assistanceList.setDniOVIUser(user.getDni());
-            assistanceListDao.addAssistanceList(assistanceList);
-        }
-        return "redirect:/activity/my-list";
-    }
-
-    // BORRARSE DE UNA ACTIVIDAD
-    @RequestMapping(value="/leave/{id}", method= RequestMethod.POST)
-    public String leaveActivity(@PathVariable int id, HttpSession session) {
-        OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
-            return "redirect:/login";
-        }
-        assistanceListDao.deleteOVIUserFromActivity(user.getDni(), id);
-        return "redirect:/activity/my-list";
-    }
-
-    // AÑADIR (Formulario)
     @RequestMapping(value="/add", method=RequestMethod.GET)
-    public String addActivity(Model model, @RequestParam(required=false) String type) {
+    public String addActivity(HttpSession session, Model model, @RequestParam(required=false) String type) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         Activity activity = new Activity();
         activity.setMaxParticipants(1);
         if (type != null) activity.setType(type);
 
         model.addAttribute("activity", activity);
 
-        // Si ya tenemos el tipo, buscamos instructores con el "Match"
         if (type != null && !type.isEmpty()) {
             model.addAttribute("instructors", instructorDao.getInstructorsBySpecialty(type));
         } else {
@@ -123,10 +69,11 @@ public class ActivityController {
         return "activity/add";
     }
 
-    // AÑADIR (Procesar)
     @RequestMapping(value="/add", method= RequestMethod.POST)
     public String processAddSubmit(@ModelAttribute("activity") Activity activity,
-                                   BindingResult bindingResult, Model model) {
+                                   BindingResult bindingResult, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         ActivityValidator activityValidator = new ActivityValidator();
         activityValidator.validate(activity, bindingResult);
 
@@ -136,7 +83,6 @@ public class ActivityController {
             } else {
                 model.addAttribute("instructors", instructorDao.getInstructors());
             }
-
             return "activity/add";
         }
 
@@ -144,61 +90,45 @@ public class ActivityController {
         return "redirect:list";
     }
 
-    // ELIMINAR
     @RequestMapping(value="/delete/{id}")
-    public String processDelete(@PathVariable int id) {
+    public String processDelete(@PathVariable int id, HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         activityDao.deleteActivity(id);
         return "redirect:../list";
     }
 
-    // ACTUALIZAR (Formulario)
     @RequestMapping(value="/update/{id}", method = RequestMethod.GET)
-    public String editActivity(Model model, @PathVariable int id) {
+    public String editActivity(HttpSession session, Model model, @PathVariable int id) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         model.addAttribute("activity", activityDao.getActivity(id));
         return "activity/update";
     }
 
-    // ACTUALIZAR (Procesar)
     @RequestMapping(value="/update", method = RequestMethod.POST)
     public String processUpdateSubmit(@ModelAttribute("activity") Activity activity,
-                                      BindingResult bindingResult) {
+                                      HttpSession session, BindingResult bindingResult) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         ActivityValidator activityValidator = new ActivityValidator();
         activityValidator.validate(activity, bindingResult);
-        if (bindingResult.hasErrors())
-            return "activity/update";
+        if (bindingResult.hasErrors()) return "activity/update";
+
         activityDao.updateActivity(activity);
         return "redirect:list";
     }
 
-    private OVIUser getLoggedOVIUser(HttpSession session) {
-        Object user = session.getAttribute("user");
-        Object role = session.getAttribute("role");
-        if (!"ovi".equals(role) || !(user instanceof OVIUser)) {
-            return null;
-        }
-        return (OVIUser) user;
-    }
-
-    private Map<Integer, Boolean> getRegisteredByActivityId(String dniOVIUser, List<Activity> activities) {
-        Map<Integer, Boolean> registeredByActivityId = new HashMap<Integer, Boolean>();
-        for (Activity activity : activities) {
-            registeredByActivityId.put(
-                    activity.getId(),
-                    assistanceListDao.isOVIUserRegisteredInActivity(dniOVIUser, activity.getId()));
-        }
-        return registeredByActivityId;
-    }
-
     @GetMapping("/manage-participants/{id}")
-    public String manageParticipants(@PathVariable int id, Model model) {
+    public String manageParticipants(@PathVariable int id, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/login";
+
         Activity activity = activityDao.getActivity(id);
         List<AssistanceList> inscritos = assistanceListDao.getAssistanceListsByActivity(id);
 
-        // 1. Conseguimos todos los usuarios y asistentes
         List<OVIUser> allUsers = oviUserDao.getOVIUsers();
         List<PAPAssistant> allAssistants = papAssistantDao.getPAPAssistants();
 
-        // 2. Filtramos: Solo dejamos los que NO están en la lista de 'inscritos'
         List<OVIUser> availableUsers = allUsers.stream()
                 .filter(u -> inscritos.stream().noneMatch(p -> u.getDni().equals(p.getDniOVIUser())))
                 .toList();
@@ -212,39 +142,113 @@ public class ActivityController {
         model.addAttribute("allUsers", availableUsers);
         model.addAttribute("allAssistants", availableAssistants);
 
-        return "admin/manage-participants";
+        return "activity/manage-participants";
     }
 
     @PostMapping("/add-participant-manual")
     public String addParticipantManual(@RequestParam int idActivity,
                                        @RequestParam(required = false) String dniUser,
-                                       @RequestParam(required = false) String dniAssistant) {
+                                       @RequestParam(required = false) String dniAssistant,
+                                       HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
 
         boolean yaInscrito = false;
-
-        // Comprobamos según lo que nos haya llegado
         if (dniUser != null && !dniUser.isEmpty()) {
             yaInscrito = assistanceListDao.isOVIUserRegisteredInActivity(dniUser, idActivity);
         } else if (dniAssistant != null && !dniAssistant.isEmpty()) {
             yaInscrito = assistanceListDao.isAssistantRegisteredInActivity(dniAssistant, idActivity);
         }
 
-        // Si NO está inscrito, lo añadimos
-        if (!yaInscrito && ((dniUser != null && !dniUser.isEmpty()) || (dniAssistant != null && !dniAssistant.isEmpty()))) {
-            AssistanceList participation = new AssistanceList();
+        if (!yaInscrito) {
+            boolean tieneUser = (dniUser != null && !dniUser.isEmpty());
+            boolean tieneAsis = (dniAssistant != null && !dniAssistant.isEmpty());
 
-            // Generamos el ID automáticamente con tu método getNextId()
-            participation.setId_list(assistanceListDao.getNextId());
-            participation.setIdActivity(idActivity);
-            participation.setDniOVIUser(dniUser);
-            participation.setDniAssistant(dniAssistant);
+            if (tieneUser || tieneAsis) {
+                AssistanceList participation = new AssistanceList();
+                participation.setId_list(assistanceListDao.getNextId());
+                participation.setIdActivity(idActivity);
+                participation.setDniOVIUser(tieneUser ? dniUser : null);
+                participation.setDniAssistant(tieneAsis ? dniAssistant : null);
+                participation.setAssistanceDate(LocalDate.now());
+                participation.setAssistanceTime(LocalTime.now());
+                participation.setParticipation(true);
 
-            // Valores por defecto para fecha/hora o participación si tu modelo los requiere
-            participation.setParticipation(true);
-
-            assistanceListDao.addAssistanceList(participation);
+                assistanceListDao.addAssistanceList(participation);
+            }
         }
-
         return "redirect:/activity/manage-participants/" + idActivity;
+    }
+
+    // --- MÉTODOS PARA USUARIOS OVI ---
+
+    @RequestMapping("/my-list")
+    public String myActivities(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) return "redirect:/login";
+
+        model.addAttribute("activities", activityDao.getActivitiesByOVIUser(user.getDni()));
+        return "activity/ovi-list";
+    }
+
+    @RequestMapping("/join-list")
+    public String joinList(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) return "redirect:/login";
+
+        List<Activity> activities = activityDao.getActivities();
+        model.addAttribute("activities", activities);
+        model.addAttribute("registeredByActivityId", getRegisteredByActivityId(user.getDni(), activities));
+        return "activity/join-list";
+    }
+
+    @RequestMapping(value="/join/{id}", method= RequestMethod.POST)
+    public String joinActivity(@PathVariable int id, HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) return "redirect:/login";
+
+        if (!assistanceListDao.isOVIUserRegisteredInActivity(user.getDni(), id)) {
+            AssistanceList assistanceList = new AssistanceList();
+            assistanceList.setId_list(assistanceListDao.getNextId());
+            assistanceList.setAssistanceDate(LocalDate.now());
+            assistanceList.setAssistanceTime(LocalTime.now());
+            assistanceList.setParticipation(true);
+            assistanceList.setIdActivity(id);
+            assistanceList.setDniOVIUser(user.getDni());
+            assistanceListDao.addAssistanceList(assistanceList);
+        }
+        return "redirect:/activity/my-list";
+    }
+
+    @RequestMapping(value="/leave/{id}", method= RequestMethod.POST)
+    public String leaveActivpity(@PathVariable int id, HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) return "redirect:/login";
+
+        assistanceListDao.deleteOVIUserFromActivity(user.getDni(), id);
+        return "redirect:/activity/my-list";
+    }
+
+    // --- MÉTODOS AUXILIARES DE SEGURIDAD ---
+
+    private boolean isAdmin(HttpSession session) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        String role = (String) session.getAttribute("role");
+        return user != null && "admin".equals(role);
+    }
+
+    private OVIUser getLoggedOVIUser(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"ovi".equals(role) || !(user instanceof OVIUser)) return null;
+        return (OVIUser) user;
+    }
+
+    private Map<Integer, Boolean> getRegisteredByActivityId(String dniOVIUser, List<Activity> activities) {
+        Map<Integer, Boolean> registeredByActivityId = new HashMap<>();
+        for (Activity activity : activities) {
+            registeredByActivityId.put(activity.getId(),
+                    assistanceListDao.isOVIUserRegisteredInActivity(dniOVIUser, activity.getId()));
+        }
+        return registeredByActivityId;
     }
 }

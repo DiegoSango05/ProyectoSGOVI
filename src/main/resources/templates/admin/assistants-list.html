@@ -24,7 +24,6 @@
         .hero-title { font-size: 2.6rem; font-weight: 800; }
         .hero-title span { color: var(--ovi-orange); }
 
-        /* BOTÓN DE NAVEGACIÓN CON ANIMACIÓN NARANJA */
         .btn-outline-custom-nav {
             border: 2px solid #000;
             border-radius: 8px;
@@ -39,6 +38,34 @@
             border-color: var(--ovi-orange);
             color: var(--ovi-orange);
             background-color: transparent;
+        }
+
+        /* ESTILOS DE LAS PESTAÑAS (TABS) AL 100% DE ANCHO */
+        .custom-tabs {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 2rem;
+            display: flex;
+            width: 100%;
+        }
+        .tab-link {
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 700;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-decoration: none;
+            flex: 1;
+            text-align: center;
+        }
+        .tab-link:hover {
+            color: var(--ovi-orange);
+            background-color: rgba(133, 77, 0, 0.03);
+        }
+        .tab-link.active {
+            color: var(--ovi-orange);
+            border-bottom-color: var(--ovi-orange);
         }
 
         .assistant-pill {
@@ -60,7 +87,6 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        /* AJUSTE DEL GRID PARA INCLUIR TELÉFONO */
         .pill-grid {
             display: grid;
             grid-template-columns: 100px 180px 110px 90px 120px 120px 1fr;
@@ -141,30 +167,55 @@
 </header>
 
 <main class="container py-5">
-    <div th:each="asistente : ${assistants}">
-        <div class="assistant-pill">
-            <div class="pill-grid">
-                <div><span class="pill-label">DNI</span><span class="pill-data" th:text="${asistente.dni}">12345678Z</span></div>
-                <div><span class="pill-label">Nombre</span><span class="pill-data" th:text="${asistente.name}">Nombre</span></div>
-                <div><span class="pill-label">Teléfono</span><span class="pill-data" th:text="${asistente.phoneNumber}">600123123</span></div>
 
-                <div><span class="pill-label">Tipo</span><span class="pill-data" th:text="${asistente.assistanceType}">PAP</span></div>
-                <div><span class="pill-label">Localidad</span><span class="pill-data" th:text="${asistente.location}">Castellón</span></div>
+    <!-- PESTAÑAS DE FILTRADO SIN JAVASCRIPT -->
+    <div class="custom-tabs">
+        <a th:href="@{/admin/assistants(status='Pending')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Pending')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-clock-history me-1"></i> Pendientes
+        </a>
+        <a th:href="@{/admin/assistants(status='Accepted')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Accepted')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-check-circle me-1"></i> Aceptados
+        </a>
+        <a th:href="@{/admin/assistants(status='Rejected')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Rejected')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-x-circle me-1"></i> Rechazados
+        </a>
+    </div>
+
+    <!-- CONTENEDOR DE FILAS -->
+    <div id="assistants-container">
+        <div th:each="asistente : ${assistants}" class="assistant-row">
+            <div class="assistant-pill">
+                <div class="pill-grid">
+                    <div><span class="pill-label">DNI</span><span class="pill-data" th:text="${asistente.dni}">12345678Z</span></div>
+                    <div><span class="pill-label">Nombre</span><span class="pill-data" th:text="${asistente.name}">Nombre</span></div>
+                    <div><span class="pill-label">Teléfono</span><span class="pill-data" th:text="${asistente.phoneNumber}">600123123</span></div>
+                    <div><span class="pill-label">Tipo</span><span class="pill-data" th:text="${asistente.assistanceType}">PAP</span></div>
+                    <div><span class="pill-label">Localidad</span><span class="pill-data" th:text="${asistente.location}">Castellón</span></div>
+                    <div>
+                        <span class="pill-label">Estado</span>
+                        <span th:class="${#strings.equalsIgnoreCase(asistente.status, 'Pending') ? 'status-badge bg-warning text-dark' :
+                                      (#strings.equalsIgnoreCase(asistente.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
+                              th:text="${asistente.status}">Pending</span>
+                    </div>
+                    <div class="description-text">
+                        <span class="pill-label">Formación</span>
+                        <span th:text="${#strings.abbreviate(asistente.professionalTraining, 25)}">Detalles...</span>
+                    </div>
+                </div>
+
                 <div>
-                    <span class="pill-label">Estado</span>
-                    <span th:class="${#strings.equalsIgnoreCase(asistente.status, 'Pending') ? 'status-badge bg-warning text-dark' :
-                                  (#strings.equalsIgnoreCase(asistente.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
-                          th:text="${asistente.status}">Pending</span>
-                </div>
-                <div class="description-text">
-                    <span class="pill-label">Formación</span>
-                    <span th:text="${#strings.abbreviate(asistente.professionalTraining, 25)}">Detalles...</span>
+                    <a th:href="@{/admin/assistants/details/{dni}(dni=${asistente.dni})}" class="btn-ficha">VER FICHA</a>
                 </div>
             </div>
+        </div>
 
-            <div>
-                <a th:href="@{/admin/assistants/details/{dni}(dni=${asistente.dni})}" class="btn-ficha">VER FICHA</a>
-            </div>
+        <!-- Mensaje si la lista viene vacía desde el servidor -->
+        <div th:if="${#lists.isEmpty(assistants)}" class="text-center text-muted py-5">
+            <i class="bi bi-person-badge mb-2 d-block fs-1"></i>
+            No hay asistentes en esta sección.
         </div>
     </div>
 </main>

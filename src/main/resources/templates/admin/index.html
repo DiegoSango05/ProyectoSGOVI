@@ -88,9 +88,6 @@
             width: 50px;
         }
 
-        /* Icono específico para secciones de peligro o borrado si hicieran falta */
-        .icon-blue { background-color: var(--ovi-admin-blue); }
-
         .option-card h2 {
             font-size: 0.95rem;
             font-weight: 800;
@@ -190,10 +187,10 @@
             </a>
         </div>
         <div class="col-md-6 col-lg-3">
-            <a th:href="@{/admin/reports}" class="option-card">
-                <span class="option-icon icon-blue"><i class="bi bi-graph-up"></i></span>
-                <h2>Informes</h2>
-                <p>Estadísticas de uso, altas y servicios prestados.</p>
+            <a th:href="@{/admin/manage-profiles}" class="option-card">
+                <span class="option-icon"><i class="bi bi-person-bounding-box"></i></span>
+                <h2>Gestionar Perfiles</h2>
+                <p>Configuración de credenciales y roles del personal del sistema.</p>
             </a>
         </div>
     </div>

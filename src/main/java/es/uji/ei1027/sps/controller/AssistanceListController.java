@@ -9,7 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/assistancelist") // Todo minúsculas
+@RequestMapping("/assistancelist")
 public class AssistanceListController {
 
     private AssistanceListDao assistanceListDao;
@@ -83,4 +83,6 @@ public class AssistanceListController {
         assistanceListDao.updateAssistanceList(assistanceList);
         return "redirect:list";
     }
+
+
 }

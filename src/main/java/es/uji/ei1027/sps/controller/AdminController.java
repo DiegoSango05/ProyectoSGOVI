@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,13 +56,22 @@ public class AdminController {
     }
 
     @GetMapping("/requests")
-    public String listRequests(HttpSession session, Model model) {
+    public String listRequests(@RequestParam(required = false, defaultValue = "Pending") String status,
+                               HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) {
             return "redirect:/login";
         }
-        List<AssistanceRequest> solicitudes = assistanceRequestDao.getAssistanceRequests();
-        model.addAttribute("solicitudes", solicitudes);
+
+        List<AssistanceRequest> solicitudesCompleta = assistanceRequestDao.getAssistanceRequests();
+
+        List<AssistanceRequest> solicitudesFiltradas = solicitudesCompleta.stream()
+                .filter(s -> s.getStatus() != null && s.getStatus().equalsIgnoreCase(status))
+                .toList();
+
+        model.addAttribute("solicitudes", solicitudesFiltradas);
+        model.addAttribute("currentStatus", status); // Guardamos cuál está activa para pintarla en el HTML
+
         return "admin/requests-list";
     }
 
@@ -75,14 +85,25 @@ public class AdminController {
         return "redirect:/admin/requests";
     }
 
-    // Listar todos los asistentes para que el admin los gestione
+    // Listar todos los asistentes para que el admin los gestione (Añadida ordenación alfabética)
     @GetMapping("/assistants")
-    public String listAssistants(HttpSession session, Model model) {
+    public String listAssistants(@RequestParam(required = false, defaultValue = "Pending") String status,
+                                 HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) {
             return "redirect:/login";
         }
-        model.addAttribute("assistants", papAssistantDao.getPAPAssistants());
+
+        List<PAPAssistant> todosLosAsistentes = papAssistantDao.getPAPAssistants();
+
+        // Filtramos y ordenamos la lista alfabéticamente por nombre
+        List<PAPAssistant> asistentesFiltrados = todosLosAsistentes.stream()
+                .filter(a -> a.getStatus() != null && a.getStatus().equalsIgnoreCase(status))
+                .sorted((a1, a2) -> a1.getName().compareToIgnoreCase(a2.getName()))
+                .toList();
+
+        model.addAttribute("assistants", asistentesFiltrados);
+        model.addAttribute("currentStatus", status); // Para marcar la pestaña activa
         return "admin/assistants-list";
     }
 
@@ -123,13 +144,23 @@ public class AdminController {
         return "admin/assistant-details"; // Nueva vista
     }
 
-    // Listado de Usuarios OVI
+    // Listado de Usuarios OVI (Añadida ordenación alfabética)
     @GetMapping("/ovi-users")
-    public String listOVIUsers(HttpSession session, Model model) {
+    public String listOVIUsers(@RequestParam(required = false, defaultValue = "Pending") String status,
+                               HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
 
-        model.addAttribute("users", oviUserDao.getOVIUsers());
+        List<OVIUser> todosLosUsuarios = oviUserDao.getOVIUsers();
+
+        // Filtramos y ordenamos la lista alfabéticamente por nombre
+        List<OVIUser> usuariosFiltrados = todosLosUsuarios.stream()
+                .filter(u -> u.getStatus() != null && u.getStatus().equalsIgnoreCase(status))
+                .sorted((u1, u2) -> u1.getName().compareToIgnoreCase(u2.getName()))
+                .toList();
+
+        model.addAttribute("users", usuariosFiltrados);
+        model.addAttribute("currentStatus", status);
         return "admin/ovi-users-list";
     }
 
@@ -171,7 +202,7 @@ public class AdminController {
     @PostMapping("/requests/approve/{id}")
     public String approveRequest(@PathVariable int id,
                                  @RequestParam(value = "selectedAssistants", required = false) List<String> selectedAssistants) {
-        
+
         if (selectedAssistants == null || selectedAssistants.isEmpty()) {
             return "redirect:/admin/request-details/" + id + "?error=nocandidates";
         }
@@ -215,5 +246,207 @@ public class AdminController {
         }
 
         return "admin/request-user-details";
+    }
+
+    @GetMapping("/manage-profiles")
+    public String manageProfiles(@RequestParam(required = false, defaultValue = "usuario") String type,
+                                 HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) {
+            return "redirect:/login";
+        }
+
+        if (type.equalsIgnoreCase("usuario")) {
+            List<OVIUser> usuarios = oviUserDao.getOVIUsers();
+
+            List<OVIUser> usuariosOrdenados = usuarios.stream()
+                    .sorted((u1, u2) -> u1.getName().compareToIgnoreCase(u2.getName()))
+                    .toList();
+
+            model.addAttribute("perfiles", usuariosOrdenados);
+        } else {
+            List<PAPAssistant> asistentes = papAssistantDao.getPAPAssistants();
+
+            List<PAPAssistant> asistentesOrdenados = asistentes.stream()
+                    .sorted((a1, a2) -> a1.getName().compareToIgnoreCase(a2.getName()))
+                    .toList();
+
+            model.addAttribute("perfiles", asistentesOrdenados);
+        }
+
+        model.addAttribute("currentType", type); // Guarda si estamos en "usuario" o "asistente"
+        return "admin/manage-profiles";
+    }
+
+    @GetMapping("/profiles/view/{type}/{dni}")
+    public String viewProfile(@PathVariable String type, @PathVariable String dni,
+                              HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) {
+            return "redirect:/login";
+        }
+
+        String dniUpper = dni.toUpperCase();
+
+        if (type.equalsIgnoreCase("usuario")) {
+            OVIUser ovi = oviUserDao.getOVIUser(dniUpper);
+            model.addAttribute("perfil", ovi);
+        } else {
+            PAPAssistant pap = papAssistantDao.getPAPAssistant(dniUpper);
+            model.addAttribute("perfil", pap);
+        }
+
+        model.addAttribute("type", type);
+        return "admin/view-profile";
+    }
+
+    // Formulario de edición (GET)
+    @GetMapping("/profiles/edit/{type}/{dni}")
+    public String editProfile(@PathVariable String type, @PathVariable String dni,
+                              HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) {
+            return "redirect:/login";
+        }
+
+        String dniUpper = dni.toUpperCase();
+
+        if (type.equalsIgnoreCase("usuario")) {
+            OVIUser ovi = oviUserDao.getOVIUser(dniUpper);
+            model.addAttribute("perfil", ovi);
+        } else {
+            PAPAssistant pap = papAssistantDao.getPAPAssistant(dniUpper);
+            model.addAttribute("perfil", pap);
+        }
+
+        model.addAttribute("type", type);
+        return "admin/edit-profile";
+    }
+
+    @PostMapping("/profiles/edit/usuario")
+    public String processEditUserSubmit(@ModelAttribute("perfil") OVIUser oviForm,
+                                        BindingResult bindingResult,
+                                        HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        OVIUser oviDb = oviUserDao.getOVIUser(oviForm.getDni());
+
+        if (oviDb != null) {
+            oviDb.setName(oviForm.getName());
+            oviDb.setPhoneNumber(oviForm.getPhoneNumber());
+            oviDb.setEmail(oviForm.getEmail());
+            oviDb.setAddress(oviForm.getAddress());
+            oviDb.setEmergencyContact(oviForm.getEmergencyContact());
+
+            OVIUserValidator oviValidator = new OVIUserValidator();
+            oviValidator.validate(oviDb, bindingResult);
+
+            if (bindingResult.hasErrors()) {
+                model.addAttribute("type", "usuario");
+                return "admin/edit-profile";
+            }
+
+            oviUserDao.updateOVIUser(oviDb);
+        }
+
+        return "redirect:/admin/manage-profiles?type=usuario";
+    }
+
+    @PostMapping("/profiles/edit/asistente")
+    public String processEditAssistantSubmit(@ModelAttribute("perfil") PAPAssistant papForm,
+                                             BindingResult bindingResult,
+                                             HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        PAPAssistant papDb = papAssistantDao.getPAPAssistant(papForm.getDni());
+
+        if (papDb != null) {
+            papDb.setName(papForm.getName());
+            papDb.setPhoneNumber(papForm.getPhoneNumber());
+            papDb.setLocation(papForm.getLocation());
+            papDb.setAssistanceType(papForm.getAssistanceType());
+            papDb.setProfessionalTraining(papForm.getProfessionalTraining());
+
+            PAPAssistantValidator papValidator = new PAPAssistantValidator();
+            papValidator.validate(papDb, bindingResult);
+
+            if (bindingResult.hasErrors()) {
+                model.addAttribute("type", "asistente");
+                return "admin/edit-profile";
+            }
+
+            papAssistantDao.updatePAPAssistant(papDb);
+        }
+
+        return "redirect:/admin/manage-profiles?type=asistente";
+    }
+
+    // Formulario de creación (GET)
+    @GetMapping("/profiles/create/{type}")
+    public String createProfile(@PathVariable String type, HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) {
+            return "redirect:/login";
+        }
+
+        if (type.equalsIgnoreCase("usuario")) {
+            OVIUser nuevoUsuario = new OVIUser();
+            nuevoUsuario.setStatus("Accepted");
+            model.addAttribute("perfil", nuevoUsuario);
+            model.addAttribute("type", type);
+            return "admin/create-user-profile"; // Devuelve la plantilla del usuario
+        } else {
+            PAPAssistant nuevoAsistente = new PAPAssistant();
+            nuevoAsistente.setStatus("Accepted");
+            model.addAttribute("perfil", nuevoAsistente);
+            model.addAttribute("type", type);
+            return "admin/create-assistant-profile"; // Devuelve la plantilla del asistente
+        }
+    }
+
+    // Procesar la creación de un USUARIO OVI (POST)
+    @PostMapping("/profiles/create/usuario")
+    public String processCreateUserSubmit(@ModelAttribute("perfil") OVIUser oviForm,
+                                          BindingResult bindingResult,
+                                          HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        // Ejecutamos tu validador estricto de usuario
+        OVIUserValidator oviValidator = new OVIUserValidator();
+        oviValidator.validate(oviForm, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("type", "usuario");
+            return "admin/create-profile"; // Si hay fallos de DNI, teléfono, etc., recarga la vista con errores
+        }
+
+        // Si pasa tu validador, lo insertamos en la BD usando tu DAO
+        oviUserDao.addOVIUser(oviForm);
+        return "redirect:/admin/manage-profiles?type=usuario";
+    }
+
+    // Procesar la creación de un ASISTENTE PAP (POST)
+    @PostMapping("/profiles/create/asistente")
+    public String processCreateAssistantSubmit(@ModelAttribute("perfil") PAPAssistant papForm,
+                                               BindingResult bindingResult,
+                                               HttpSession session, Model model) {
+        SystemUser user = (SystemUser) session.getAttribute("user");
+        if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
+
+        // Ejecutamos tu validador estricto de asistente
+        PAPAssistantValidator papValidator = new PAPAssistantValidator();
+        papValidator.validate(papForm, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("type", "asistente");
+            return "admin/create-profile"; // Recarga la vista inyectando las alertas de error
+        }
+
+        // Si pasa tu validador, lo insertamos en la BD usando tu DAO
+        papAssistantDao.addPAPAssistant(papForm);
+        return "redirect:/admin/manage-profiles?type=asistente";
     }
 }

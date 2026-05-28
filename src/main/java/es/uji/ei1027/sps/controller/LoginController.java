@@ -46,22 +46,24 @@ public class LoginController {
             return "login";
         }
 
-        // 1. COMPROBAR ADMINISTRADORES (Múltiples administradores desde DB)
+        // 1. COMPROBAR ADMINISTRADORES
         SystemUser admin = systemUserDao.loadUserByUsername(username, password);
         if (admin != null) {
-            session.setAttribute("user", admin); // Guardamos el objeto completo
+            session.setAttribute("user", admin);
             session.setAttribute("role", "admin");
             return "redirect:/admin/index";
         }
 
-        // 2. COMPROBAR OVIUSER (DNI + Password)
+        // 2. COMPROBAR OVIUSER
         OVIUser ovi = oviUserDao.loadUserByUsername(username, password);
         if (ovi != null) {
             session.setAttribute("user", ovi);
             session.setAttribute("role", "ovi");
 
-            // Implementación de estados para OVIUser
-            switch (ovi.getStatus()) {
+            // BLINDAJE: Si el status es null, lo tratamos como "Pending" por defecto
+            String status = (ovi.getStatus() != null) ? ovi.getStatus() : "Pending";
+
+            switch (status) {
                 case "Pending":
                     return "oviuser/status-pending";
                 case "Rejected":
@@ -73,13 +75,16 @@ public class LoginController {
             }
         }
 
-        // 3. COMPROBAR PAPASSISTANT (DNI + Password + Estados)
+        // 3. COMPROBAR PAPASSISTANT
         PAPAssistant pap = papAssistantDao.loadUserByUsername(username, password);
         if (pap != null) {
             session.setAttribute("user", pap);
             session.setAttribute("role", "asistente");
 
-            switch (pap.getStatus()) {
+            // BLINDAJE: Si el status es null, lo tratamos como "Pending" por defecto
+            String statusPap = (pap.getStatus() != null) ? pap.getStatus() : "Pending";
+
+            switch (statusPap) {
                 case "Pending": return "pap_assistant/status_pending";
                 case "Rejected": return "pap_assistant/status_rejected";
                 case "Accepted": return "redirect:/pap_assistant/index";

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Detalles del Perfil</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+
+        .btn-outline-custom-nav {
+            border: 2px solid #000; border-radius: 8px; padding: 0.5rem 1.5rem;
+            text-decoration: none; color: #000; font-weight: 700; transition: all 0.3s ease; display: inline-block;
+        }
+        .btn-outline-custom-nav:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
+
+        .content-card {
+            background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px;
+            padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .content-card h2 {
+            font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--ovi-orange);
+            border-bottom: 2px solid #f0f0f0; padding-bottom: 0.8rem; margin-bottom: 1.5rem;
+        }
+        .data-label { font-size: 0.75rem; font-weight: 800; color: #888; text-transform: uppercase; display: block; }
+        .data-value { font-size: 1.1rem; font-weight: 600; color: #000; margin-bottom: 20px; }
+
+        .status-badge {
+            font-size: 0.8rem; padding: 6px 16px; border-radius: 20px; font-weight: 700; text-transform: uppercase; display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/manage-profiles(type=${type})}" class="btn-outline-custom-nav">VOLVER AL LISTADO</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-5">
+    <div class="mb-4">
+        <h1 class="fw-bold">Ficha de <span style="color: var(--ovi-orange)">Perfil</span></h1>
+        <p class="text-muted">Vista de auditoría global para la cuenta de tipo: <b class="text-uppercase" th:text="${type}">usuario</b>.</p>
+    </div>
+
+    <div class="content-card">
+        <h2>Información General</h2>
+        <div class="row">
+            <div class="col-md-4"><span class="data-label">Nombre Completo</span><div class="data-value" th:text="${perfil.name}">Juan Pérez</div></div>
+            <div class="col-md-4"><span class="data-label">DNI / NIE</span><div class="data-value" th:text="${perfil.dni}">12345678Z</div></div>
+            <div class="col-md-4">
+                <span class="data-label">Estado en el Sistema</span>
+                <div class="mt-1">
+                    <span th:class="${#strings.equalsIgnoreCase(perfil.status, 'Pending') ? 'status-badge bg-warning text-dark' :
+                                  (#strings.equalsIgnoreCase(perfil.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
+                          th:text="${perfil.status}">Pending</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h2>Contacto y Localización</h2>
+        <div class="row">
+            <div class="col-md-4"><span class="data-label">Teléfono</span><div class="data-value" th:text="${perfil.phoneNumber}">600000000</div></div>
+
+            <div class="col-md-4" th:if="${type == 'usuario'}">
+                <span class="data-label">Email de Contacto</span>
+                <div class="data-value" th:text="${perfil.email}">email@ejemplo.com</div>
+            </div>
+
+            <div class="col-md-4">
+                <span class="data-label">Dirección / Localidad</span>
+                <div class="data-value" th:text="${type == 'usuario' ? perfil.address : perfil.location}">Castellón</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card" th:if="${type == 'usuario'}">
+        <h2>Información de Soporte OVI</h2>
+        <div class="row">
+            <div class="col-md-6"><span class="data-label">Contacto de Emergencia</span><div class="data-value" th:text="${perfil.emergencyContact}">Familiar - 600112233</div></div>
+            <div class="col-md-6"><span class="data-label">Fecha de Nacimiento</span><div class="data-value" th:text="${perfil.birthDate}">1995-04-12</div></div>
+        </div>
+
+        <h3 class="data-label mb-2">Documento de Validación Adjunto</h3>
+        <div class="d-flex align-items-center gap-4 p-3" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #ccc;">
+            <div style="font-size: 2.5rem; color: var(--ovi-orange);"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+            <div>
+                <span class="data-label">Certificado Legal</span>
+                <div class="data-value mb-0"><span th:text="${perfil.document}">certificado_discapacidad.pdf</span></div>
+            </div>
+            <div class="ms-auto">
+                <a th:href="@{'/uploads/' + ${perfil.document}}" target="_blank" class="btn btn-sm btn-dark px-4 fw-bold">VER ARCHIVO</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card" th:if="${type == 'asistente'}">
+        <h2>Información Profesional y Operativa</h2>
+        <div class="row">
+            <div class="col-md-4"><span class="data-label">Tipo de Apoyo Asignado</span><div class="data-value" th:text="${perfil.assistanceType}">PAP</div></div>
+            <div class="col-md-8"><span class="data-label">Formación Académica / Certificaciones</span><div class="data-value" th:text="${perfil.professionalTraining}">Técnico en Integración Social y primeros auxilios.</div></div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

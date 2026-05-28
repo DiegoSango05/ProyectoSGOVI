@@ -40,6 +40,34 @@
             background-color: transparent;
         }
 
+        /* ESTILOS DE LAS PESTAÑAS (TABS) AL 100% DE ANCHO */
+        .custom-tabs {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 2rem;
+            display: flex;
+            width: 100%;
+        }
+        .tab-link {
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 700;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-decoration: none;
+            flex: 1;
+            text-align: center;
+        }
+        .tab-link:hover {
+            color: var(--ovi-orange);
+            background-color: rgba(133, 77, 0, 0.03);
+        }
+        .tab-link.active {
+            color: var(--ovi-orange);
+            border-bottom-color: var(--ovi-orange);
+        }
+
         .assistant-pill {
             background-color: #fcfcfc;
             border: 1px solid #eee;
@@ -138,28 +166,54 @@
 </header>
 
 <main class="container py-5">
-    <div th:each="usuario : ${users}">
-        <div class="assistant-pill">
-            <div class="pill-grid">
-                <div><span class="pill-label">DNI</span><span class="pill-data" th:text="${usuario.dni}">12345678Z</span></div>
-                <div><span class="pill-label">Nombre</span><span class="pill-data" th:text="${usuario.name}">Nombre Usuario</span></div>
-                <div><span class="pill-label">Teléfono</span><span class="pill-data" th:text="${usuario.phoneNumber}">600000000</span></div>
-                <div><span class="pill-label">Localidad</span><span class="pill-data" th:text="${usuario.address}">Castellón</span></div>
-                <div>
-                    <span class="pill-label">Estado</span>
-                    <span th:class="${#strings.equalsIgnoreCase(usuario.status, 'Pending') ? 'status-badge bg-warning text-dark' :
-                                  (#strings.equalsIgnoreCase(usuario.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
-                          th:text="${usuario.status}">Pending</span>
-                </div>
-                <div class="description-text">
-                    <span class="pill-label">Contacto Emergencia</span>
-                    <span th:text="${usuario.emergencyContact}">Familiar - 611...</span>
-                </div>
-            </div>
 
-            <div>
-                <a th:href="@{/admin/ovi-users/details/{dni}(dni=${usuario.dni})}" class="btn-ficha">VER FICHA</a>
+    <!-- PESTAÑAS DE FILTRADO SIN JAVASCRIPT -->
+    <div class="custom-tabs">
+        <a th:href="@{/admin/ovi-users(status='Pending')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Pending')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-clock-history me-1"></i> Pendientes
+        </a>
+        <a th:href="@{/admin/ovi-users(status='Accepted')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Accepted')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-check-circle me-1"></i> Aceptados
+        </a>
+        <a th:href="@{/admin/ovi-users(status='Rejected')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Rejected')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-x-circle me-1"></i> Rechazados
+        </a>
+    </div>
+
+    <!-- CONTENEDOR DE FILAS -->
+    <div id="usuarios-container">
+        <div th:each="usuario : ${users}" class="usuario-row">
+            <div class="assistant-pill">
+                <div class="pill-grid">
+                    <div><span class="pill-label">DNI</span><span class="pill-data" th:text="${usuario.dni}">12345678Z</span></div>
+                    <div><span class="pill-label">Nombre</span><span class="pill-data" th:text="${usuario.name}">Nombre Usuario</span></div>
+                    <div><span class="pill-label">Teléfono</span><span class="pill-data" th:text="${usuario.phoneNumber}">600000000</span></div>
+                    <div><span class="pill-label">Localidad</span><span class="pill-data" th:text="${usuario.address}">Castellón</span></div>
+                    <div>
+                        <span class="pill-label">Estado</span>
+                        <span th:class="${#strings.equalsIgnoreCase(usuario.status, 'Pending') ? 'status-badge bg-warning text-dark' :
+                                      (#strings.equalsIgnoreCase(usuario.status, 'Accepted') ? 'status-badge bg-success text-white' : 'status-badge bg-danger text-white')}"
+                              th:text="${usuario.status}">Pending</span>
+                    </div>
+                    <div class="description-text">
+                        <span class="pill-label">Contacto Emergencia</span>
+                        <span th:text="${usuario.emergencyContact}">Familiar - 611...</span>
+                    </div>
+                </div>
+
+                <div>
+                    <a th:href="@{/admin/ovi-users/details/{dni}(dni=${usuario.dni})}" class="btn-ficha">VER FICHA</a>
+                </div>
             </div>
+        </div>
+
+        <!-- Mensaje si la lista viene vacía desde el servidor -->
+        <div th:if="${#lists.isEmpty(users)}" class="text-center text-muted py-5">
+            <i class="bi bi-person-x mb-2 d-block fs-1"></i>
+            No hay usuarios en esta sección.
         </div>
     </div>
 </main>
