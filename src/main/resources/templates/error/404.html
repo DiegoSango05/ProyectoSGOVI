@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SgOVI - Error en el Sistema</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 280px);
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-name {
+            color: var(--ovi-orange);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .page-header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .page-title span {
+            color: var(--ovi-orange);
+        }
+
+        .form-panel {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-left: 6px solid var(--ovi-orange);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        .error-code {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--ovi-orange);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .btn-main {
+            background-color: var(--ovi-orange);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.7rem 1.1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .btn-main:hover {
+            background-color: var(--ovi-orange-dark);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+
+            <div class="brand-name mb-4">SgOVI</div>
+
+            <div class="form-panel text-start">
+
+                <div class="error-code text-center">404</div>
+
+                <div class="page-header text-center">
+                    <h1 class="page-title">Página <span>no encontrada</span></h1>
+                    <p class="text-muted">La ruta a la que intentas acceder no existe.</p>
+                </div>
+
+                <div class="mb-4 text-center">
+                    <p class="text-secondary">
+                        Es posible que la dirección esté mal escrita o que la página haya sido movida de sitio de forma permanente.
+                    </p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a th:href="@{/}" class="btn-main">Volver al inicio</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
