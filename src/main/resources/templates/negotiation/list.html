@@ -1,39 +1,201 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Lista de Negociaciones</title>
+    <title>SgOVI - Negociaciones</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+        }
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+        .hero { border-bottom: 1px solid #eee; padding: 3rem 0 2rem; text-align: center; }
+        .hero-title { font-size: 2.6rem; font-weight: 800; }
+        .hero-title span { color: var(--ovi-orange); }
+
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
+
+        .negotiation-pill {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.2rem;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .negotiation-pill:hover { border-color: var(--ovi-orange); transform: translateY(-2px); }
+
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--ovi-orange);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .pill-data { font-size: 0.95rem; font-weight: 600; color: #000; display: block; }
+
+        .pill-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1.5fr 1.2fr 1.2fr;
+            gap: 15px;
+            align-items: start;
+            flex-grow: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .btn-solid-custom {
+            background-color: var(--ovi-orange);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.6rem 1.5rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        .btn-solid-custom:hover {
+            background-color: var(--ovi-orange-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(132, 77, 0, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background-color: #fcfcfc;
+            border-radius: 16px;
+            border: 2px dashed #eee;
+        }
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--ovi-orange);
+            margin-bottom: 1rem;
+        }
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .empty-state-text {
+            color: #888;
+            margin-bottom: 1.5rem;
+        }
+    </style>
 </head>
-<body class="container mt-5">
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Estado de Negociaciones</h1>
-    <a href="/" class="btn btn-outline-secondary">Inicio</a>
-</div>
+<body>
 
-<table class="table table-hover shadow-sm">
-    <thead class="table-dark">
-    <tr>
-        <th>ID Negociación</th>
-        <th>Estado</th>
-        <th>Fecha de Negociación</th>
-        <th>ID Solicitud</th>
-        <th>DNI Asistente</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="neg : ${negotiations}">
-        <td th:text="${neg.idNegotiation}"></td>
-        <td th:text="${neg.status}"></td>
-        <td th:text="${neg.negotiationDate}"></td>
-        <td th:text="${neg.idRequest}"></td>
-        <td th:text="${neg.dniAssistant}"></td>
-    </tr>
-    </tbody>
-</table>
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom-nav">VOLVER</a>
+        </div>
+    </div>
+</nav>
 
-<div th:if="${#lists.isEmpty(negotiations)}" class="alert alert-info">
-    No hay negociaciones activas en este momento.
-</div>
+<header class="hero">
+    <div class="container">
+        <h1 class="hero-title">Gestión de <span>Negociaciones</span></h1>
+        <p class="text-muted">Listado de todas las negociaciones en proceso.</p>
+    </div>
+</header>
+
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div></div>
+        <a href="/negotiation/add" class="btn-solid-custom">
+            <i class="bi bi-plus-circle me-2"></i>NUEVA NEGOCIACIÓN
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(negotiations)}" class="empty-state">
+        <div class="empty-state-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <h2 class="empty-state-title">No hay negociaciones</h2>
+        <p class="empty-state-text">Aún no existen negociaciones registradas en el sistema.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(negotiations)}">
+        <div th:each="neg : ${negotiations}" class="negotiation-pill">
+            <div class="pill-grid">
+                <div>
+                    <span class="pill-label">ID Negociación</span>
+                    <span class="pill-data" th:text="${neg.idNegotiation}"></span>
+                </div>
+                <div>
+                    <span class="pill-label">Estado</span>
+                    <span th:class="'status-badge status-' + ${neg.status.toLowerCase()}" th:text="${neg.status}"></span>
+                </div>
+                <div>
+                    <span class="pill-label">Fecha de Negociación</span>
+                    <span class="pill-data" th:text="${#temporals.format(neg.negotiationDate, 'dd/MM/yyyy')}"></span>
+                </div>
+                <div>
+                    <span class="pill-label">ID Solicitud</span>
+                    <span class="pill-data" th:text="${neg.idRequest}"></span>
+                </div>
+                <div>
+                    <span class="pill-label">DNI Asistente</span>
+                    <span class="pill-data" th:text="${neg.dniAssistant}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
 </body>
 </html>

@@ -1,60 +1,162 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SPS - Nueva Negociación</title>
+    <title>SgOVI - Nueva Negociación</title>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link class="sheet" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link class="sheet" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover {
+            border-color: var(--ovi-orange) !important;
+            color: var(--ovi-orange) !important;
+            background-color: transparent !important;
+        }
+
+        .form-container {
+            max-width: 850px;
+            margin: 40px auto 0;
+            background-color: #fcfcfc;
+            padding: 3rem;
+            border-radius: 16px;
+            border: 1px solid #eee;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--ovi-orange);
+            display: inline-block;
+            margin-bottom: 25px;
+            padding-bottom: 5px;
+            color: var(--ovi-orange);
+        }
+        .form-label { font-size: 0.8rem; font-weight: 700; color: #444; text-transform: uppercase; margin-bottom: 8px; }
+        .form-control, .form-select {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            color: #000;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--ovi-orange);
+            box-shadow: 0 0 0 0.2rem rgba(132, 77, 0, 0.1);
+        }
+
+        .btn-save {
+            background-color: var(--ovi-orange);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-weight: 700;
+            border-radius: 8px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn-save:hover { background-color: var(--ovi-orange-dark); transform: translateY(-1px); }
+
+        .btn-cancel {
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 12px 20px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-cancel:hover { color: var(--ovi-orange); }
+
+        .error-text { color: #dc3545; font-size: 0.8rem; margin-top: 5px; font-weight: 600; }
+        .help-text { font-size: 0.72rem; color: #888; font-style: italic; margin-top: 4px; display: block; }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow border-0">
-                <div class="card-header bg-secondary text-white">
-                    <h3 class="mb-0">Iniciar Negociación</h3>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/negotiation/list}" class="btn-outline-custom-nav">VOLVER AL LISTADO</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="form-container">
+        <h2 class="form-section-title">Nueva Negociación</h2>
+
+        <form th:action="@{/negotiation/add}" th:object="${negotiation}" method="post">
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="negotiationDate" class="form-label">Fecha de Inicio</label>
+                    <input type="date" th:field="*{negotiationDate}" class="form-control" id="negotiationDate" required />
+                    <div class="error-text" th:if="${#fields.hasErrors('negotiationDate')}" th:errors="*{negotiationDate}"></div>
                 </div>
-                <div class="card-body p-4">
-                    <form action="#" th:action="@{/negotiation/add}" th:object="${negotiation}" method="post">
 
-                        <!-- Fecha de Negociación -->
-                        <div class="mb-3">
-                            <label for="negotiationDate" class="form-label">Fecha de Inicio</label>
-                            <input type="date" th:field="*{negotiationDate}" class="form-control" id="negotiationDate" required />
-                        </div>
-
-                        <!-- Estado -->
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Estado Inicial</label>
-                            <select th:field="*{status}" class="form-select" id="status">
-                                <option value="Accepted">Aceptada</option>
-                                <option value="Pending">Pendiente</option>
-                                <option value="Rejected">Rechazada</option>
-                            </select>
-                        </div>
-
-                        <!-- ID de la Solicitud (Foreign Key) -->
-                        <div class="mb-3">
-                            <label for="idRequest" class="form-label">ID de la Solicitud de Asistencia</label>
-                            <input type="number" th:field="*{idRequest}" class="form-control" id="idRequest" required />
-                            <div class="form-text">Debe ser un ID de solicitud válido.</div>
-                        </div>
-
-                        <!-- DNI del Asistente (Foreign Key) -->
-                        <div class="mb-4">
-                            <label for="dniAssistant" class="form-label">DNI del Asistente (PAP)</label>
-                            <input type="text" th:field="*{dniAssistant}" class="form-control" id="dniAssistant" required />
-                        </div>
-
-                        <hr>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="/negotiation/list" class="btn btn-outline-secondary me-md-2">Cancelar</a>
-                            <button type="submit" class="btn btn-secondary px-4">Crear Negociación</button>
-                        </div>
-                    </form>
+                <div class="col-md-6 mb-4">
+                    <label for="status" class="form-label">Estado Inicial</label>
+                    <select th:field="*{status}" class="form-select" id="status" required>
+                        <option value="">Seleccionar Estado</option>
+                        <option value="Accepted">Aceptada</option>
+                        <option value="Pending">Pendiente</option>
+                        <option value="Rejected">Rechazada</option>
+                    </select>
+                    <div class="error-text" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
                 </div>
             </div>
-        </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="idRequest" class="form-label">ID Solicitud de Asistencia</label>
+                    <input type="number" th:field="*{idRequest}" class="form-control" id="idRequest" required />
+                    <span class="help-text">Debe ser un ID de solicitud válido.</span>
+                    <div class="error-text" th:if="${#fields.hasErrors('idRequest')}" th:errors="*{idRequest}"></div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label for="dniAssistant" class="form-label">DNI del Asistente (PAP)</label>
+                    <input type="text" th:field="*{dniAssistant}" class="form-control" id="dniAssistant" required />
+                    <div class="error-text" th:if="${#fields.hasErrors('dniAssistant')}" th:errors="*{dniAssistant}"></div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-5">
+                <a href="/negotiation/list" class="btn-cancel">CANCELAR</a>
+                <button type="submit" class="btn-save">CREAR NEGOCIACIÓN</button>
+            </div>
+        </form>
     </div>
 </div>
 </body>

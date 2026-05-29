@@ -1,39 +1,401 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Lista de Comunicaciones</title>
+    <title>SgOVI - Chats existentes</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+            --chat-bg: #f7f2ea;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name {
+            color: var(--ovi-orange);
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .btn-outline-custom {
+            border: 2px solid #000;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            padding: 0.58rem 1rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+        }
+
+        .page-header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+        }
+
+        .page-title span {
+            color: var(--ovi-orange);
+        }
+
+        .chat-layout {
+            display: grid;
+            gap: 1.25rem;
+            grid-template-columns: minmax(260px, 340px) 1fr;
+            min-height: 620px;
+        }
+
+        .sidebar,
+        .chat-panel {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .panel-title {
+            border-bottom: 1px solid #eee;
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin: 0;
+            padding: 1rem 1.2rem;
+            text-transform: uppercase;
+        }
+
+        .negotiation-list {
+            max-height: 560px;
+            overflow-y: auto;
+        }
+
+        .negotiation-item {
+            border-bottom: 1px solid #eee;
+            color: #000;
+            display: block;
+            padding: 1rem 1.2rem;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .negotiation-item:hover,
+        .negotiation-item.active {
+            background-color: var(--ovi-soft);
+            color: #000;
+        }
+
+        .negotiation-item.active {
+            border-left: 4px solid var(--ovi-orange);
+        }
+
+        .negotiation-main {
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .negotiation-name {
+            font-weight: 800;
+        }
+
+        .negotiation-meta {
+            color: #666;
+            display: block;
+            font-size: 0.84rem;
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.25rem 0.55rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .chat-header {
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+        }
+
+        .chat-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .chat-subtitle {
+            color: #666;
+            font-size: 0.86rem;
+            margin: 0;
+        }
+
+        .messages {
+            background-color: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            min-height: 450px;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .message-form {
+            align-items: flex-end;
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .message-input {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            min-height: 46px;
+            resize: none;
+        }
+
+        .message-input:focus {
+            border-color: var(--ovi-orange);
+            box-shadow: 0 0 0 0.2rem rgba(133, 77, 0, 0.12);
+        }
+
+        .send-button {
+            align-items: center;
+            background-color: var(--ovi-orange);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            display: inline-flex;
+            font-size: 1.1rem;
+            height: 46px;
+            justify-content: center;
+            transition: 0.2s;
+            width: 52px;
+        }
+
+        .send-button:hover {
+            background-color: var(--ovi-orange-dark);
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .message-row.mine {
+            justify-content: flex-end;
+        }
+
+        .message-row.theirs {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            max-width: min(72%, 620px);
+            padding: 0.75rem 0.9rem;
+        }
+
+        .message-row.mine .message-bubble {
+            background-color: var(--ovi-orange);
+            color: #fff;
+        }
+
+        .message-row.theirs .message-bubble {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .message-sender {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .message-text {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .message-date {
+            display: block;
+            font-size: 0.72rem;
+            margin-top: 0.35rem;
+            opacity: 0.72;
+            text-align: right;
+        }
+
+        .empty-state {
+            align-items: center;
+            color: #777;
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 520px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .empty-state i {
+            color: var(--ovi-orange);
+            font-size: 2.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        @media (max-width: 991px) {
+            .chat-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .negotiation-list {
+                max-height: 280px;
+            }
+
+            .message-bubble {
+                max-width: 86%;
+            }
+        }
+    </style>
 </head>
-<body class="container mt-5">
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Buzón de Comunicaciones</h1>
-    <a href="/activity/list" class="btn btn-outline-primary">Ver Actividades</a>
-</div>
+<body>
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/oviuser}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/oviuser/chats}" class="btn-outline-custom">Volver</a>
+        </div>
+    </div>
+</nav>
 
-<table class="table table-striped table-bordered shadow-sm">
-    <thead class="table-dark">
-    <tr>
-        <th>ID</th>
-        <th>Negociación</th>
-        <th>Remitente</th>
-        <th>Mensaje</th>
-        <th>Fecha</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="comm : ${communications}">
-        <td th:text="${comm.id}"></td>
-        <td th:text="${comm.idNegotiation}"></td>
-        <td th:text="${comm.sender}"></td>
-        <td th:text="${comm.message}"></td>
-        <td th:text="${comm.messageDate}"></td>
-    </tr>
-    </tbody>
-</table>
+<main class="container py-4">
+    <div class="page-header">
+        <h1 class="page-title">Chats <span>existentes</span></h1>
+        <p class="text-muted mb-0">Selecciona una negociacion activa para consultar sus mensajes.</p>
+    </div>
 
-<div th:if="${#lists.isEmpty(communications)}" class="alert alert-info">
-    No hay mensajes registrados.
-</div>
+    <div class="chat-layout">
+        <aside class="sidebar">
+            <h2 class="panel-title">Negociaciones activas</h2>
+            <div class="empty-state" th:if="${#lists.isEmpty(negotiations)}">
+                <i class="bi bi-inbox"></i>
+                <p class="mb-0">No tienes negociaciones activas.</p>
+            </div>
+            <div class="negotiation-list" th:if="${!#lists.isEmpty(negotiations)}">
+                <a th:each="neg : ${negotiations}"
+                   th:href="@{/communication/list(idNegotiation=${neg.idNegotiation})}"
+                   th:class="${neg.idNegotiation == selectedIdNegotiation} ? 'negotiation-item active' : 'negotiation-item'">
+                    <span class="negotiation-main">
+                        <span class="negotiation-name" th:text="|Negociacion #${neg.idNegotiation}|">Negociacion #1</span>
+                        <span th:class="|status-badge status-${neg.status != null ? #strings.toLowerCase(neg.status) : 'pending'}|"
+                              th:text="${neg.status}">Pending</span>
+                    </span>
+                    <span class="negotiation-meta" th:text="|Asistente: ${neg.dniAssistant}|">Asistente</span>
+                    <span class="negotiation-meta" th:text="|Solicitud: ${neg.idRequest}|">Solicitud</span>
+                </a>
+            </div>
+        </aside>
+
+        <section class="chat-panel">
+            <div class="chat-header">
+                <div>
+                    <h2 class="chat-title" th:if="${selectedIdNegotiation != null}"
+                        th:text="|Negociacion #${selectedIdNegotiation}|">Negociacion</h2>
+                    <h2 class="chat-title" th:if="${selectedIdNegotiation == null}">Sin chat seleccionado</h2>
+                    <p class="chat-subtitle">Mensajes entre el usuario OVI y el asistente</p>
+                </div>
+                <i class="bi bi-chat-dots fs-3 text-muted"></i>
+            </div>
+
+            <div class="messages" th:if="${selectedIdNegotiation != null}">
+                <div class="empty-state" th:if="${#lists.isEmpty(communications)}">
+                    <i class="bi bi-chat-left-text"></i>
+                    <p class="mb-0">Todavia no hay mensajes en esta negociacion.</p>
+                </div>
+
+                <div th:each="comm : ${communications}"
+                     th:class="${ownSenders.contains(comm.sender)} ? 'message-row mine' : 'message-row theirs'">
+                    <div class="message-bubble">
+                        <span class="message-sender" th:text="${comm.sender}">Remitente</span>
+                        <p class="message-text" th:text="${comm.message}">Mensaje</p>
+                        <span class="message-date"
+                              th:text="${comm.messageDate != null ? #temporals.format(comm.messageDate, 'dd/MM/yyyy HH:mm') : ''}">
+                            Fecha
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <form class="message-form"
+                  th:if="${selectedIdNegotiation != null}"
+                  th:action="@{/communication/send}"
+                  method="post">
+                <input type="hidden" name="idNegotiation" th:value="${selectedIdNegotiation}">
+                <textarea class="form-control message-input"
+                          name="message"
+                          rows="1"
+                          placeholder="Escribe un mensaje..."
+                          required></textarea>
+                <button type="submit" class="send-button" aria-label="Enviar mensaje">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+
+            <div class="empty-state" th:if="${selectedIdNegotiation == null}">
+                <i class="bi bi-chat-square-dots"></i>
+                <p class="mb-0">Selecciona una negociacion para ver el chat.</p>
+            </div>
+        </section>
+    </div>
+</main>
 </body>
 </html>

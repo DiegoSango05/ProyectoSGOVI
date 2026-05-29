@@ -1,8 +1,12 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
+import es.uji.ei1027.sps.dao.CommunicationDao;
 import es.uji.ei1027.sps.dao.NegotiationDao;
+import es.uji.ei1027.sps.model.AssistanceRequest;
+import es.uji.ei1027.sps.model.Communication;
 import es.uji.ei1027.sps.model.Negotiation;
+import es.uji.ei1027.sps.model.OVIUser;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/negotiation")
@@ -18,6 +23,13 @@ public class NegotiationController {
 
     @Autowired
     private NegotiationDao negotiationDao;
+
+    @Autowired
+    private AssistanceRequestDao assistanceRequestDao;
+
+    @Autowired
+    private CommunicationDao communicationDao;
+
     @Autowired
     public void setNegotiationDao(NegotiationDao negotiationDao) {
         this.negotiationDao = negotiationDao;
@@ -29,6 +41,7 @@ public class NegotiationController {
         model.addAttribute("negotiations", negotiationDao.getNegotiations());
         return "negotiation/list";
     }
+
     // AÑADIR (Formulario)
     @RequestMapping("/add")
     public String addNegotiation(Model model) {
@@ -65,32 +78,50 @@ public class NegotiationController {
     @RequestMapping(value="/update", method = RequestMethod.POST)
     public String processUpdateSubmit(@ModelAttribute("negotiation") Negotiation negotiation,
                                       BindingResult bindingResult) {
-        // Aquí llamarías a su respectivo validador si lo tienes creado
         if (bindingResult.hasErrors())
             return "negotiation/update";
         negotiationDao.updateNegotiation(negotiation);
         return "redirect:list";
     }
 
-    @Autowired
-    private AssistanceRequestDao assistanceRequestDao;
-
     @PostMapping("/start")
     public String startNegotiation(@RequestParam("idRequest") int idRequest,
                                    @RequestParam("dniAssistant") String dniAssistant,
                                    HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
 
-        // 1. Crear el objeto Negociación
+        AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(idRequest);
+        if (request == null || !user.getDni().equals(request.getDniOVIuser())) {
+            return "redirect:/assistancerequest/my-list";
+        }
+
         Negotiation negotiation = new Negotiation();
-
-        negotiation.setStatus("Pending"); // Estado inicial de la negociación
+        negotiation.setStatus("Pending");
         negotiation.setNegotiationDate(LocalDate.now());
         negotiation.setIdRequest(idRequest);
         negotiation.setDniAssistant(dniAssistant);
 
-        // 2. Guardar en la base de datos
-        negotiationDao.addNegotiation(negotiation);
+        int idNegotiation = negotiationDao.addNegotiationAndReturnId(negotiation);
 
-        return "redirect:/assistancerequest/my-list";
+        Communication firstMessage = new Communication();
+        firstMessage.setIdNegotiation(idNegotiation);
+        firstMessage.setSender(user.getDni());
+        firstMessage.setMessage("Chat iniciado");
+        firstMessage.setMessageDate(LocalDateTime.now());
+        communicationDao.addChatMessage(firstMessage);
+
+        return "redirect:/communication/list?idNegotiation=" + idNegotiation;
+    }
+
+    private OVIUser getLoggedOVIUser(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"ovi".equals(role) || !(user instanceof OVIUser)) {
+            return null;
+        }
+        return (OVIUser) user;
     }
 }

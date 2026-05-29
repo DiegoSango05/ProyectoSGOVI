@@ -49,6 +49,16 @@ public class OVIUserController {
         return "oviuser/requests-contracts";
     }
 
+    @RequestMapping("/chats")
+    public String chatsIndex(HttpSession session, Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+        return "oviuser/chats";
+    }
+
     // LISTAR
     @RequestMapping("/list")
     public String list(Model model) {

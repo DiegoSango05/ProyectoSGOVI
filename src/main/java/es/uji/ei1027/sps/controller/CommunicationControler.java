@@ -1,7 +1,9 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.CommunicationDao;
+import es.uji.ei1027.sps.dao.NegotiationDao;
 import es.uji.ei1027.sps.model.Communication;
+import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,21 +12,55 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.time.LocalDateTime;
+
 @Controller
 @RequestMapping("/communication")
 public class CommunicationControler {
 
     private CommunicationDao communicationDao;
+    private NegotiationDao negotiationDao;
 
     @Autowired
     public void setCommunicationDao(CommunicationDao communicationDao) {
         this.communicationDao = communicationDao;
     }
 
+    @Autowired
+    public void setNegotiationDao(NegotiationDao negotiationDao) {
+        this.negotiationDao = negotiationDao;
+    }
+
     // LISTAR
     @RequestMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("communications", communicationDao.getCommunications());
+    public String list(@RequestParam(required = false) Integer idNegotiation,
+                       HttpSession session,
+                       Model model) {
+        OVIUser user = getLoggedOVIUser(session);
+        List<Negotiation> negotiations;
+        List<String> ownSenders;
+
+        if (user != null) {
+            ownSenders = Arrays.asList(user.getDni(), user.getName(), "OVIUser", "oviuser", "Usuario OVI", "ovi");
+            negotiations = negotiationDao.getActiveNegotiationsByOVIUser(user.getDni());
+            negotiations = filterNegotiationsWithUserMessages(negotiations, ownSenders);
+            idNegotiation = getSelectedNegotiationId(idNegotiation, negotiations);
+            model.addAttribute("oviuser", user);
+        } else {
+            ownSenders = Arrays.asList("OVIUser", "oviuser", "Usuario OVI", "ovi");
+            negotiations = negotiationDao.getNegotiations();
+            idNegotiation = getSelectedNegotiationId(idNegotiation, negotiations);
+        }
+
+        model.addAttribute("ownSenders", ownSenders);
+        model.addAttribute("negotiations", negotiations);
+        model.addAttribute("selectedIdNegotiation", idNegotiation);
+        model.addAttribute("communications", idNegotiation == null
+                ? communicationDao.getCommunications()
+                : communicationDao.getCommunicationsByNegotiation(idNegotiation));
         return "communication/list";
     }
 
@@ -34,8 +70,62 @@ public class CommunicationControler {
         if (user == null) {
             return "redirect:/login";
         }
-        model.addAttribute("communications", communicationDao.getCommunicationsByOVIUser(user.getDni()));
-        return "communication/list";
+        return "redirect:/communication/list";
+    }
+
+    @RequestMapping("/start/{idNegotiation}")
+    public String startChat(@PathVariable int idNegotiation, HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        return "redirect:/communication/list?idNegotiation=" + idNegotiation;
+    }
+
+    @RequestMapping(value="/send", method=RequestMethod.POST)
+    public String sendMessage(@RequestParam("idNegotiation") int idNegotiation,
+                              @RequestParam("message") String message,
+                              HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        List<Negotiation> negotiations = negotiationDao.getActiveNegotiationsByOVIUser(user.getDni());
+        if (!hasNegotiationId(idNegotiation, negotiations)) {
+            return "redirect:/communication/list";
+        }
+
+        if (message == null || message.trim().isEmpty()) {
+            return "redirect:/communication/list?idNegotiation=" + idNegotiation;
+        }
+
+        Communication communication = new Communication();
+        communication.setIdNegotiation(idNegotiation);
+        communication.setSender(user.getDni());
+        communication.setMessage(message.trim());
+        communication.setMessageDate(LocalDateTime.now());
+        communicationDao.addChatMessage(communication);
+
+        return "redirect:/communication/list?idNegotiation=" + idNegotiation;
+    }
+
+    // NUEVO CHAT (Formulario simplificado)
+    @RequestMapping("/new-chat")
+    public String newChat(Model model) {
+        model.addAttribute("communication", new Communication());
+        return "communication/new-chat";
+    }
+
+    // NUEVO CHAT (Procesar)
+    @RequestMapping(value="/new-chat", method=RequestMethod.POST)
+    public String processNewChat(@ModelAttribute("communication") Communication communication,
+                                 HttpSession session, BindingResult bindingResult) {
+        if (bindingResult.hasErrors())
+            return "communication/new-chat";
+
+        communicationDao.addCommunication(communication);
+        return "redirect:list";
     }
 
     // AÑADIR (Formulario)
@@ -89,5 +179,57 @@ public class CommunicationControler {
             return null;
         }
         return (OVIUser) user;
+    }
+
+    private Integer getSelectedNegotiationId(Integer requestedId, List<Negotiation> negotiations) {
+        if (negotiations == null || negotiations.isEmpty()) {
+            return null;
+        }
+        if (requestedId != null) {
+            for (Negotiation negotiation : negotiations) {
+                if (negotiation.getIdNegotiation() == requestedId) {
+                    return requestedId;
+                }
+            }
+        }
+        return negotiations.get(0).getIdNegotiation();
+    }
+
+    private boolean hasNegotiationId(int idNegotiation, List<Negotiation> negotiations) {
+        if (negotiations == null) {
+            return false;
+        }
+        for (Negotiation negotiation : negotiations) {
+            if (negotiation.getIdNegotiation() == idNegotiation) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Negotiation> filterNegotiationsWithUserMessages(List<Negotiation> negotiations, List<String> ownSenders) {
+        List<Negotiation> visibleNegotiations = new ArrayList<Negotiation>();
+        for (Negotiation negotiation : negotiations) {
+            List<Communication> communications = communicationDao.getCommunicationsByNegotiation(negotiation.getIdNegotiation());
+            for (Communication communication : communications) {
+                if (isOwnSender(communication.getSender(), ownSenders)) {
+                    visibleNegotiations.add(negotiation);
+                    break;
+                }
+            }
+        }
+        return visibleNegotiations;
+    }
+
+    private boolean isOwnSender(String sender, List<String> ownSenders) {
+        if (sender == null) {
+            return false;
+        }
+        for (String ownSender : ownSenders) {
+            if (ownSender != null && ownSender.equalsIgnoreCase(sender.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

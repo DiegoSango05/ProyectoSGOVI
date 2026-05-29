@@ -29,6 +29,16 @@ public class NegotiationDao {
                 negotiation.getDniAssistant());
     }
 
+    public int addNegotiationAndReturnId(Negotiation negotiation) {
+        String sql = "INSERT INTO negotiation (status, negotiation_date, id_request, dni_assistant) " +
+                "VALUES (?, ?, ?, ?) RETURNING id_negotiation";
+        return jdbcTemplate.queryForObject(sql, Integer.class,
+                negotiation.getStatus(),
+                negotiation.getNegotiationDate(),
+                negotiation.getIdRequest(),
+                negotiation.getDniAssistant());
+    }
+
     /* Borra una negociación */
     public void deleteNegotiation(int idNegotiation) {
         jdbcTemplate.update("DELETE FROM negotiation WHERE id_negotiation=?", idNegotiation);
@@ -56,6 +66,20 @@ public class NegotiationDao {
     public List<Negotiation> getNegotiations() {
         try {
             return jdbcTemplate.query("SELECT * FROM negotiation", new NegotiationRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Negotiation>();
+        }
+    }
+
+    public List<Negotiation> getActiveNegotiationsByOVIUser(String dniOVIUser) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT n.* FROM negotiation n " +
+                            "JOIN assistancerequest ar ON n.id_request = ar.id " +
+                            "WHERE ar.dni_oviuser=? " +
+                            "AND (n.status IS NULL OR LOWER(n.status) <> 'rejected') " +
+                            "ORDER BY n.negotiation_date DESC, n.id_negotiation DESC",
+                    new NegotiationRowMapper(), dniOVIUser);
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<Negotiation>();
         }
