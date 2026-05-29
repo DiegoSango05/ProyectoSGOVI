@@ -120,10 +120,11 @@ public class AdminController {
 
     // Rechazar a un asistente
     @PostMapping("/assistants/reject/{dni}")
-    public String rejectAssistant(@PathVariable String dni) {
+    public String rejectAssistant(@PathVariable String dni, @RequestParam("rejectionReason") String rejectionReason) {
         PAPAssistant assistant = papAssistantDao.getPAPAssistant(dni);
         if (assistant != null) {
             assistant.setStatus("Rejected");
+            assistant.setRejectionReason(rejectionReason);
             papAssistantDao.updatePAPAssistant(assistant);
         }
         return "redirect:/admin/assistants";
@@ -188,12 +189,15 @@ public class AdminController {
         return "redirect:/admin/ovi-users";
     }
 
-    // Rechazar/Eliminar Usuario OVI
     @PostMapping("/ovi-users/reject/{dni}")
-    public String rejectOVIUser(@PathVariable String dni) {
+    public String rejectOVIUser(@PathVariable String dni,
+                                @RequestParam("rejectionReason") String rejectionReason) {
+
         OVIUser oviUser = oviUserDao.getOVIUser(dni);
         if (oviUser != null) {
             oviUser.setStatus("Rejected");
+            oviUser.setRejectionReason(rejectionReason);
+
             oviUserDao.updateOVIUser(oviUser);
         }
         return "redirect:/admin/ovi-users";

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>SgOVI - Solicitud en Revisión</title>
@@ -58,12 +58,12 @@
     <br>
     <div class="status-badge">Solicitud en revisión</div>
 
-    <h1 class="title">Hola, <span th:text="${session.user.name}">Usuario</span></h1>
+    <h1 class="title">Hola, <span th:text="${session.user.name}">Usuario OVI</span></h1>
 
     <p class="message">
-        Tu perfil ha sido registrado correctamente, pero todavía está **pendiente de validación** por parte del equipo de administración de la OVI.
+        Tu perfil ha sido registrado correctamente, pero todavía está pendiente de validación por parte del equipo de administración de la OVI.
         <br><br>
-        Recibirás una notificación en cuanto tu cuenta sea activada.
+        Recibirás una notificación en cuanto tu cuenta y documentación sean verificadas.
     </p>
 
     <a th:href="@{/logout}" class="btn-logout">CERRAR SESIÓN</a>

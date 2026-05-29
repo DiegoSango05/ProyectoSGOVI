@@ -21,9 +21,13 @@ public class PAPAssistantDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    /* Añade un asistente PAP */
+    /* Añade un asistente PAP (Modificado para especificar columnas y evitar fallos de estructura) */
     public void addPAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("INSERT INTO pap_assistant VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        String sql = "INSERT INTO pap_assistant (dni, name, birth_date, assistance_type, professional_training, " +
+                "previous_experience, availability, location, status, password, phonenumber, rejection_reason) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(sql,
                 assistant.getDni(),
                 assistant.getName(),
                 assistant.getBirthDate(),
@@ -34,7 +38,8 @@ public class PAPAssistantDao {
                 assistant.getLocation(),
                 assistant.getStatus(),
                 assistant.getPassword(),
-                assistant.getPhoneNumber());
+                assistant.getPhoneNumber(),
+                assistant.getRejectionReason()); // Será null al crearse, lo cual es correcto
     }
 
     /* Borra un asistente por DNI */
@@ -42,9 +47,10 @@ public class PAPAssistantDao {
         jdbcTemplate.update("DELETE FROM pap_assistant WHERE dni=?", dni);
     }
 
-    /* Actualiza un asistente */
+    /* Actualiza un asistente (Incluye el motivo del rechazo) */
     public void updatePAPAssistant(PAPAssistant assistant) {
-        jdbcTemplate.update("UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=?, password=?, phonenumber=? WHERE dni=?",
+        jdbcTemplate.update(
+                "UPDATE pap_assistant SET name=?, birth_date=?, assistance_type=?, professional_training=?, previous_experience=?, availability=?, location=?, status=?, password=?, phonenumber=?, rejection_reason=? WHERE dni=?",
                 assistant.getName(),
                 assistant.getBirthDate(),
                 assistant.getAssistanceType(),
@@ -55,7 +61,9 @@ public class PAPAssistantDao {
                 assistant.getStatus(),
                 assistant.getPassword(),
                 assistant.getPhoneNumber(),
-                assistant.getDni());
+                assistant.getRejectionReason(), // Guardamos el motivo en la BD
+                assistant.getDni()
+        );
     }
 
     /* Obtiene un asistente por DNI */
@@ -91,20 +99,19 @@ public class PAPAssistantDao {
 
     /* Obtiene los asistentes recomendados para una petición específica */
     public List<PAPAssistant> getCandidatesForRequest(AssistanceRequest request) {
-        // Ordenamos directamente en la consulta sin alterar el modelo PAPAssistant
         String sql = "SELECT * FROM pap_assistant " +
                 "WHERE status = 'Accepted' " +
                 "ORDER BY " +
                 "  CASE " +
-                "    WHEN location = ? AND availability = ? AND assistance_type = ? THEN 1 " + // Match total
-                "    WHEN location = ? AND availability = ? THEN 2 " +                      // Match parcial (localidad y horario)
-                "    ELSE 3 " +                                                              // Resto
+                "    WHEN location = ? AND availability = ? AND assistance_type = ? THEN 1 " +
+                "    WHEN location = ? AND availability = ? THEN 2 " +
+                "    ELSE 3 " +
                 "  END ASC, name ASC";
 
         try {
             return jdbcTemplate.query(sql, new PAPAssistantRowMapper(),
-                    request.getLocation(), request.getSchedule(), request.getType(), // Parámetros para la prioridad 1
-                    request.getLocation(), request.getSchedule());                   // Parámetros para la prioridad 2
+                    request.getLocation(), request.getSchedule(), request.getType(),
+                    request.getLocation(), request.getSchedule());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }

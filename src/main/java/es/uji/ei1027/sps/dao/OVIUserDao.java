@@ -20,9 +20,13 @@ public class OVIUserDao {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    /* Añade un usuario OVI - Ahora incluye el campo 'status' por defecto como 'Pending' */
+    /* Añade un usuario OVI - Blindado explicitando columnas */
     public void addOVIUser(OVIUser oviUser) {
-        jdbcTemplate.update("INSERT INTO oviuser VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        String sql = "INSERT INTO oviuser (dni, name, birthdate, email, phonenumber, address, " +
+                "emergencycontact, document, password, status, rejection_reason) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(sql,
                 oviUser.getDni(),
                 oviUser.getName(),
                 oviUser.getBirthDate(),
@@ -32,7 +36,8 @@ public class OVIUserDao {
                 oviUser.getEmergencyContact(),
                 oviUser.getDocument(),
                 oviUser.getPassword(),
-                "Pending");
+                oviUser.getStatus() != null ? oviUser.getStatus() : "Pending",
+                oviUser.getRejectionReason());
     }
 
     /* Borra un usuario por DNI */
@@ -40,9 +45,12 @@ public class OVIUserDao {
         jdbcTemplate.update("DELETE FROM oviuser WHERE dni=?", dni);
     }
 
-    /* Actualiza un usuario incluyendo el nuevo campo status */
+    /* Actualiza un usuario incluyendo el estado y el motivo del rechazo */
     public void updateOVIUser(OVIUser oviUser) {
-        jdbcTemplate.update("UPDATE oviuser SET name=?, birthdate=?, email=?, phonenumber=?, address=?, emergencycontact=?, document=?, password=?, status=? WHERE dni=?",
+        String sql = "UPDATE oviuser SET name=?, birthdate=?, email=?, phonenumber=?, address=?, " +
+                "emergencycontact=?, document=?, password=?, status=?, rejection_reason=? WHERE dni=?";
+
+        jdbcTemplate.update(sql,
                 oviUser.getName(),
                 oviUser.getBirthDate(),
                 oviUser.getEmail(),
@@ -51,7 +59,8 @@ public class OVIUserDao {
                 oviUser.getEmergencyContact(),
                 oviUser.getDocument(),
                 oviUser.getPassword(),
-                oviUser.getStatus(), // Nuevo campo en el update
+                oviUser.getStatus(),
+                oviUser.getRejectionReason(),
                 oviUser.getDni());
     }
 
@@ -74,13 +83,12 @@ public class OVIUserDao {
         }
     }
 
-    /* Login real - Es importante comprobar el status en el controller después de esto */
+    /* Login real */
     public OVIUser loadUserByUsername(String dni, String password) {
         OVIUser user = getOVIUser(dni);
         if (user == null) return null;
 
         if (user.getPassword().equals(password)) {
-            // Nota: Aquí podrías filtrar si el status es 'Rejected' para ni siquiera dejarle entrar
             user.setPassword(null);
             return user;
         }

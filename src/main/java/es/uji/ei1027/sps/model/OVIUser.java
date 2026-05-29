@@ -13,6 +13,7 @@ public class OVIUser {
     private String document;
     private String password;
     private String status;
+    private String rejectionReason;
 
     public OVIUser() {}
 
@@ -87,6 +88,13 @@ public class OVIUser {
         this.status = status;
     }
 
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
     @Override
     public String toString() {
         return "OVIUser{" +

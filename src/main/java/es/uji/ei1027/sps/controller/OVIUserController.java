@@ -80,8 +80,12 @@ public class OVIUserController {
             return "oviuser/add";
         }
 
-        // Cambiamos la redirección a la pantalla de éxito de registro
-        return "oviuser/register-success";
+        return "redirect:/oviuser/registration-success";
+    }
+
+    @GetMapping("/registration-success")
+    public String registrationSuccess() {
+        return "oviuser/registration-success";
     }
 
     // ELIMINAR

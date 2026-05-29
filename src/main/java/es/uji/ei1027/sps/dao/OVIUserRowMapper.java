@@ -20,6 +20,7 @@ public final class OVIUserRowMapper implements RowMapper<OVIUser> {
         oviUser.setDocument(rs.getString("document"));
         oviUser.setPassword(rs.getString("password"));
         oviUser.setStatus(rs.getString("status"));
+        oviUser.setRejectionReason(rs.getString("rejection_reason"));
         return oviUser;
     }
 }

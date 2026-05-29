@@ -32,11 +32,13 @@ OVIUserValidator implements Validator {
             errors.rejectValue("name", "largo", "El nombre es demasiado largo (máximo 100 caracteres)");
         }
 
-        // 3. Validación Fecha de Nacimiento (¡Súper importante!)
+        // 3. Validación Fecha de Nacimiento
         if (oviUser.getBirthDate() == null) {
             errors.rejectValue("birthDate", "obligatorio", "La fecha de nacimiento es obligatoria");
         } else if (oviUser.getBirthDate().isAfter(LocalDate.now())) {
             errors.rejectValue("birthDate", "futura", "La fecha de nacimiento no puede ser una fecha futura");
+        } else if (oviUser.getBirthDate().plusYears(18).isAfter(LocalDate.now())) {
+            errors.rejectValue("birthDate", "menorEdad", "El usuario debe ser mayor de edad (18 años o más) para formar parte de la OVI");
         }
 
         // 4. Validación Email (Regex oficial)

@@ -14,6 +14,7 @@ public class PAPAssistant {
     private String status;
     private String password;
     private String phoneNumber;
+    private String rejectionReason;
 
     public PAPAssistant() {}
 
@@ -89,6 +90,14 @@ public class PAPAssistant {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     @Override

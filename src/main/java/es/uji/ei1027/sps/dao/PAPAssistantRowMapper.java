@@ -21,6 +21,7 @@ public final class PAPAssistantRowMapper implements RowMapper<PAPAssistant> {
         assistant.setStatus(rs.getString("status"));
         assistant.setPassword(rs.getString("password"));
         assistant.setPhoneNumber(rs.getString("phonenumber"));
+        assistant.setRejectionReason(rs.getString("rejection_reason"));
         return assistant;
     }
 }

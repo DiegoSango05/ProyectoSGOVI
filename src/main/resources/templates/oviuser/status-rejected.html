@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>SgOVI - Solicitud Denegada</title>
@@ -37,9 +37,9 @@
             margin-bottom: 20px;
         }
         .title { font-size: 1.4rem; font-weight: 700; margin-bottom: 15px; }
-        .message { color: #555; line-height: 1.6; margin-bottom: 30px; }
+        .message { color: #555; line-height: 1.6; margin-bottom: 25px; }
         .btn-return {
-            background-color: #6c757d; /* Gris para una acción de salida */
+            background-color: #000000;
             color: #ffffff;
             border: none;
             padding: 12px 30px;
@@ -49,6 +49,30 @@
             transition: opacity 0.2s;
         }
         .btn-return:hover { opacity: 0.8; color: #fff; }
+
+        /* Estilos para la caja del motivo de rechazo */
+        .reason-box {
+            background-color: #fff5f5;
+            border: 1px solid #feb2b2;
+            color: #9b2c2c;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .reason-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: #c53030;
+        }
+        .reason-text {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -58,12 +82,21 @@
     <br>
     <div class="status-badge">Solicitud rechazada</div>
 
-    <h1 class="title">Candidatura no aceptada</h1>
+    <h1 class="title">Solicitud de alta no aceptada</h1>
 
     <p class="message">
-        Lo sentimos, <strong><span th:text="${session.user.name}">Usuario</span></strong>. Tras evaluar tu documentación y perfil, la OVI ha decidido no aceptar tu solicitud en este momento.
-        <br><br>
-        Si crees que se trata de un error, por favor contacta con la oficina.
+        Lo sentimos, <strong><span th:text="${session.user.name}">Usuario</span></strong>. Tras evaluar tu documentación y los datos de tu registro, la OVI ha decidido no aceptar tu solicitud en este momento.
+    </p>
+
+    <div th:if="${session.user.rejectionReason != null and !session.user.rejectionReason.isEmpty()}" class="reason-box">
+        <div class="reason-title">Motivo especificado por la oficina:</div>
+        <p class="reason-text" th:text="${session.user.rejectionReason}">
+            Aquí se mostrará dinámicamente el texto introducido por el administrador en el modal de ovi-user-details.
+        </p>
+    </div>
+
+    <p class="message" style="font-size: 0.9rem; color: #777;">
+        Si crees que se trata de un error o necesitas aportar más información sobre tu certificado, por favor contacta con la oficina de la OVI.
     </p>
 
     <a th:href="@{/logout}" class="btn-return">VOLVER AL INICIO</a>
