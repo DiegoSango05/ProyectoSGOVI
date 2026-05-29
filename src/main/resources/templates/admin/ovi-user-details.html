@@ -47,6 +47,12 @@
         .btn-danger-solid:hover { background-color: var(--ovi-danger-red-dark); transform: translateY(-2px); }
 
         .modal-backdrop.show { backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.4); }
+
+        /* Enfoque estético para el textarea */
+        .form-control:focus {
+            border-color: var(--ovi-danger-red) !important;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+        }
     </style>
 </head>
 <body>
@@ -135,17 +141,30 @@
 <div class="modal fade" id="modalConfirmReject" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-body p-5 text-center">
-                <i class="bi bi-exclamation-triangle text-danger mb-4" style="font-size: 4rem;"></i>
-                <h3 class="fw-bold">¿Confirmar acción?</h3>
-                <p class="text-muted">¿Deseas rechazar a <b th:text="${usuario.name}">Nombre</b>?</p>
-                <div class="d-flex gap-3 justify-content-center mt-4">
-                    <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
-                    <form th:action="@{/admin/ovi-users/reject/{dni}(dni=${usuario.dni})}" method="post">
+            <form th:action="@{/admin/ovi-users/reject/{dni}(dni=${usuario.dni})}" method="post">
+                <div class="modal-body p-5 text-center">
+                    <i class="bi bi-exclamation-triangle text-danger mb-4" style="font-size: 4rem;"></i>
+                    <h3 class="fw-bold">¿Confirmar acción?</h3>
+                    <p class="text-muted mb-4">¿Estás seguro de que quieres rechazar o eliminar el registro de <b th:text="${usuario.name}">Nombre</b>?</p>
+
+                    <div class="mb-2 text-start">
+                        <label for="rejectionReason" class="data-label mb-2">Motivo del rechazo / baja</label>
+                        <textarea class="form-control"
+                                  id="rejectionReason"
+                                  name="rejectionReason"
+                                  rows="3"
+                                  maxlength="500"
+                                  placeholder="Indica el motivo detallado. El usuario lo verá cuando intente iniciar sesión..."
+                                  required
+                                  style="border-radius: 8px; font-size: 0.95rem; resize: none; border: 1px solid #ced4da;"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center mt-4">
+                        <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal" style="border-radius: 8px;">CANCELAR</button>
                         <button type="submit" class="btn-custom btn-danger-solid py-2" style="width: auto; min-width: 160px; height: 45px;">SÍ, PROCEDER</button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>

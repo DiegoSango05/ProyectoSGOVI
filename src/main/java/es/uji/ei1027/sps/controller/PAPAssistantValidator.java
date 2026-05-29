@@ -29,7 +29,7 @@ public class PAPAssistantValidator implements Validator {
             errors.rejectValue("name", "obligatorio", "El nombre completo es obligatorio");
         }
 
-        // 3. Validación Fecha de Nacimiento (Mayoría de edad para trabajar)
+        // 3. Validación Fecha de Nacimiento
         if (assistant.getBirthDate() == null) {
             errors.rejectValue("birthDate", "obligatorio", "La fecha de nacimiento es obligatoria");
         } else {
