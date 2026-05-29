@@ -256,13 +256,16 @@
                         <span th:text="${#strings.abbreviate(solicitud.description, 40)}">Descripción...</span>
                     </div>
                 </div>
-
                 <div class="d-flex gap-2" th:if="${#strings.equalsIgnoreCase(solicitud.status, 'Pending')}">
-                    <button class="btn-action btn-approve" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalApprove' + ${solicitud.id}">
-                        <i class="bi bi-check-lg"></i>
+                    <button class="btn-action btn-approve" type="button" data-bs-toggle="modal"
+                            th:data-bs-target="'#modalApprove' + ${solicitud.id}"
+                            aria-label="Aprovar sol·licitud">
+                        <i class="bi bi-check-lg" aria-hidden="true"></i>
                     </button>
-                    <button class="btn-action btn-reject" type="button" data-bs-toggle="modal" th:data-bs-target="'#modalReject' + ${solicitud.id}">
-                        <i class="bi bi-x-lg"></i>
+                    <button class="btn-action btn-reject" type="button" data-bs-toggle="modal"
+                            th:data-bs-target="'#modalReject' + ${solicitud.id}"
+                            aria-label="Rebutjar sol·licitud">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>

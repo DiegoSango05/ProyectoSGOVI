@@ -124,7 +124,7 @@
             text-decoration: underline;
         }
         .divider {
-            color: #ddd;
+            color: #000000;
             font-weight: 300;
         }
         .text-register-hint {
@@ -147,13 +147,14 @@
 
     <div class="login-card">
         <form th:action="@{/login}" th:object="${user}" method="post">
+
             <div class="mb-3">
-                <label class="form-label">DNI / Usuario</label>
+                <label for="username" class="form-label">DNI / Usuario</label>
                 <input type="text" th:field="*{username}" class="form-control" placeholder="Introduce tu DNI" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Contraseña</label>
+                <label for="password" class="form-label">Contraseña</label>
                 <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••" required>
             </div>
 
