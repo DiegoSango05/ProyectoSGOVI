@@ -14,6 +14,8 @@ public class OVIUser {
     private String password;
     private String status;
     private String rejectionReason;
+    private Boolean acceptedPrivacyPolicy;
+    private String confirmPassword;
 
     public OVIUser() {}
 
@@ -91,9 +93,23 @@ public class OVIUser {
     public String getRejectionReason() {
         return rejectionReason;
     }
-
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public Boolean getAcceptedPrivacyPolicy() {
+        return acceptedPrivacyPolicy;
+    }
+    public void setAcceptedPrivacyPolicy(Boolean acceptedPrivacyPolicy) {
+        this.acceptedPrivacyPolicy = acceptedPrivacyPolicy;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
     @Override
     public String toString() {

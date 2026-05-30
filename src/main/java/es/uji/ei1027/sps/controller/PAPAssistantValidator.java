@@ -63,10 +63,42 @@ public class PAPAssistantValidator implements Validator {
         }
 
         // 7. Validación de Password
-        if (assistant.getPassword() == null || assistant.getPassword().isEmpty()) {
-            errors.rejectValue("password", "obligatorio", "La contraseña es obligatoria");
-        } else if (assistant.getPassword().length() < 6) {
-            errors.rejectValue("password", "corto", "La contraseña debe tener al menos 6 caracteres");
+        String password = assistant.getPassword();
+        if (password == null || password.trim().isEmpty()) {
+            errors.rejectValue(
+                    "password",
+                    "obligatorio",
+                    "La contraseña es obligatoria");
+        }
+        else if (password.length() < 6) {
+            errors.rejectValue(
+                    "password",
+                    "corto",
+                    "La contraseña debe tener al menos 6 caracteres");
+        }
+        // Confirmación de contraseña
+        String confirmPassword = assistant.getConfirmPassword();
+        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            errors.rejectValue(
+                    "confirmPassword",
+                    "obligatorio",
+                    "Debe confirmar la contraseña");
+        }
+        else if (password != null && !password.equals(confirmPassword)) {
+            errors.rejectValue(
+                    "confirmPassword",
+                    "distinta",
+                    "Las contraseñas no coinciden");
+        }
+
+        // 8. RGPD / LOPDGDD
+        if (assistant.getAcceptedPrivacyPolicy() == null ||
+                !assistant.getAcceptedPrivacyPolicy()) {
+
+            errors.rejectValue(
+                    "acceptedPrivacyPolicy",
+                    "obligatorio",
+                    "Debe aceptar la política de privacidad para continuar");
         }
     }
 }

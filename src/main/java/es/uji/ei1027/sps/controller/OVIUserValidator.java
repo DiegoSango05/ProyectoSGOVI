@@ -73,9 +73,41 @@ OVIUserValidator implements Validator {
         // 7. Validación de Contraseña para OVIUser
         String password = oviUser.getPassword();
         if (password == null || password.trim().isEmpty()) {
-            errors.rejectValue("password", "obligatorio", "La contraseña es obligatoria para el registro");
-        } else if (password.length() < 6) {
-            errors.rejectValue("password", "corto", "La contraseña debe tener al menos 6 caracteres");
+            errors.rejectValue(
+                    "password",
+                    "obligatorio",
+                    "La contraseña es obligatoria para el registro");
+        }
+        else if (password.length() < 6) {
+            errors.rejectValue(
+                    "password",
+                    "corto",
+                    "La contraseña debe tener al menos 6 caracteres");
+        }
+
+        String confirmPassword = oviUser.getConfirmPassword();
+        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            errors.rejectValue(
+                    "confirmPassword",
+                    "obligatorio",
+                    "Debe confirmar la contraseña");
+        }
+        else if (password != null && !password.equals(confirmPassword)) {
+            errors.rejectValue(
+                    "confirmPassword",
+                    "distinta",
+                    "Las contraseñas no coinciden");
+        }
+
+        // 8. Consentimiento RGPD/LOPDGDD
+        if (oviUser.getAcceptedPrivacyPolicy() == null ||
+                !oviUser.getAcceptedPrivacyPolicy()) {
+
+            errors.rejectValue(
+                    "acceptedPrivacyPolicy",
+                    "obligatorio",
+                    "Debe aceptar la política de privacidad para continuar"
+            );
         }
     }
 }

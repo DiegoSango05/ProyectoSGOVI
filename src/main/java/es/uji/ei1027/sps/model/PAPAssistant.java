@@ -15,6 +15,9 @@ public class PAPAssistant {
     private String password;
     private String phoneNumber;
     private String rejectionReason;
+    private String confirmPassword;
+    private Boolean acceptedPrivacyPolicy;
+
 
     public PAPAssistant() {}
 
@@ -100,6 +103,19 @@ public class PAPAssistant {
         this.rejectionReason = rejectionReason;
     }
 
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    public Boolean getAcceptedPrivacyPolicy() {
+        return acceptedPrivacyPolicy;
+    }
+    public void setAcceptedPrivacyPolicy(Boolean acceptedPrivacyPolicy) {
+        this.acceptedPrivacyPolicy = acceptedPrivacyPolicy;
+    }
     @Override
     public String toString() {
         return "PAPAssistant{" +

@@ -10,6 +10,25 @@
             --ovi-orange-dark: #6e4000;
             --ovi-soft: #fffcf5;
         }
+
+        .form-check {
+            background: var(--ovi-soft);
+            padding: 1rem;
+            padding-left: 1.8rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--ovi-orange);
+        }
+
+        .form-check-label {
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .form-check-input:checked {
+            margin-left: 0 !important;
+            background-color: var(--ovi-orange);
+            border-color: var(--ovi-orange);
+        }
         body { background-color: #ffffff; color: #000000; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
         .header-brand { text-align: center; padding: 30px 0; background-color: #ffffff; }
         .brand-logo { max-width: 150px; margin-bottom: 15px; transition: transform 0.2s; }
@@ -27,7 +46,7 @@
         .btn-save { background-color: var(--ovi-orange); color: #fff; border: none; padding: 12px 30px; font-weight: 700; border-radius: 8px; text-transform: uppercase; transition: all 0.2s; }
         .btn-save:hover { background-color: #c48b2d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(218, 159, 56, 0.2); }
 
-        /* CORREGIDO: Botón cancelar idéntico a las vistas del Admin (mayúsculas, sin subrayar, hover corporativo) */
+
         .btn-cancel { color: #000; text-decoration: none; font-weight: 700; padding: 12px 20px; font-size: 0.85rem; text-transform: uppercase; transition: color 0.2s ease; }
         .btn-cancel:hover { color: var(--ovi-orange); }
 
@@ -103,12 +122,31 @@
             <div class="row bg-light p-3 rounded mb-4" style="border-left: 4px solid var(--ovi-orange); margin-left: 0; margin-right: 0;">
                 <div class="col-md-6 mb-2">
                     <label for="password" class="form-label">Establecer Contraseña</label>
-                    <input type="password" th:field="*{password}" class="form-control" id="password" placeholder="Mínimo 6 caracteres"/>
-                    <div class="error-text" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                    <input type="password"
+                           th:field="*{password}"
+                           class="form-control"
+                           id="password"
+                           placeholder="Mínimo 6 caracteres"/>
+
+                    <div class="error-text"
+                         th:if="${#fields.hasErrors('password')}"
+                         th:errors="*{password}">
+                    </div>
                 </div>
+
                 <div class="col-md-6 mb-2">
                     <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-                    <input type="password" name="confirmPassword" class="form-control" id="confirmPassword" placeholder="Repite la contraseña"/>
+
+                    <input type="password"
+                           th:field="*{confirmPassword}"
+                           class="form-control"
+                           id="confirmPassword"
+                           placeholder="Repite la contraseña"/>
+
+                    <div class="error-text"
+                         th:if="${#fields.hasErrors('confirmPassword')}"
+                         th:errors="*{confirmPassword}">
+                    </div>
                 </div>
                 <div class="col-12">
                     <p style="font-size: 0.7rem; color: #777; margin-top: 5px; margin-bottom: 0; color: #000000;">
@@ -127,6 +165,25 @@
                 <input type="text" th:field="*{document}" class="form-control" id="document" placeholder="Nombre del archivo o enlace" />
             </div>
 
+            <div class="form-check mb-4 border-top pt-4">
+                <input
+                        class="form-check-input"
+                        type="checkbox"
+                        th:field="*{acceptedPrivacyPolicy}"
+                        id="acceptedPrivacyPolicy"
+                        required>
+
+                <label class="form-check-label" for="acceptedPrivacyPolicy">
+                    He leído y acepto la política de privacidad y el tratamiento de mis datos
+                    personales conforme al RGPD y la LOPDGDD.
+                </label>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('acceptedPrivacyPolicy')}"
+                     th:errors="*{acceptedPrivacyPolicy}">
+                </div>
+            </div>
+
             <div class="d-flex justify-content-end align-items-center border-top pt-4">
                 <a th:href="@{/choose-registration}" class="btn-cancel me-3">CANCELAR</a>
                 <button type="submit" class="btn-save shadow-sm">Registrarse</button>
@@ -134,6 +191,5 @@
         </form>
     </div>
 </div>
-
 </body>
 </html>
