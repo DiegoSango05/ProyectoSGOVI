@@ -14,6 +14,14 @@ OVIUserValidator implements Validator {
 
     @Override
     public void validate(Object obj, Errors errors) {
+        validate(obj, errors, true);
+    }
+
+    public void validateProfile(Object obj, Errors errors) {
+        validate(obj, errors, false);
+    }
+
+    private void validate(Object obj, Errors errors, boolean registration) {
         OVIUser oviUser = (OVIUser) obj;
 
         // 1. Validación DNI (Más estricta)
@@ -85,29 +93,31 @@ OVIUserValidator implements Validator {
                     "La contraseña debe tener al menos 6 caracteres");
         }
 
-        String confirmPassword = oviUser.getConfirmPassword();
-        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            errors.rejectValue(
-                    "confirmPassword",
-                    "obligatorio",
-                    "Debe confirmar la contraseña");
-        }
-        else if (password != null && !password.equals(confirmPassword)) {
-            errors.rejectValue(
-                    "confirmPassword",
-                    "distinta",
-                    "Las contraseñas no coinciden");
-        }
+        if (registration) {
+            String confirmPassword = oviUser.getConfirmPassword();
+            if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+                errors.rejectValue(
+                        "confirmPassword",
+                        "obligatorio",
+                        "Debe confirmar la contraseña");
+            }
+            else if (password != null && !password.equals(confirmPassword)) {
+                errors.rejectValue(
+                        "confirmPassword",
+                        "distinta",
+                        "Las contraseñas no coinciden");
+            }
 
-        // 8. Consentimiento RGPD/LOPDGDD
-        if (oviUser.getAcceptedPrivacyPolicy() == null ||
-                !oviUser.getAcceptedPrivacyPolicy()) {
+            // 8. Consentimiento RGPD/LOPDGDD
+            if (oviUser.getAcceptedPrivacyPolicy() == null ||
+                    !oviUser.getAcceptedPrivacyPolicy()) {
 
-            errors.rejectValue(
-                    "acceptedPrivacyPolicy",
-                    "obligatorio",
-                    "Debe aceptar la política de privacidad para continuar"
-            );
+                errors.rejectValue(
+                        "acceptedPrivacyPolicy",
+                        "obligatorio",
+                        "Debe aceptar la política de privacidad para continuar"
+                );
+            }
         }
     }
 }
