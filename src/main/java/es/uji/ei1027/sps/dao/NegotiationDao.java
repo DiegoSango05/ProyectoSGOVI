@@ -21,22 +21,26 @@ public class NegotiationDao {
     }
 
     public void addNegotiation(Negotiation negotiation) {
-        String sql = "INSERT INTO negotiation (status, negotiation_date, id_request, dni_assistant) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO negotiation (status, negotiation_date, id_request, dni_assistant, accepted_customer, accepted_assistant) VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 negotiation.getStatus(),
                 negotiation.getNegotiationDate(),
                 negotiation.getIdRequest(),
-                negotiation.getDniAssistant());
+                negotiation.getDniAssistant(),
+                negotiation.isAcceptedCustomer(),
+                negotiation.isAcceptedAssistant());
     }
 
     public int addNegotiationAndReturnId(Negotiation negotiation) {
-        String sql = "INSERT INTO negotiation (status, negotiation_date, id_request, dni_assistant) " +
-                "VALUES (?, ?, ?, ?) RETURNING id_negotiation";
+        String sql = "INSERT INTO negotiation (status, negotiation_date, id_request, dni_assistant, accepted_customer, accepted_assistant) " +
+                "VALUES (?, ?, ?, ?, ?, ?) RETURNING id_negotiation";
         return jdbcTemplate.queryForObject(sql, Integer.class,
                 negotiation.getStatus(),
                 negotiation.getNegotiationDate(),
                 negotiation.getIdRequest(),
-                negotiation.getDniAssistant());
+                negotiation.getDniAssistant(),
+                negotiation.isAcceptedCustomer(),
+                negotiation.isAcceptedAssistant());
     }
 
     /* Borra una negociación */
@@ -44,11 +48,13 @@ public class NegotiationDao {
         jdbcTemplate.update("DELETE FROM negotiation WHERE id_negotiation=?", idNegotiation);
     }
 
-    /* Actualiza una negociación */
+    /* Actualiza una negociación incluyendo las nuevas banderas */
     public void updateNegotiation(Negotiation negotiation) {
-        jdbcTemplate.update("UPDATE negotiation SET status=?, negotiation_date=?, id_request=?, dni_assistant=? WHERE id_negotiation=?",
+        String sql = "UPDATE negotiation SET status=?, negotiation_date=?, id_request=?, dni_assistant=?, accepted_customer=?, accepted_assistant=? WHERE id_negotiation=?";
+        jdbcTemplate.update(sql,
                 negotiation.getStatus(), negotiation.getNegotiationDate(),
                 negotiation.getIdRequest(), negotiation.getDniAssistant(),
+                negotiation.isAcceptedCustomer(), negotiation.isAcceptedAssistant(), // 🆕
                 negotiation.getIdNegotiation());
     }
 
@@ -96,5 +102,24 @@ public class NegotiationDao {
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<Negotiation>();
         }
+    }
+
+    public List<Negotiation> getMutualAgreements() {
+        try {
+            String sql = "SELECT * FROM negotiation WHERE accepted_customer = true AND accepted_assistant = true AND LOWER(status) = 'pending'";
+            return jdbcTemplate.query(sql, new NegotiationRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Negotiation>();
+        }
+    }
+
+    public void updateCustomerAcceptance(int idNegotiation, boolean accepted) {
+        String sql = "UPDATE negotiation SET accepted_customer = ? WHERE id_negotiation = ?";
+        jdbcTemplate.update(sql, accepted, idNegotiation);
+    }
+
+    public void updateAssistantAcceptance(int idNegotiation, boolean accepted) {
+        String sql = "UPDATE negotiation SET accepted_assistant = ? WHERE id_negotiation = ?";
+        jdbcTemplate.update(sql, accepted, idNegotiation);
     }
 }

@@ -8,6 +8,8 @@ public class Negotiation {
     private LocalDate negotiationDate;
     private int idRequest;
     private String dniAssistant;
+    private boolean acceptedCustomer;
+    private boolean acceptedAssistant;
 
     public Negotiation() {}
 
@@ -46,6 +48,20 @@ public class Negotiation {
         this.dniAssistant = dniAssistant;
     }
 
+    public boolean isAcceptedCustomer() {
+        return acceptedCustomer;
+    }
+    public void setAcceptedCustomer(boolean acceptedCustomer) {
+        this.acceptedCustomer = acceptedCustomer;
+    }
+
+    public boolean isAcceptedAssistant() {
+        return acceptedAssistant;
+    }
+    public void setAcceptedAssistant(boolean acceptedAssistant) {
+        this.acceptedAssistant = acceptedAssistant;
+    }
+
     @Override
     public String toString() {
         return "Negotiation{" +
@@ -54,6 +70,8 @@ public class Negotiation {
                 ", negotiationDate=" + negotiationDate +
                 ", idRequest=" + idRequest +
                 ", dniAssistant='" + dniAssistant + '\'' +
+                ", acceptedCustomer=" + acceptedCustomer +
+                ", acceptedAssistant=" + acceptedAssistant +
                 '}';
     }
 }

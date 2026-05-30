@@ -22,9 +22,14 @@ public class ContractDao {
 
     /* Añade un contrato */
     public void addContract(Contract contract) {
-        jdbcTemplate.update("INSERT INTO contract VALUES(?, ?, ?, ?, ?, ?)",
-                contract.getId(), contract.getStartDate(), contract.getEndDate(),
-                contract.getStatus(), contract.getDocument(), contract.getIdNegotiation());
+        String sql = "INSERT INTO contract (startdate, enddate, status, document, id_negotiation) VALUES(?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(sql,
+                contract.getStartDate(),
+                contract.getEndDate(),
+                contract.getStatus(),
+                contract.getDocument(),
+                contract.getIdNegotiation());
     }
 
     /* Borra un contrato */

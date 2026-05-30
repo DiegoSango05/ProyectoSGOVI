@@ -424,7 +424,7 @@ public class AdminController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("type", "usuario");
-            return "admin/create-profile"; // Si hay fallos de DNI, teléfono, etc., recarga la vista con errores
+            return "admin/create-user-profile"; // Si hay fallos de DNI, teléfono, etc., recarga la vista con errores
         }
 
         // Si pasa tu validador, lo insertamos en la BD usando tu DAO
@@ -446,7 +446,7 @@ public class AdminController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("type", "asistente");
-            return "admin/create-profile"; // Recarga la vista inyectando las alertas de error
+            return "admin/create-assistant-profile"; // Recarga la vista inyectando las alertas de error
         }
 
         // Si pasa tu validador, lo insertamos en la BD usando tu DAO
