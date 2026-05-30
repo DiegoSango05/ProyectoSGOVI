@@ -164,9 +164,12 @@ public class OVIUserController {
             return "redirect:/login";
         }
 
+        OVIUser currentUser = oviUserDao.getOVIUser(user.getDni());
         oviUser.setDni(user.getDni());
+        oviUser.setStatus(currentUser.getStatus());
+        oviUser.setRejectionReason(currentUser.getRejectionReason());
         OVIUserValidator validator = new OVIUserValidator();
-        validator.validate(oviUser, bindingResult);
+        validator.validateProfile(oviUser, bindingResult);
         if (bindingResult.hasErrors()) {
             return "oviuser/profile-config";
         }

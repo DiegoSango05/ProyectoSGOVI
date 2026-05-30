@@ -4,6 +4,7 @@ import es.uji.ei1027.sps.dao.AssistanceRequestDao;
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
 import es.uji.ei1027.sps.dao.SelectionDao;
+import es.uji.ei1027.sps.dao.SupportChatDao;
 import es.uji.ei1027.sps.model.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class AdminController {
 
     @Autowired
     private SelectionDao selectionDao;
+
+    @Autowired
+    private SupportChatDao supportChatDao;
 
     @RequestMapping("/index")
     public String indexAdmin(HttpSession session, Model model) {
@@ -114,6 +118,7 @@ public class AdminController {
         if (assistant != null) {
             assistant.setStatus("Accepted");
             papAssistantDao.updatePAPAssistant(assistant);
+            supportChatDao.createWelcomeChatIfAbsent(assistant.getDni(), "PAP", assistant.getName());
         }
         return "redirect:/admin/assistants";
     }
@@ -185,6 +190,7 @@ public class AdminController {
         if (oviUser != null) {
             oviUser.setStatus("Accepted");
             oviUserDao.updateOVIUser(oviUser);
+            supportChatDao.createWelcomeChatIfAbsent(oviUser.getDni(), "OVI", oviUser.getName());
         }
         return "redirect:/admin/ovi-users";
     }

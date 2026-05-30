@@ -138,9 +138,10 @@ public class PAPAssistantController {
         PAPAssistant currentAssistant = papAssistantDao.getPAPAssistant(assistant.getDni());
         papAssistant.setDni(assistant.getDni());
         papAssistant.setStatus(currentAssistant.getStatus());
+        papAssistant.setRejectionReason(currentAssistant.getRejectionReason());
 
         PAPAssistantValidator validator = new PAPAssistantValidator();
-        validator.validate(papAssistant, bindingResult);
+        validator.validateProfile(papAssistant, bindingResult);
         if (bindingResult.hasErrors()) {
             return "pap_assistant/profile-config";
         }

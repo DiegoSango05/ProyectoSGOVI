@@ -14,6 +14,14 @@ public class PAPAssistantValidator implements Validator {
 
     @Override
     public void validate(Object obj, Errors errors) {
+        validate(obj, errors, true);
+    }
+
+    public void validateProfile(Object obj, Errors errors) {
+        validate(obj, errors, false);
+    }
+
+    private void validate(Object obj, Errors errors, boolean registration) {
         PAPAssistant assistant = (PAPAssistant) obj;
 
         // 1. Validación DNI/NIE (Formato oficial)
@@ -76,29 +84,31 @@ public class PAPAssistantValidator implements Validator {
                     "corto",
                     "La contraseña debe tener al menos 6 caracteres");
         }
-        // Confirmación de contraseña
-        String confirmPassword = assistant.getConfirmPassword();
-        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            errors.rejectValue(
-                    "confirmPassword",
-                    "obligatorio",
-                    "Debe confirmar la contraseña");
-        }
-        else if (password != null && !password.equals(confirmPassword)) {
-            errors.rejectValue(
-                    "confirmPassword",
-                    "distinta",
-                    "Las contraseñas no coinciden");
-        }
+        if (registration) {
+            // Confirmación de contraseña
+            String confirmPassword = assistant.getConfirmPassword();
+            if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+                errors.rejectValue(
+                        "confirmPassword",
+                        "obligatorio",
+                        "Debe confirmar la contraseña");
+            }
+            else if (password != null && !password.equals(confirmPassword)) {
+                errors.rejectValue(
+                        "confirmPassword",
+                        "distinta",
+                        "Las contraseñas no coinciden");
+            }
 
-        // 8. RGPD / LOPDGDD
-        if (assistant.getAcceptedPrivacyPolicy() == null ||
-                !assistant.getAcceptedPrivacyPolicy()) {
+            // 8. RGPD / LOPDGDD
+            if (assistant.getAcceptedPrivacyPolicy() == null ||
+                    !assistant.getAcceptedPrivacyPolicy()) {
 
-            errors.rejectValue(
-                    "acceptedPrivacyPolicy",
-                    "obligatorio",
-                    "Debe aceptar la política de privacidad para continuar");
+                errors.rejectValue(
+                        "acceptedPrivacyPolicy",
+                        "obligatorio",
+                        "Debe aceptar la política de privacidad para continuar");
+            }
         }
     }
 }

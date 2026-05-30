@@ -130,18 +130,25 @@
     </div>
 
     <div class="row g-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <a th:href="@{/assistancerequest/my-list}" class="option-card">
                 <span class="option-icon"><i class="bi bi-plus-lg"></i></span>
                 <h2>Nuevo chat</h2>
                 <p>Elige una solicitud aceptada y contacta con un asistente.</p>
             </a>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <a th:href="@{/communication/list}" class="option-card">
                 <span class="option-icon"><i class="bi bi-chat-left-text"></i></span>
                 <h2>Chats existentes</h2>
                 <p>Ver los chats ya existentes.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a th:href="@{/support-chats/list}" class="option-card">
+                <span class="option-icon"><i class="bi bi-headset"></i></span>
+                <h2>Soporte SgOVI</h2>
+                <p>Contacta con el administrador si necesitas ayuda.</p>
             </a>
         </div>
     </div>
