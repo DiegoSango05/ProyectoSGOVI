@@ -96,14 +96,67 @@ public class PAPAssistantController {
         return "redirect:list";
     }
 
-    // VISUALIZAR PERFIL
     @RequestMapping("/profile")
-    public String viewProfile(HttpSession session, Model model) {
+    public String profile(HttpSession session, Model model) {
         PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
-        if (assistant == null) {
+        if (assistant == null || !"asistente".equals(session.getAttribute("role"))) {
             return "redirect:/login";
         }
         model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
-        return "pap_assistant/update";
+        return "pap_assistant/profile";
+    }
+
+    @RequestMapping("/profile/view")
+    public String viewProfile(HttpSession session, Model model) {
+        PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
+        if (assistant == null || !"asistente".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
+        return "pap_assistant/profile-view";
+    }
+
+    @RequestMapping(value="/profile/config", method = RequestMethod.GET)
+    public String configureProfile(HttpSession session, Model model) {
+        PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
+        if (assistant == null || !"asistente".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
+        return "pap_assistant/profile-config";
+    }
+
+    @RequestMapping(value="/profile/config", method = RequestMethod.POST)
+    public String processConfigureProfile(@ModelAttribute("papassistant") PAPAssistant papAssistant,
+                                          BindingResult bindingResult,
+                                          HttpSession session) {
+        PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
+        if (assistant == null || !"asistente".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+
+        PAPAssistant currentAssistant = papAssistantDao.getPAPAssistant(assistant.getDni());
+        papAssistant.setDni(assistant.getDni());
+        papAssistant.setStatus(currentAssistant.getStatus());
+
+        PAPAssistantValidator validator = new PAPAssistantValidator();
+        validator.validate(papAssistant, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return "pap_assistant/profile-config";
+        }
+
+        papAssistantDao.updatePAPAssistant(papAssistant);
+        session.setAttribute("user", papAssistant);
+        return "redirect:/pap_assistant/profile/view";
+    }
+
+    @RequestMapping("/chats")
+    public String chatsIndex(HttpSession session, Model model) {
+        PAPAssistant assistant = (PAPAssistant) session.getAttribute("user");
+        if (assistant == null || !"asistente".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
+        return "pap_assistant/chats";
     }
 }

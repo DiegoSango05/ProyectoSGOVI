@@ -72,4 +72,16 @@ public class ActivityDao {
             return new ArrayList<Activity>();
         }
     }
+
+    public List<Activity> getActivitiesByAssistant(String dniAssistant) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT DISTINCT a.* FROM activity a " +
+                            "JOIN assistancelist al ON a.id = al.id_activity " +
+                            "WHERE al.dni_assistant=?",
+                    new ActivityRowMapper(), dniAssistant);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Activity>();
+        }
+    }
 }

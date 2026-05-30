@@ -201,7 +201,7 @@
                 <div th:if="${acceptedByRequestId[request.id] and negotiationsByRequestId[request.id] != null}">
                     <div class="border-top pt-3 mt-3">
                         <p class="small text-muted mb-3">
-                            Solicitud aceptada por
+                            Solicitud en negociacion con
                             <strong th:text="${negotiationsByRequestId[request.id].dniAssistant}">asistente</strong>.
                         </p>
                         <a th:href="@{/communication/start/{idNegotiation}(idNegotiation=${negotiationsByRequestId[request.id].idNegotiation})}" class="btn-main">

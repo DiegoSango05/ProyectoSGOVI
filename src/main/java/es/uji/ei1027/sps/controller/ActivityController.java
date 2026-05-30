@@ -184,36 +184,60 @@ public class ActivityController {
     @RequestMapping("/my-list")
     public String myActivities(HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) return "redirect:/login";
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) return "redirect:/login";
 
-        model.addAttribute("activities", activityDao.getActivitiesByOVIUser(user.getDni()));
+        if (user != null) {
+            model.addAttribute("activities", activityDao.getActivitiesByOVIUser(user.getDni()));
+            model.addAttribute("homeUrl", "/oviuser");
+        } else {
+            model.addAttribute("activities", activityDao.getActivitiesByAssistant(assistant.getDni()));
+            model.addAttribute("homeUrl", "/pap_assistant/index");
+        }
         return "activity/ovi-list";
     }
 
     @RequestMapping("/join-list")
     public String joinList(HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) return "redirect:/login";
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) return "redirect:/login";
 
         List<Activity> activities = activityDao.getActivities();
         model.addAttribute("activities", activities);
-        model.addAttribute("registeredByActivityId", getRegisteredByActivityId(user.getDni(), activities));
+        if (user != null) {
+            model.addAttribute("registeredByActivityId", getRegisteredByActivityId(user.getDni(), activities, false));
+            model.addAttribute("homeUrl", "/oviuser");
+        } else {
+            model.addAttribute("registeredByActivityId", getRegisteredByActivityId(assistant.getDni(), activities, true));
+            model.addAttribute("homeUrl", "/pap_assistant/index");
+        }
         return "activity/join-list";
     }
 
     @RequestMapping(value="/join/{id}", method= RequestMethod.POST)
     public String joinActivity(@PathVariable int id, HttpSession session) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) return "redirect:/login";
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) return "redirect:/login";
 
-        if (!assistanceListDao.isOVIUserRegisteredInActivity(user.getDni(), id)) {
+        String dni = user != null ? user.getDni() : assistant.getDni();
+        boolean registered = user != null
+                ? assistanceListDao.isOVIUserRegisteredInActivity(dni, id)
+                : assistanceListDao.isAssistantRegisteredInActivity(dni, id);
+
+        if (!registered) {
             AssistanceList assistanceList = new AssistanceList();
             assistanceList.setId_list(assistanceListDao.getNextId());
             assistanceList.setAssistanceDate(LocalDate.now());
             assistanceList.setAssistanceTime(LocalTime.now());
             assistanceList.setParticipation(true);
             assistanceList.setIdActivity(id);
-            assistanceList.setDniOVIUser(user.getDni());
+            if (user != null) {
+                assistanceList.setDniOVIUser(dni);
+            } else {
+                assistanceList.setDniAssistant(dni);
+            }
             assistanceListDao.addAssistanceList(assistanceList);
         }
         return "redirect:/activity/my-list";
@@ -222,9 +246,14 @@ public class ActivityController {
     @RequestMapping(value="/leave/{id}", method= RequestMethod.POST)
     public String leaveActivpity(@PathVariable int id, HttpSession session) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) return "redirect:/login";
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) return "redirect:/login";
 
-        assistanceListDao.deleteOVIUserFromActivity(user.getDni(), id);
+        if (user != null) {
+            assistanceListDao.deleteOVIUserFromActivity(user.getDni(), id);
+        } else {
+            assistanceListDao.deleteAssistantFromActivity(assistant.getDni(), id);
+        }
         return "redirect:/activity/my-list";
     }
 
@@ -243,11 +272,20 @@ public class ActivityController {
         return (OVIUser) user;
     }
 
-    private Map<Integer, Boolean> getRegisteredByActivityId(String dniOVIUser, List<Activity> activities) {
+    private PAPAssistant getLoggedAssistant(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"asistente".equals(role) || !(user instanceof PAPAssistant)) return null;
+        return (PAPAssistant) user;
+    }
+
+    private Map<Integer, Boolean> getRegisteredByActivityId(String dni, List<Activity> activities, boolean assistant) {
         Map<Integer, Boolean> registeredByActivityId = new HashMap<>();
         for (Activity activity : activities) {
-            registeredByActivityId.put(activity.getId(),
-                    assistanceListDao.isOVIUserRegisteredInActivity(dniOVIUser, activity.getId()));
+            boolean registered = assistant
+                    ? assistanceListDao.isAssistantRegisteredInActivity(dni, activity.getId())
+                    : assistanceListDao.isOVIUserRegisteredInActivity(dni, activity.getId());
+            registeredByActivityId.put(activity.getId(), registered);
         }
         return registeredByActivityId;
     }

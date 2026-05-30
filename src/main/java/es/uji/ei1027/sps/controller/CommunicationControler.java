@@ -5,6 +5,7 @@ import es.uji.ei1027.sps.dao.NegotiationDao;
 import es.uji.ei1027.sps.model.Communication;
 import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
+import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,6 +41,7 @@ public class CommunicationControler {
                        HttpSession session,
                        Model model) {
         OVIUser user = getLoggedOVIUser(session);
+        PAPAssistant assistant = getLoggedAssistant(session);
         List<Negotiation> negotiations;
         List<String> ownSenders;
 
@@ -49,10 +51,18 @@ public class CommunicationControler {
             negotiations = filterNegotiationsWithUserMessages(negotiations, ownSenders);
             idNegotiation = getSelectedNegotiationId(idNegotiation, negotiations);
             model.addAttribute("oviuser", user);
+            model.addAttribute("backUrl", "/oviuser/chats");
+        } else if (assistant != null) {
+            ownSenders = Arrays.asList(assistant.getDni(), assistant.getName(), "PAPAssistant", "pap_assistant", "asistente", "Asistente PAP");
+            negotiations = negotiationDao.getActiveNegotiationsByAssistant(assistant.getDni());
+            idNegotiation = getSelectedNegotiationId(idNegotiation, negotiations);
+            model.addAttribute("papassistant", assistant);
+            model.addAttribute("backUrl", "/pap_assistant/chats");
         } else {
             ownSenders = Arrays.asList("OVIUser", "oviuser", "Usuario OVI", "ovi");
             negotiations = negotiationDao.getNegotiations();
             idNegotiation = getSelectedNegotiationId(idNegotiation, negotiations);
+            model.addAttribute("backUrl", "/oviuser/chats");
         }
 
         model.addAttribute("ownSenders", ownSenders);
@@ -67,7 +77,8 @@ public class CommunicationControler {
     @RequestMapping("/my-list")
     public String myList(HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) {
             return "redirect:/login";
         }
         return "redirect:/communication/list";
@@ -76,7 +87,8 @@ public class CommunicationControler {
     @RequestMapping("/start/{idNegotiation}")
     public String startChat(@PathVariable int idNegotiation, HttpSession session) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) {
             return "redirect:/login";
         }
         return "redirect:/communication/list?idNegotiation=" + idNegotiation;
@@ -87,11 +99,14 @@ public class CommunicationControler {
                               @RequestParam("message") String message,
                               HttpSession session) {
         OVIUser user = getLoggedOVIUser(session);
-        if (user == null) {
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) {
             return "redirect:/login";
         }
 
-        List<Negotiation> negotiations = negotiationDao.getActiveNegotiationsByOVIUser(user.getDni());
+        List<Negotiation> negotiations = user != null
+                ? negotiationDao.getActiveNegotiationsByOVIUser(user.getDni())
+                : negotiationDao.getActiveNegotiationsByAssistant(assistant.getDni());
         if (!hasNegotiationId(idNegotiation, negotiations)) {
             return "redirect:/communication/list";
         }
@@ -102,7 +117,7 @@ public class CommunicationControler {
 
         Communication communication = new Communication();
         communication.setIdNegotiation(idNegotiation);
-        communication.setSender(user.getDni());
+        communication.setSender(user != null ? user.getDni() : assistant.getDni());
         communication.setMessage(message.trim());
         communication.setMessageDate(LocalDateTime.now());
         communicationDao.addChatMessage(communication);
@@ -179,6 +194,15 @@ public class CommunicationControler {
             return null;
         }
         return (OVIUser) user;
+    }
+
+    private PAPAssistant getLoggedAssistant(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"asistente".equals(role) || !(user instanceof PAPAssistant)) {
+            return null;
+        }
+        return (PAPAssistant) user;
     }
 
     private Integer getSelectedNegotiationId(Integer requestedId, List<Negotiation> negotiations) {

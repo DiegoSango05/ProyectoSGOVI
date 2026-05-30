@@ -45,6 +45,11 @@ public class AssistanceListDao {
                 dniOVIUser, idActivity);
     }
 
+    public void deleteAssistantFromActivity(String dniAssistant, int idActivity) {
+        jdbcTemplate.update("DELETE FROM assistancelist WHERE dni_assistant=? AND id_activity=?",
+                dniAssistant, idActivity);
+    }
+
     /* Actualizar un registro de asistencia */
     public void updateAssistanceList(AssistanceList assistanceList) {
         jdbcTemplate.update("UPDATE assistancelist SET assistance_date=?, assistance_time=?, participation=?, id_activity=?, dni_assistant=?, dni_oviuser=? WHERE id_list=?",

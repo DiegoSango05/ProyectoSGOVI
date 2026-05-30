@@ -84,4 +84,17 @@ public class NegotiationDao {
             return new ArrayList<Negotiation>();
         }
     }
+
+    public List<Negotiation> getActiveNegotiationsByAssistant(String dniAssistant) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT n.* FROM negotiation n " +
+                            "WHERE n.dni_assistant=? " +
+                            "AND (n.status IS NULL OR LOWER(n.status) <> 'rejected') " +
+                            "ORDER BY n.negotiation_date DESC, n.id_negotiation DESC",
+                    new NegotiationRowMapper(), dniAssistant);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<Negotiation>();
+        }
+    }
 }
