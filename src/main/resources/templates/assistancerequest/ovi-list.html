@@ -189,7 +189,7 @@
                     </div>
                 </div>
 
-                <div class="border-top pt-3 mt-3" th:if="${#strings.equalsIgnoreCase(request.status, 'Accepted') and !acceptedByRequestId[request.id]}">
+                <div class="border-top pt-3 mt-3" th:if="${#strings.equalsIgnoreCase(request.status, 'Accepted')}">
                     <p class="small text-muted mb-3">
                         <i class="bi bi-info-circle me-1"></i> El administrador ha propuesto asistentes para esta solicitud.
                     </p>

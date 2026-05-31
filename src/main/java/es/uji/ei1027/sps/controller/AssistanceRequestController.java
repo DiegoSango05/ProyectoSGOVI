@@ -56,6 +56,26 @@ public class AssistanceRequestController {
         return "assistancerequest/ovi-list";
     }
 
+    @RequestMapping("/assistant-list")
+    public String assistantList(HttpSession session, Model model) {
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (assistant == null) {
+            return "redirect:/login";
+        }
+        List<AssistanceRequest> assistanceRequests =
+                assistanceRequestDao.getAcceptedAssistanceRequestsByAssistant(assistant.getDni());
+        Map<Integer, Negotiation> negotiationsByRequestId = new HashMap<Integer, Negotiation>();
+        for (AssistanceRequest request : assistanceRequests) {
+            Negotiation negotiation = negotiationDao.getActiveNegotiation(request.getId(), assistant.getDni());
+            if (negotiation != null) {
+                negotiationsByRequestId.put(request.getId(), negotiation);
+            }
+        }
+        model.addAttribute("assistanceRequests", assistanceRequests);
+        model.addAttribute("negotiationsByRequestId", negotiationsByRequestId);
+        return "assistancerequest/assistant-list";
+    }
+
     // AÑADIR (Formulario)
     @RequestMapping("/add")
     public String addAssistanceRequest(Model model) {
@@ -130,6 +150,15 @@ public class AssistanceRequestController {
         return (OVIUser) user;
     }
 
+    private PAPAssistant getLoggedAssistant(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"asistente".equals(role) || !(user instanceof PAPAssistant)) {
+            return null;
+        }
+        return (PAPAssistant) user;
+    }
+
     private void addOVIListAttributes(Model model, List<AssistanceRequest> assistanceRequests) {
         Map<Integer, String> statusCssByRequestId = new HashMap<Integer, String>();
         Map<Integer, Boolean> acceptedByRequestId = new HashMap<Integer, Boolean>();
@@ -175,13 +204,15 @@ public class AssistanceRequestController {
         AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(id);
 
         // Solo permitimos ver candidatos si la solicitud es del usuario y está aceptada
-        if (request == null || !request.getDniOVIuser().equals(user.getDni())) {
+        if (request == null || !request.getDniOVIuser().equals(user.getDni())
+                || !"Accepted".equalsIgnoreCase(request.getStatus())) {
             return "redirect:/assistancerequest/my-list";
         }
 
         List<PAPAssistant> candidates = selectionDao.getAssistantsForRequest(id);
         model.addAttribute("request", request);
         model.addAttribute("candidates", candidates);
+        model.addAttribute("contactedAssistantDnis", negotiationDao.getActiveAssistantDnisByRequest(id));
 
         return "assistancerequest/ovi-candidates";
     }

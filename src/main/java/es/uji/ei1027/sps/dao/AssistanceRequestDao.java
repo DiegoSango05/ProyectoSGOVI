@@ -78,6 +78,19 @@ public class AssistanceRequestDao {
         }
     }
 
+    public List<AssistanceRequest> getAcceptedAssistanceRequestsByAssistant(String dniAssistant) {
+        return jdbcTemplate.query(
+                "SELECT DISTINCT ar.* FROM assistancerequest ar " +
+                        "WHERE LOWER(ar.status) = 'accepted' " +
+                        "AND (EXISTS (SELECT 1 FROM selection s " +
+                        "WHERE s.id_request = ar.id AND s.dni_assistant = ?) " +
+                        "OR EXISTS (SELECT 1 FROM negotiation n " +
+                        "WHERE n.id_request = ar.id AND n.dni_assistant = ? " +
+                        "AND (n.status IS NULL OR LOWER(n.status) <> 'rejected'))) " +
+                        "ORDER BY ar.id DESC",
+                new AssistanceRequestRowMapper(), dniAssistant, dniAssistant);
+    }
+
     /* Actualiza solo el estado de la solicitud */
     public void updateStatus(int id, String status) {
         jdbcTemplate.update("UPDATE assistancerequest SET status=? WHERE id=?",

@@ -3,10 +3,12 @@ package es.uji.ei1027.sps.controller;
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
 import es.uji.ei1027.sps.dao.CommunicationDao;
 import es.uji.ei1027.sps.dao.NegotiationDao;
+import es.uji.ei1027.sps.dao.SelectionDao;
 import es.uji.ei1027.sps.model.AssistanceRequest;
 import es.uji.ei1027.sps.model.Communication;
 import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
+import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,9 @@ public class NegotiationController {
 
     @Autowired
     private CommunicationDao communicationDao;
+
+    @Autowired
+    private SelectionDao selectionDao;
 
     @Autowired
     public void setNegotiationDao(NegotiationDao negotiationDao) {
@@ -94,8 +99,17 @@ public class NegotiationController {
         }
 
         AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(idRequest);
-        if (request == null || !user.getDni().equals(request.getDniOVIuser())) {
+        if (request == null || !user.getDni().equals(request.getDniOVIuser())
+                || !"Accepted".equalsIgnoreCase(request.getStatus())) {
             return "redirect:/assistancerequest/my-list";
+        }
+        if (!selectionDao.isAssistantSelectedForRequest(idRequest, dniAssistant)) {
+            return "redirect:/assistancerequest/candidates/" + idRequest;
+        }
+
+        Negotiation existingNegotiation = negotiationDao.getActiveNegotiation(idRequest, dniAssistant);
+        if (existingNegotiation != null) {
+            return "redirect:/communication/list?idNegotiation=" + existingNegotiation.getIdNegotiation();
         }
 
         Negotiation negotiation = new Negotiation();
@@ -116,6 +130,43 @@ public class NegotiationController {
         return "redirect:/communication/list?idNegotiation=" + idNegotiation;
     }
 
+    @PostMapping("/start-by-assistant")
+    public String startNegotiationByAssistant(@RequestParam("idRequest") int idRequest,
+                                              HttpSession session) {
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (assistant == null) {
+            return "redirect:/login";
+        }
+
+        AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(idRequest);
+        if (request == null || !"Accepted".equalsIgnoreCase(request.getStatus())
+                || !selectionDao.isAssistantSelectedForRequest(idRequest, assistant.getDni())) {
+            return "redirect:/assistancerequest/assistant-list";
+        }
+
+        Negotiation existingNegotiation = negotiationDao.getActiveNegotiation(idRequest, assistant.getDni());
+        if (existingNegotiation != null) {
+            return "redirect:/communication/list?idNegotiation=" + existingNegotiation.getIdNegotiation();
+        }
+
+        Negotiation negotiation = new Negotiation();
+        negotiation.setStatus("Pending");
+        negotiation.setNegotiationDate(LocalDate.now());
+        negotiation.setIdRequest(idRequest);
+        negotiation.setDniAssistant(assistant.getDni());
+
+        int idNegotiation = negotiationDao.addNegotiationAndReturnId(negotiation);
+
+        Communication firstMessage = new Communication();
+        firstMessage.setIdNegotiation(idNegotiation);
+        firstMessage.setSender(assistant.getDni());
+        firstMessage.setMessage("Chat iniciado");
+        firstMessage.setMessageDate(LocalDateTime.now());
+        communicationDao.addChatMessage(firstMessage);
+
+        return "redirect:/communication/list?idNegotiation=" + idNegotiation;
+    }
+
     private OVIUser getLoggedOVIUser(HttpSession session) {
         Object user = session.getAttribute("user");
         Object role = session.getAttribute("role");
@@ -123,5 +174,14 @@ public class NegotiationController {
             return null;
         }
         return (OVIUser) user;
+    }
+
+    private PAPAssistant getLoggedAssistant(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"asistente".equals(role) || !(user instanceof PAPAssistant)) {
+            return null;
+        }
+        return (PAPAssistant) user;
     }
 }

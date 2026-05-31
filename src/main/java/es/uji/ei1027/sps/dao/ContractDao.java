@@ -76,4 +76,12 @@ public class ContractDao {
             return new ArrayList<Contract>();
         }
     }
+
+    public List<Contract> getContractsByAssistant(String dniAssistant) {
+        return jdbcTemplate.query(
+                "SELECT c.* FROM contract c " +
+                        "JOIN negotiation n ON c.id_negotiation = n.id_negotiation " +
+                        "WHERE n.dni_assistant=?",
+                new ContractRowMapper(), dniAssistant);
+    }
 }

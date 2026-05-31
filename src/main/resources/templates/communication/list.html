@@ -169,6 +169,35 @@
             margin: 0;
         }
 
+        .acceptance-box {
+            align-items: flex-end;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            text-align: right;
+        }
+
+        .accept-button {
+            background-color: #198754;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 0.55rem 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .accept-button:hover {
+            background-color: #146c43;
+        }
+
+        .acceptance-status {
+            color: #666;
+            font-size: 0.78rem;
+            margin: 0;
+        }
+
         .messages {
             background-color: var(--chat-bg);
             display: flex;
@@ -339,7 +368,12 @@
                         <span th:class="|status-badge status-${neg.status != null ? #strings.toLowerCase(neg.status) : 'pending'}|"
                               th:text="${neg.status}">Pending</span>
                     </span>
-                    <span class="negotiation-meta" th:text="|Asistente: ${neg.dniAssistant}|">Asistente</span>
+                    <span class="negotiation-meta"
+                          th:if="${papassistant == null}"
+                          th:text="|Asistente: ${neg.dniAssistant}|">Asistente</span>
+                    <span class="negotiation-meta"
+                          th:if="${papassistant != null}"
+                          th:text="|Usuario OVI: ${oviUserDnisByNegotiationId[neg.idNegotiation]}|">Usuario OVI</span>
                     <span class="negotiation-meta" th:text="|Solicitud: ${neg.idRequest}|">Solicitud</span>
                 </a>
             </div>
@@ -353,7 +387,28 @@
                     <h2 class="chat-title" th:if="${selectedIdNegotiation == null}">Sin chat seleccionado</h2>
                     <p class="chat-subtitle">Mensajes entre el usuario OVI y el asistente</p>
                 </div>
-                <i class="bi bi-chat-dots fs-3 text-muted"></i>
+                <div class="acceptance-box" th:if="${selectedNegotiation != null}">
+                    <form th:if="${canAcceptNegotiation}"
+                          th:action="@{/communication/accept}"
+                          method="post">
+                        <input type="hidden" name="idNegotiation" th:value="${selectedIdNegotiation}">
+                        <button type="submit" class="accept-button">
+                            Aceptar negociacion
+                        </button>
+                    </form>
+                    <p class="acceptance-status"
+                       th:if="${currentUserAccepted and !otherPartyAccepted}">
+                        Has aceptado. Falta la confirmacion de la otra parte.
+                    </p>
+                    <p class="acceptance-status"
+                       th:if="${!currentUserAccepted and otherPartyAccepted}">
+                        La otra parte ya ha aceptado.
+                    </p>
+                    <p class="acceptance-status text-success fw-bold"
+                       th:if="${#strings.equalsIgnoreCase(selectedNegotiation.status, 'Accepted')}">
+                        Negociacion aceptada por ambas partes.
+                    </p>
+                </div>
             </div>
 
             <div class="messages" th:if="${selectedIdNegotiation != null}">

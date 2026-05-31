@@ -5,6 +5,7 @@ import es.uji.ei1027.sps.dao.NegotiationDao;
 import es.uji.ei1027.sps.model.Contract;
 import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
+import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,6 +49,16 @@ public class ContractController {
         return "contract/ovi-list";
     }
 
+    @RequestMapping("/assistant-list")
+    public String assistantList(HttpSession session, Model model) {
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (assistant == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("contracts", contractDao.getContractsByAssistant(assistant.getDni()));
+        return "contract/assistant-list";
+    }
+
     @RequestMapping("/delete/{id}")
     public String processDelete(@PathVariable int id) {
         contractDao.deleteContract(id);
@@ -61,6 +72,15 @@ public class ContractController {
             return null;
         }
         return (OVIUser) user;
+    }
+
+    private PAPAssistant getLoggedAssistant(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        if (!"asistente".equals(role) || !(user instanceof PAPAssistant)) {
+            return null;
+        }
+        return (PAPAssistant) user;
     }
 
     @GetMapping("/admin-dashboard")

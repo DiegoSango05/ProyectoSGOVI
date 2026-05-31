@@ -5,10 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class NegotiationDao {
@@ -104,22 +107,59 @@ public class NegotiationDao {
         }
     }
 
+    public Set<String> getActiveAssistantDnisByRequest(int idRequest) {
+        List<String> assistantDnis = jdbcTemplate.queryForList(
+                "SELECT dni_assistant FROM negotiation " +
+                        "WHERE id_request=? AND (status IS NULL OR LOWER(status) <> 'rejected')",
+                String.class, idRequest);
+        return new HashSet<String>(assistantDnis);
+    }
+
+    public Negotiation getActiveNegotiation(int idRequest, String dniAssistant) {
+        List<Negotiation> negotiations = jdbcTemplate.query(
+                "SELECT * FROM negotiation " +
+                        "WHERE id_request=? AND dni_assistant=? " +
+                        "AND (status IS NULL OR LOWER(status) <> 'rejected') " +
+                        "ORDER BY id_negotiation DESC LIMIT 1",
+                new NegotiationRowMapper(), idRequest, dniAssistant);
+        return negotiations.isEmpty() ? null : negotiations.get(0);
+    }
+
     public List<Negotiation> getMutualAgreements() {
         try {
-            String sql = "SELECT * FROM negotiation WHERE accepted_customer = true AND accepted_assistant = true AND LOWER(status) = 'pending'";
+            String sql = "SELECT n.* FROM negotiation n " +
+                    "WHERE n.accepted_customer = true AND n.accepted_assistant = true " +
+                    "AND LOWER(n.status) = 'accepted' " +
+                    "AND NOT EXISTS (SELECT 1 FROM contract c WHERE c.id_negotiation = n.id_negotiation)";
             return jdbcTemplate.query(sql, new NegotiationRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<Negotiation>();
         }
     }
 
-    public void updateCustomerAcceptance(int idNegotiation, boolean accepted) {
-        String sql = "UPDATE negotiation SET accepted_customer = ? WHERE id_negotiation = ?";
-        jdbcTemplate.update(sql, accepted, idNegotiation);
+    @Transactional
+    public void acceptByCustomer(int idNegotiation) {
+        jdbcTemplate.update(
+                "UPDATE negotiation SET accepted_customer = true " +
+                        "WHERE id_negotiation = ? AND LOWER(status) = 'pending'",
+                idNegotiation);
+        updateStatusWhenMutuallyAccepted(idNegotiation);
     }
 
-    public void updateAssistantAcceptance(int idNegotiation, boolean accepted) {
-        String sql = "UPDATE negotiation SET accepted_assistant = ? WHERE id_negotiation = ?";
-        jdbcTemplate.update(sql, accepted, idNegotiation);
+    @Transactional
+    public void acceptByAssistant(int idNegotiation) {
+        jdbcTemplate.update(
+                "UPDATE negotiation SET accepted_assistant = true " +
+                        "WHERE id_negotiation = ? AND LOWER(status) = 'pending'",
+                idNegotiation);
+        updateStatusWhenMutuallyAccepted(idNegotiation);
+    }
+
+    private void updateStatusWhenMutuallyAccepted(int idNegotiation) {
+        jdbcTemplate.update(
+                "UPDATE negotiation SET status = 'Accepted' " +
+                        "WHERE id_negotiation = ? AND accepted_customer = true " +
+                        "AND accepted_assistant = true AND LOWER(status) = 'pending'",
+                idNegotiation);
     }
 }

@@ -1,7 +1,9 @@
 package es.uji.ei1027.sps.controller;
 
+import es.uji.ei1027.sps.dao.AssistanceRequestDao;
 import es.uji.ei1027.sps.dao.CommunicationDao;
 import es.uji.ei1027.sps.dao.NegotiationDao;
+import es.uji.ei1027.sps.model.AssistanceRequest;
 import es.uji.ei1027.sps.model.Communication;
 import es.uji.ei1027.sps.model.Negotiation;
 import es.uji.ei1027.sps.model.OVIUser;
@@ -13,9 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.time.LocalDateTime;
 
 @Controller
@@ -24,6 +27,7 @@ public class CommunicationControler {
 
     private CommunicationDao communicationDao;
     private NegotiationDao negotiationDao;
+    private AssistanceRequestDao assistanceRequestDao;
 
     @Autowired
     public void setCommunicationDao(CommunicationDao communicationDao) {
@@ -33,6 +37,11 @@ public class CommunicationControler {
     @Autowired
     public void setNegotiationDao(NegotiationDao negotiationDao) {
         this.negotiationDao = negotiationDao;
+    }
+
+    @Autowired
+    public void setAssistanceRequestDao(AssistanceRequestDao assistanceRequestDao) {
+        this.assistanceRequestDao = assistanceRequestDao;
     }
 
     // LISTAR
@@ -48,7 +57,6 @@ public class CommunicationControler {
         if (user != null) {
             ownSenders = Arrays.asList(user.getDni(), user.getName(), "OVIUser", "oviuser", "Usuario OVI", "ovi");
             negotiations = negotiationDao.getActiveNegotiationsByOVIUser(user.getDni());
-            negotiations = filterNegotiationsWithUserMessages(negotiations, ownSenders);
             idNegotiation = getSelectedNegotiationId(idNegotiation, negotiations);
             model.addAttribute("oviuser", user);
             model.addAttribute("backUrl", "/oviuser/chats");
@@ -67,10 +75,12 @@ public class CommunicationControler {
 
         model.addAttribute("ownSenders", ownSenders);
         model.addAttribute("negotiations", negotiations);
+        model.addAttribute("oviUserDnisByNegotiationId", getOVIUserDnisByNegotiationId(negotiations));
         model.addAttribute("selectedIdNegotiation", idNegotiation);
         model.addAttribute("communications", idNegotiation == null
                 ? communicationDao.getCommunications()
                 : communicationDao.getCommunicationsByNegotiation(idNegotiation));
+        addAcceptanceAttributes(model, idNegotiation, user, assistant);
         return "communication/list";
     }
 
@@ -91,6 +101,34 @@ public class CommunicationControler {
         if (user == null && assistant == null) {
             return "redirect:/login";
         }
+        return "redirect:/communication/list?idNegotiation=" + idNegotiation;
+    }
+
+    @PostMapping("/accept")
+    public String acceptNegotiation(@RequestParam("idNegotiation") int idNegotiation,
+                                    HttpSession session) {
+        OVIUser user = getLoggedOVIUser(session);
+        PAPAssistant assistant = getLoggedAssistant(session);
+        if (user == null && assistant == null) {
+            return "redirect:/login";
+        }
+
+        List<Negotiation> negotiations = user != null
+                ? negotiationDao.getActiveNegotiationsByOVIUser(user.getDni())
+                : negotiationDao.getActiveNegotiationsByAssistant(assistant.getDni());
+        if (!hasNegotiationId(idNegotiation, negotiations)) {
+            return "redirect:/communication/list";
+        }
+
+        Negotiation negotiation = negotiationDao.getNegotiation(idNegotiation);
+        if (negotiation != null && "Pending".equalsIgnoreCase(negotiation.getStatus())) {
+            if (user != null) {
+                negotiationDao.acceptByCustomer(idNegotiation);
+            } else {
+                negotiationDao.acceptByAssistant(idNegotiation);
+            }
+        }
+
         return "redirect:/communication/list?idNegotiation=" + idNegotiation;
     }
 
@@ -231,29 +269,42 @@ public class CommunicationControler {
         return false;
     }
 
-    private List<Negotiation> filterNegotiationsWithUserMessages(List<Negotiation> negotiations, List<String> ownSenders) {
-        List<Negotiation> visibleNegotiations = new ArrayList<Negotiation>();
+    private Map<Integer, String> getOVIUserDnisByNegotiationId(List<Negotiation> negotiations) {
+        Map<Integer, String> oviUserDnis = new HashMap<Integer, String>();
         for (Negotiation negotiation : negotiations) {
-            List<Communication> communications = communicationDao.getCommunicationsByNegotiation(negotiation.getIdNegotiation());
-            for (Communication communication : communications) {
-                if (isOwnSender(communication.getSender(), ownSenders)) {
-                    visibleNegotiations.add(negotiation);
-                    break;
-                }
+            AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(negotiation.getIdRequest());
+            if (request != null) {
+                oviUserDnis.put(negotiation.getIdNegotiation(), request.getDniOVIuser());
             }
         }
-        return visibleNegotiations;
+        return oviUserDnis;
     }
 
-    private boolean isOwnSender(String sender, List<String> ownSenders) {
-        if (sender == null) {
-            return false;
+    private void addAcceptanceAttributes(Model model,
+                                         Integer idNegotiation,
+                                         OVIUser user,
+                                         PAPAssistant assistant) {
+        Negotiation negotiation = idNegotiation == null
+                ? null
+                : negotiationDao.getNegotiation(idNegotiation);
+        boolean currentUserAccepted = false;
+        boolean otherPartyAccepted = false;
+
+        if (negotiation != null && user != null) {
+            currentUserAccepted = negotiation.isAcceptedCustomer();
+            otherPartyAccepted = negotiation.isAcceptedAssistant();
+        } else if (negotiation != null && assistant != null) {
+            currentUserAccepted = negotiation.isAcceptedAssistant();
+            otherPartyAccepted = negotiation.isAcceptedCustomer();
         }
-        for (String ownSender : ownSenders) {
-            if (ownSender != null && ownSender.equalsIgnoreCase(sender.trim())) {
-                return true;
-            }
-        }
-        return false;
+
+        model.addAttribute("selectedNegotiation", negotiation);
+        model.addAttribute("currentUserAccepted", currentUserAccepted);
+        model.addAttribute("otherPartyAccepted", otherPartyAccepted);
+        model.addAttribute("canAcceptNegotiation",
+                negotiation != null
+                        && (user != null || assistant != null)
+                        && "Pending".equalsIgnoreCase(negotiation.getStatus())
+                        && !currentUserAccepted);
     }
 }

@@ -68,9 +68,15 @@
                 <form th:action="@{/negotiation/start}" method="post">
                     <input type="hidden" name="idRequest" th:value="${request.id}">
                     <input type="hidden" name="dniAssistant" th:value="${candidate.dni}">
-                    <button type="submit" class="btn btn-select py-2">
+                    <button type="submit"
+                            class="btn btn-select py-2"
+                            th:disabled="${contactedAssistantDnis.contains(candidate.dni)}">
                         SELECCIONAR Y CONTACTAR
                     </button>
+                    <p class="small text-success fw-bold text-center mt-2 mb-0"
+                       th:if="${contactedAssistantDnis.contains(candidate.dni)}">
+                        Chat ya iniciado
+                    </p>
                 </form>
             </div>
         </div>

@@ -44,6 +44,13 @@ public class SelectionDao {
         return jdbcTemplate.query(sql, new PAPAssistantRowMapper(), idRequest);
     }
 
+    public boolean isAssistantSelectedForRequest(int idRequest, String dniAssistant) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM selection WHERE id_request=? AND dni_assistant=?",
+                Integer.class, idRequest, dniAssistant);
+        return count != null && count > 0;
+    }
+
     /* Obtiene todas las selecciones (objetos Selection) */
     public List<Selection> getSelections() {
         return jdbcTemplate.query("SELECT * FROM selection", new SelectionRowMapper());

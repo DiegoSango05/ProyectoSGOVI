@@ -160,4 +160,15 @@ public class PAPAssistantController {
         model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
         return "pap_assistant/chats";
     }
+
+    @RequestMapping("/requests-contracts")
+    public String requestsContractsIndex(HttpSession session, Model model) {
+        Object user = session.getAttribute("user");
+        if (!"asistente".equals(session.getAttribute("role")) || !(user instanceof PAPAssistant)) {
+            return "redirect:/login";
+        }
+        PAPAssistant assistant = (PAPAssistant) user;
+        model.addAttribute("papassistant", papAssistantDao.getPAPAssistant(assistant.getDni()));
+        return "pap_assistant/requests-contracts";
+    }
 }
