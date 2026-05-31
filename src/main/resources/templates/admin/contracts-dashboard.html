@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Gestión de Contratos</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ovi-orange: #854d00;
+            --ovi-orange-dark: #6e4000;
+            --ovi-soft: #fffcf5;
+            --ovi-success: #198754;
+            --ovi-success-dark: #157347;
+        }
+
+        body {
+            background: linear-gradient(to bottom, var(--ovi-soft), #ffffff 300px);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+
+        .hero { border-bottom: 1px solid #eee; padding: 3rem 0 2rem; text-align: center; }
+        .hero-title { font-size: 2.6rem; font-weight: 800; }
+        .hero-title span { color: var(--ovi-orange); }
+
+        .btn-outline-custom-nav {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-outline-custom-nav:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+            background-color: transparent;
+        }
+
+        /* ESTILOS DE LAS PESTAÑAS (TABS) AL 100% DE ANCHO */
+        .custom-tabs {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 2rem;
+            display: flex;
+            width: 100%;
+        }
+        .tab-link {
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 700;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-decoration: none;
+            flex: 1;
+            text-align: center;
+        }
+        .tab-link:hover {
+            color: var(--ovi-orange);
+            background-color: rgba(133, 77, 0, 0.03);
+        }
+        .tab-link.active {
+            color: var(--ovi-orange);
+            border-bottom-color: var(--ovi-orange);
+        }
+
+        .request-pill {
+            background-color: #fcfcfc;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.2rem;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+
+        .request-pill:hover {
+            border-color: var(--ovi-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .pill-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--ovi-orange);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .pill-data {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #000;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Cuadrícula reajustada eliminando la columna redundante del estado */
+        .pill-grid {
+            display: grid;
+            grid-template-columns: 140px 130px 220px 1fr;
+            gap: 20px;
+            align-items: start;
+            flex-grow: 1;
+            margin-right: 20px;
+            margin-top: 5px;
+        }
+
+        .btn-solid-success {
+            background-color: var(--ovi-success);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.58rem 1.5rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-solid-success:hover {
+            background-color: var(--ovi-success-dark);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-dark-custom {
+            border: 2px solid #000;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            padding: 0.5rem 1.2rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        /* 🌟 ACTUALIZADO: Ahora cambia al naranja corporativo en lugar de negro */
+        .btn-outline-dark-custom:hover {
+            border-color: var(--ovi-orange);
+            color: var(--ovi-orange);
+            background-color: transparent;
+            transform: translateY(-1px);
+        }
+
+        .description-text {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+            border-left: 2px solid #eee;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom-nav">VOLVER</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <h1 class="hero-title">Gestión de <span>Contratos</span></h1>
+        <p class="text-muted">Estructura de supervisión basada en acuerdos de negociación y contratos emitidos.</p>
+    </div>
+</header>
+
+<main class="container py-5">
+
+    <div class="custom-tabs">
+        <a th:href="@{/contract/admin-dashboard(status='Pending')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Pending')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-clock-history me-1"></i> Por Validar
+        </a>
+        <a th:href="@{/contract/admin-dashboard(status='Accepted')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Accepted')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-check-circle me-1"></i> En Vigor
+        </a>
+        <a th:href="@{/contract/admin-dashboard(status='Rejected')}"
+           th:classappend="${#strings.equalsIgnoreCase(currentStatus, 'Rejected')} ? 'active' : ''" class="tab-link">
+            <i class="bi bi-x-circle me-1"></i> Finalizados
+        </a>
+    </div>
+
+    <div id="contracts-container">
+
+        <div th:if="${#strings.equalsIgnoreCase(currentStatus, 'Pending')}">
+            <div th:each="neg : ${mutualAgreements}">
+                <div class="request-pill">
+                    <div class="pill-grid" style="grid-template-columns: 140px 120px 160px 1fr;">
+                        <div>
+                            <span class="pill-label">ID Negociación</span>
+                            <span class="pill-data" th:text="${'#NEG-' + neg.idNegotiation}">#NEG-1</span>
+                        </div>
+                        <div>
+                            <span class="pill-label">ID Petición</span>
+                            <span class="pill-data" th:text="${'#' + neg.idRequest}">#12</span>
+                        </div>
+                        <div>
+                            <span class="pill-label">Asistente (DNI)</span>
+                            <span class="pill-data" th:text="${neg.dniAssistant}">12345678X</span>
+                        </div>
+                        <div class="description-text">
+                            <span class="pill-label">Acción requerida</span>
+                            <span>Ambas partes han aceptado en el chat. Todo listo para generar el alta contractual.</span>
+                        </div>
+                    </div>
+                    <div>
+                        <a th:href="@{/contract/admin-create(idNegotiation=${neg.idNegotiation})}" class="btn-solid-success text-nowrap">
+                            <i class="bi bi-file-earmark-plus me-1"></i> Crear Contrato
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(mutualAgreements)}" class="text-center text-muted py-5">
+                <i class="bi bi-chat-heart mb-2 d-block fs-1"></i>
+                No hay acuerdos esperando la formalización de un contrato.
+            </div>
+        </div>
+
+        <div th:if="${not #strings.equalsIgnoreCase(currentStatus, 'Pending')}">
+            <div th:each="c : ${contracts}">
+                <div class="request-pill">
+                    <div class="pill-grid">
+                        <div>
+                            <span class="pill-label">Código Contrato</span>
+                            <span class="pill-data" th:text="${'#CON-' + c.id}">#CON-10</span>
+                        </div>
+                        <div>
+                            <span class="pill-label">ID Negociación</span>
+                            <span class="pill-data" th:text="${'#NEG-' + c.idNegotiation}">#NEG-1</span>
+                        </div>
+                        <div>
+                            <span class="pill-label">Fecha Inicio / Fin</span>
+                            <span class="pill-data" th:text="${c.startDate + ' a ' + (c.endDate != null ? c.endDate : 'Indefinido')}">2026-05-30 a Indefinido</span>
+                        </div>
+                        <div class="description-text">
+                            <span class="pill-label">Documento de Referencia</span>
+                            <span th:text="${c.document}">contrato.pdf</span>
+                        </div>
+                    </div>
+                    <div>
+                        <a th:if="${#strings.equalsIgnoreCase(c.status, 'Accepted')}"
+                           th:href="@{/contract/admin-edit/{id}(id=${c.id})}" class="btn-outline-dark-custom text-nowrap">
+                            <i class="bi bi-pencil-square me-1"></i> Modificar
+                        </a>
+                        <span th:if="${#strings.equalsIgnoreCase(c.status, 'Rejected')}" class="text-muted small fw-bold text-uppercase">Historial Cerrado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(contracts)}" class="text-center text-muted py-5">
+                <i class="bi bi-folder-x mb-2 d-block fs-1"></i>
+                No se registran contratos en esta sección.
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

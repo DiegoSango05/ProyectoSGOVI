@@ -3,11 +3,12 @@ package es.uji.ei1027.sps.controller;
 import jakarta.servlet.http.HttpSession;
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
-import es.uji.ei1027.sps.dao.SystemUserDao; // 1. Importamos el nuevo DAO
+import es.uji.ei1027.sps.dao.SystemUserDao;
 import es.uji.ei1027.sps.model.OVIUser;
 import es.uji.ei1027.sps.model.PAPAssistant;
-import es.uji.ei1027.sps.model.SystemUser; // 2. Importamos el modelo
+import es.uji.ei1027.sps.model.SystemUser;
 import es.uji.ei1027.sps.model.UserDetails;
+// import org.jasypt.util.password.BasicPasswordEncryptor; // Encriptación de la contraseña para nuevos usuarios
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class LoginController {
 
     @Autowired
-    private SystemUserDao systemUserDao; // 3. Inyectamos el DAO de gestión
+    private SystemUserDao systemUserDao;
 
     @Autowired
     private OVIUserDao oviUserDao;
@@ -55,12 +56,27 @@ public class LoginController {
         }
 
         // 2. COMPROBAR OVIUSER
+        // Mantenemos la validación clásica en texto plano activa para tus pruebas actuales
         OVIUser ovi = oviUserDao.loadUserByUsername(username, password);
+
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        OVIUser oviVerif = oviUserDao.getOVIUser(username);
+        if (oviVerif != null) {
+            BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+            if (passwordEncryptor.checkPassword(password, oviVerif.getPassword())) {
+                ovi = oviVerif;
+                ovi.setPassword(null);
+            }
+        }
+        */
+
         if (ovi != null) {
             session.setAttribute("user", ovi);
             session.setAttribute("role", "ovi");
 
-            // BLINDAJE: Si el status es null, lo tratamos como "Pending" por defecto
             String status = (ovi.getStatus() != null) ? ovi.getStatus() : "Pending";
 
             switch (status) {
@@ -76,12 +92,27 @@ public class LoginController {
         }
 
         // 3. COMPROBAR PAPASSISTANT
+        // Mantenemos la validación clásica en texto plano activa para tus pruebas actuales
         PAPAssistant pap = papAssistantDao.loadUserByUsername(username, password);
+
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        PAPAssistant papVerif = papAssistantDao.getPAPAssistant(username);
+        if (papVerif != null) {
+            BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+            if (passwordEncryptor.checkPassword(password, papVerif.getPassword())) {
+                pap = papVerif;
+                pap.setPassword(null);
+            }
+        }
+        */
+
         if (pap != null) {
             session.setAttribute("user", pap);
             session.setAttribute("role", "asistente");
 
-            // BLINDAJE: Si el status es null, lo tratamos como "Pending" por defecto
             String statusPap = (pap.getStatus() != null) ? pap.getStatus() : "Pending";
 
             switch (statusPap) {
@@ -99,6 +130,6 @@ public class LoginController {
     @RequestMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/"; // Mejor redirigir a la Landing Page al cerrar sesión
+        return "redirect:/";
     }
 }

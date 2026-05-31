@@ -1,9 +1,9 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
-import es.uji.ei1027.sps.model.OVIUser;
 import es.uji.ei1027.sps.model.PAPAssistant;
 import jakarta.servlet.http.HttpSession;
+// import org.jasypt.util.password.BasicPasswordEncryptor; // Encriptación de la contraseña para nuevos usuarios
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,6 +59,15 @@ public class PAPAssistantController {
         // Forzamos el estado a Pendiente siempre
         assistant.setStatus("Pending");
 
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+        String encryptedPassword = passwordEncryptor.encryptPassword(assistant.getPassword());
+        assistant.setPassword(encryptedPassword);
+        */
+
         try {
             papAssistantDao.addPAPAssistant(assistant);
         } catch (Exception e) {
@@ -66,7 +75,6 @@ public class PAPAssistantController {
             return "pap_assistant/add";
         }
 
-        // Redirigimos a una página de agradecimiento en lugar de a la lista
         return "pap_assistant/registration_success";
     }
 
@@ -92,6 +100,16 @@ public class PAPAssistantController {
         validator.validate(pap_assistant, bindingResult);
         if (bindingResult.hasErrors())
             return "pap_assistant/update";
+
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+        String encryptedPassword = passwordEncryptor.encryptPassword(pap_assistant.getPassword());
+        pap_assistant.setPassword(encryptedPassword);
+        */
+
         papAssistantDao.updatePAPAssistant(pap_assistant);
         return "redirect:list";
     }
@@ -146,8 +164,21 @@ public class PAPAssistantController {
             return "pap_assistant/profile-config";
         }
 
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+        String encryptedPassword = passwordEncryptor.encryptPassword(papAssistant.getPassword());
+        papAssistant.setPassword(encryptedPassword);
+        */
+
         papAssistantDao.updatePAPAssistant(papAssistant);
+
+        // Comentamos la limpieza para mantener el texto plano en sesión si no encriptamos todavía
+        // papAssistant.setPassword(null);
         session.setAttribute("user", papAssistant);
+
         return "redirect:/pap_assistant/profile/view";
     }
 

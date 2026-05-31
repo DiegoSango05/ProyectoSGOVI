@@ -39,7 +39,7 @@ public class ContractDao {
 
     /* Actualiza un contrato */
     public void updateContract(Contract contract) {
-        jdbcTemplate.update("UPDATE contract SET start_date=?, end_date=?, status=?, document=?, id_negotiation=? WHERE id=?",
+        jdbcTemplate.update("UPDATE contract SET startdate=?, enddate=?, status=?, document=?, id_negotiation=? WHERE id=?",
                 contract.getStartDate(), contract.getEndDate(), contract.getStatus(),
                 contract.getDocument(), contract.getIdNegotiation(), contract.getId());
     }

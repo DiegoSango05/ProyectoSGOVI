@@ -4,6 +4,7 @@ import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.SelectionDao;
 import es.uji.ei1027.sps.model.OVIUser;
 import jakarta.servlet.http.HttpSession;
+// import org.jasypt.util.password.BasicPasswordEncryptor; // Encriptación de la contraseña para nuevos usuarios
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -84,6 +85,15 @@ public class OVIUserController {
         if (bindingResult.hasErrors())
             return "oviuser/add";
 
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+        String encryptedPassword = passwordEncryptor.encryptPassword(oviUser.getPassword());
+        oviUser.setPassword(encryptedPassword);
+        */
+
         try {
             oviUserDao.addOVIUser(oviUser);
         } catch (Exception e) {
@@ -121,6 +131,16 @@ public class OVIUserController {
         validator.validate(oviUser, bindingResult);
         if (bindingResult.hasErrors())
             return "oviuser/update";
+
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+        String encryptedPassword = passwordEncryptor.encryptPassword(oviUser.getPassword());
+        oviUser.setPassword(encryptedPassword);
+        */
+
         oviUserDao.updateOVIUser(oviUser);
         return "redirect:list";
     }
@@ -168,14 +188,28 @@ public class OVIUserController {
         oviUser.setDni(user.getDni());
         oviUser.setStatus(currentUser.getStatus());
         oviUser.setRejectionReason(currentUser.getRejectionReason());
+
         OVIUserValidator validator = new OVIUserValidator();
         validator.validateProfile(oviUser, bindingResult);
         if (bindingResult.hasErrors()) {
             return "oviuser/profile-config";
         }
 
+        /*
+        // =========================================================================
+        // Encriptacion de la contraseña para nuevos usuarios
+        // =========================================================================
+        BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+        String encryptedPassword = passwordEncryptor.encryptPassword(oviUser.getPassword());
+        oviUser.setPassword(encryptedPassword);
+        */
+
         oviUserDao.updateOVIUser(oviUser);
+
+        // Comentamos la limpieza para mantener el texto plano en sesión si no encriptamos todavía
+        // oviUser.setPassword(null);
         session.setAttribute("user", oviUser);
+
         return "redirect:/oviuser/profile/view";
     }
 
