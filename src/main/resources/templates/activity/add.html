@@ -114,7 +114,6 @@
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="brand-name">SgOVI</span>
-            <!-- Modificado para consistencia visual -->
             <a th:href="@{/activity/list}" class="btn-outline-custom-nav">VOLVER AL LISTADO</a>
         </div>
     </div>
@@ -136,12 +135,11 @@
                     <label for="type" class="form-label">Tipo / Especialidad</label>
                     <div class="input-group">
                         <input type="text" th:field="*{type}" class="form-control" id="type" placeholder="Ej: Cocina" />
-                        <button type="button" class="btn btn-refresh"
-                                onclick="const t = document.getElementById('type').value; if(t) window.location.href='/activity/add?type='+encodeURIComponent(t);">
+                        <button type="submit" class="btn btn-refresh" formmethod="get" th:formaction="@{/activity/add}" aria-label="Buscar especialistas">
                             <i class="bi bi-arrow-clockwise"></i>
                         </button>
                     </div>
-                    <span class="help-text">Pulsa el icono para buscar especialistas.</span>
+                    <span class="help-text" style="color: #545454;">Pulsa el icono para buscar especialistas.</span>
                 </div>
             </div>
 

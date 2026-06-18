@@ -111,19 +111,19 @@
         <h2>Información Personal</h2>
         <div class="row">
             <div class="col-md-3">
-                <span class="data-label">Nombre Completo</span>
+                <span class="data-label" style="color: #444444;">Nombre Completo</span>
                 <div class="data-value" th:text="${asistente.name}">Sergio Valls Moreno</div>
             </div>
             <div class="col-md-3">
-                <span class="data-label">DNI / NIE</span>
+                <span class="data-label" style="color: #444444;">DNI / NIE</span>
                 <div class="data-value" th:text="${asistente.dni}">24681357E</div>
             </div>
             <div class="col-md-3">
-                <span class="data-label">Teléfono</span>
+                <span class="data-label" style="color: #444444;">Teléfono</span>
                 <div class="data-value" th:text="${asistente.phoneNumber}">600123123</div>
             </div>
             <div class="col-md-3">
-                <span class="data-label">Fecha de Nacimiento</span>
+                <span class="data-label" style="color: #444444;">Fecha de Nacimiento</span>
                 <div class="data-value" th:text="${asistente.birthDate}">1987-09-07</div>
             </div>
         </div>
@@ -132,14 +132,14 @@
     <div class="content-card">
         <h2>Perfil Profesional y Disponibilidad</h2>
         <div class="row">
-            <div class="col-md-4"><span class="data-label">Tipo de Asistencia</span><div class="data-value" th:text="${asistente.assistanceType}">PATI</div></div>
-            <div class="col-md-4"><span class="data-label">Localidad de Servicio</span><div class="data-value" th:text="${asistente.location}">Vila-real</div></div>
-            <div class="col-md-4"><span class="data-label">Disponibilidad Horaria</span><div class="data-value" th:text="${asistente.availability}">Tardes</div></div>
+            <div class="col-md-4"><span class="data-label" style="color: #444444;">Tipo de Asistencia</span><div class="data-value" th:text="${asistente.assistanceType}">PATI</div></div>
+            <div class="col-md-4"><span class="data-label" style="color: #444444;">Localidad de Servicio</span><div class="data-value" th:text="${asistente.location}">Vila-real</div></div>
+            <div class="col-md-4"><span class="data-label" style="color: #444444;">Disponibilidad Horaria</span><div class="data-value" th:text="${asistente.availability}">Tardes</div></div>
         </div>
         <div class="row mt-3">
-            <div class="col-12"><span class="data-label">Formación y Títulos</span><div class="data-value" th:text="${asistente.professionalTraining}">Tecnico en Atencion a Personas Dependientes</div></div>
+            <div class="col-12"><span class="data-label" style="color: #444444;">Formación y Títulos</span><div class="data-value" th:text="${asistente.professionalTraining}">Tecnico en Atencion a Personas Dependientes</div></div>
             <div class="col-12">
-                <span class="data-label">Experiencia Previa</span>
+                <span class="data-label" style="color: #444444;">Experiencia Previa</span>
                 <div class="data-value" th:text="${asistente.previousExperience ? 'Sí, cuenta con experiencia previa en el sector' : 'No tiene experiencia previa registrada'}"></div>
             </div>
         </div>

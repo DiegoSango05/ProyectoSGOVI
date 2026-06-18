@@ -214,9 +214,12 @@
                     <tbody>
                     <tr th:each="candidato : ${candidatos}">
                         <td>
-                            <label th:for="'check-' + ${candidato.dni}" class="visually-hidden">Seleccionar a <span th:text="${candidato.name}"></span></label>
+                            <label th:for="'check-' + ${candidato.dni}" class="visually-hidden">Seleccionar candidato</label>
                             <input class="form-check-input" type="checkbox" name="selectedAssistants"
-                                   th:value="${candidato.dni}" th:id="'check-' + ${candidato.dni}" />
+                                   th:value="${candidato.dni}"
+                                   th:id="'check-' + ${candidato.dni}"
+                                   aria-label="Seleccionar candidato"
+                                   th:aria-label="'Seleccionar a ' + ${candidato.name}" />
                         </td>
                         <td class="fw-bold" th:text="${candidato.name}">Carla Martínez</td>
                         <td th:text="${candidato.location}">Castellón</td>

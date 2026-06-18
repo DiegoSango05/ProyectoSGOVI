@@ -76,11 +76,11 @@
             <h2>Detalles del Vínculo Origen</h2>
             <div class="row">
                 <div class="col-md-6">
-                    <span class="data-label">Código Petición Solicitada</span>
+                    <span class="data-label" style="color: #444444;">Código Petición Solicitada</span>
                     <div class="data-value" th:text="${'#REQ-' + idRequest}">#REQ-1</div>
                 </div>
                 <div class="col-md-6">
-                    <span class="data-label">Código Negociación de Origen</span>
+                    <span class="data-label" style="color: #444444;">Código Negociación de Origen</span>
                     <div class="data-value" th:text="${'#NEG-' + contract.idNegotiation}">#NEG-16</div>
                 </div>
             </div>
@@ -90,13 +90,13 @@
             <h2>Vigencia y Rango Temporal del Servicio</h2>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="startDate" class="data-label mb-2">Fecha de Inicio Contractual</label>
+                    <label for="startDate" class="data-label mb-2" style="color: #444444;">Fecha de Inicio Contractual</label>
                     <input type="date" class="form-control" id="startDate" th:field="*{startDate}" />
                     <div class="error-text" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
                     <small class="text-muted d-block mt-2">Especifica el día pactado en el que dará comienzo la asistencia formal.</small>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="endDate" class="data-label mb-2">Fecha Límite / Finalización</label>
+                    <label for="endDate" class="data-label mb-2" style="color: #444444;">Fecha Límite / Finalización</label>
                     <input type="date" class="form-control" id="endDate" th:field="*{endDate}" />
                     <div class="error-text" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></div>
                     <small class="text-muted d-block mt-2">Indica la fecha límite de finalización obligatoria en la que expirará el contrato.</small>
@@ -109,7 +109,7 @@
             <div class="d-flex align-items-center gap-4 p-3" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #ccc;">
                 <div style="font-size: 2.5rem; color: var(--ovi-orange);"><i class="bi bi-file-earmark-pdf-fill"></i></div>
                 <div>
-                    <span class="data-label">Nombre del Documento Generado</span>
+                    <span class="data-label" style="color: #444444;">Nombre del Documento Generado</span>
                     <div class="data-value mb-0"><span th:text="${contract.document}">Contrato_Peticion_1.pdf</span></div>
                     <small class="text-muted">Fichero PDF autogenerado utilizando el identificador único de la petición de asistencia.</small>
                 </div>
