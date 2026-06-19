@@ -150,12 +150,12 @@
 
             <div class="mb-3">
                 <label for="username" class="form-label">DNI / Usuario</label>
-                <input type="text" th:field="*{username}" class="form-control" placeholder="Introduce tu DNI" required>
+                <input type="text" id="username" th:field="*{username}" class="form-control" placeholder="Introduce tu DNI" required>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>
-                <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••" required>
+                <input type="password" id="password" th:field="*{password}" class="form-control" placeholder="••••••••" required>
             </div>
 
             <button type="submit" class="btn-submit">ACCEDER</button>

@@ -148,6 +148,10 @@
             color: #721c24;
         }
 
+        .text-success-accessible {
+            color: #146c43 !important;
+        }
+
         .chat-header {
             align-items: center;
             border-bottom: 1px solid #eee;
@@ -302,7 +306,7 @@
 
         .empty-state {
             align-items: center;
-            color: #777;
+            color: #555;
             display: flex;
             flex: 1;
             flex-direction: column;
@@ -404,7 +408,7 @@
                        th:if="${!currentUserAccepted and otherPartyAccepted}">
                         La otra parte ya ha aceptado.
                     </p>
-                    <p class="acceptance-status text-success fw-bold"
+                    <p class="acceptance-status text-success-accessible fw-bold"
                        th:if="${#strings.equalsIgnoreCase(selectedNegotiation.status, 'Accepted')}">
                         Negociacion aceptada por ambas partes.
                     </p>
@@ -439,6 +443,7 @@
                           name="message"
                           rows="1"
                           placeholder="Escribe un mensaje..."
+                          aria-label="Escribe un mensaje para la negociación"
                           required></textarea>
                 <button type="submit" class="send-button" aria-label="Enviar mensaje">
                     <i class="bi bi-send-fill"></i>

@@ -40,7 +40,7 @@
         .message-input { border: 1px solid #ddd; border-radius: 12px; min-height: 46px; resize: none; }
         .send-button { align-items: center; background-color: var(--ovi-orange); border: none; border-radius: 12px; color: #fff; display: inline-flex; font-size: 1.1rem; height: 46px; justify-content: center; width: 52px; }
         .send-button:hover { background-color: var(--ovi-orange-dark); }
-        .empty-state { align-items: center; color: #777; display: flex; flex: 1; flex-direction: column; justify-content: center; min-height: 520px; padding: 2rem; text-align: center; }
+        .empty-state { align-items: center; color: #5b5b5b; display: flex; flex: 1; flex-direction: column; justify-content: center; min-height: 520px; padding: 2rem; text-align: center; }
         .empty-state i { color: var(--ovi-orange); font-size: 2.4rem; margin-bottom: .75rem; }
         @media (max-width: 991px) { .chat-layout { grid-template-columns: 1fr; } .chat-list { max-height: 280px; } .message-bubble { max-width: 86%; } }
     </style>
@@ -99,8 +99,12 @@
             </div>
             <form class="message-form" th:if="${selectedChat != null}" th:action="@{/support-chats/send}" method="post">
                 <input type="hidden" name="idChat" th:value="${selectedChat.id}">
-                <textarea class="form-control message-input" name="message" rows="1" placeholder="Escribe un mensaje..." required></textarea>
-                <button type="submit" class="send-button" aria-label="Enviar mensaje"><i class="bi bi-send-fill"></i></button>
+                <label for="chatMessage" class="visually-hidden">Escribe tu mensaje de soporte</label>
+                <textarea class="form-control message-input" id="chatMessage" name="message" rows="1" placeholder="Escribe un mensaje..." required></textarea>
+                <button type="submit" class="send-button">
+                    <i class="bi bi-send-fill" aria-hidden="true"></i>
+                    <span class="visually-hidden">Enviar mensaje</span>
+                </button>
             </form>
             <div class="empty-state" th:if="${selectedChat == null}">
                 <i class="bi bi-chat-square-dots"></i>
