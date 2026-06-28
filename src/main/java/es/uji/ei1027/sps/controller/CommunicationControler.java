@@ -94,6 +94,20 @@ public class CommunicationControler {
             model.addAttribute("backUrl", "/oviuser/chats");
         }
 
+        for (Negotiation neg : negotiations) {
+            List<Communication> comms = communicationDao.getCommunicationsByNegotiation(neg.getIdNegotiation());
+            int count = 0;
+            for (int i = comms.size() - 1; i >= 0; i--) {
+                Communication comm = comms.get(i);
+                if (!ownSenders.contains(comm.getSender())) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            neg.setPendingMessagesCount(count);
+        }
+
         model.addAttribute("ownSenders", ownSenders);
         model.addAttribute("negotiations", negotiations);
         model.addAttribute("oviUserDnisByNegotiationId", getOVIUserDnisByNegotiationId(negotiations));

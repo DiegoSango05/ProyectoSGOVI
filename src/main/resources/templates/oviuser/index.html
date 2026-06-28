@@ -54,6 +54,27 @@
             text-align: center;
             text-decoration: none;
             transition: 0.2s;
+            position: relative;
+        }
+
+        .badge-notification {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            min-height: 22px;
         }
 
         .option-card:hover {
@@ -129,6 +150,7 @@
     <div class="row g-4">
         <div class="col-md-6 col-xl">
             <a th:href="@{/oviuser/requests-contracts}" class="option-card">
+                <span class="badge-notification" th:if="${pendingNegotiations > 0}" th:text="${pendingNegotiations}">0</span>
                 <span class="option-icon"><i class="bi bi-folder2-open"></i></span>
                 <h2>Solicitudes y contratos</h2>
                 <p>Consulta tus solicitudes de asistencia y los contratos asociados.</p>
@@ -157,6 +179,7 @@
         </div>
         <div class="col-md-6 col-xl">
             <a th:href="@{/oviuser/chats}" class="option-card">
+                <span class="badge-notification" th:if="${pendingChats > 0}" th:text="${pendingChats}">0</span>
                 <span class="option-icon"><i class="bi bi-chat-dots"></i></span>
                 <h2>Chat</h2>
                 <p>Accede a las comunicaciones de tus negociaciones.</p>

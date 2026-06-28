@@ -2,7 +2,10 @@ package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.SelectionDao;
-import es.uji.ei1027.sps.model.OVIUser;
+import es.uji.ei1027.sps.dao.SupportChatDao;
+import es.uji.ei1027.sps.dao.NegotiationDao;
+import es.uji.ei1027.sps.dao.CommunicationDao;
+import es.uji.ei1027.sps.model.*;
 import jakarta.servlet.http.HttpSession;
 // import org.jasypt.util.password.BasicPasswordEncryptor; // Encriptación de la contraseña para nuevos usuarios
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Controller
 @RequestMapping("/oviuser")
@@ -19,6 +23,15 @@ public class OVIUserController {
 
     @Autowired
     private SelectionDao selectionDao;
+
+    @Autowired
+    private SupportChatDao supportChatDao;
+
+    @Autowired
+    private NegotiationDao negotiationDao;
+
+    @Autowired
+    private CommunicationDao communicationDao;
 
     @Autowired
     public void setOviUserDao(OVIUserDao oviUserDao) {
@@ -37,6 +50,38 @@ public class OVIUserController {
             return "redirect:/login";
         }
         model.addAttribute("oviuser", oviUserDao.getOVIUser(user.getDni()));
+
+        // Calcular contadores de tareas pendientes para el usuario OVI
+        int pendingChats = 0;
+        // 1. Chats de soporte
+        for (SupportChat chat : supportChatDao.getSupportChatsByParticipant(user.getDni(), "OVI")) {
+            List<SupportMessage> messages = supportChatDao.getMessagesByChat(chat.getId());
+            if (!messages.isEmpty()) {
+                SupportMessage lastMsg = messages.get(messages.size() - 1);
+                if ("Administrador".equals(lastMsg.getSender())) {
+                    pendingChats++;
+                }
+            }
+        }
+        // 2. Negociaciones
+        for (Negotiation neg : negotiationDao.getActiveNegotiationsByOVIUser(user.getDni())) {
+            List<Communication> messages = communicationDao.getCommunicationsByNegotiation(neg.getIdNegotiation());
+            if (!messages.isEmpty()) {
+                Communication lastMsg = messages.get(messages.size() - 1);
+                if (neg.getDniAssistant().equals(lastMsg.getSender())) {
+                    pendingChats++;
+                }
+            }
+        }
+
+        // 3. Negociaciones pendientes de aceptar por el cliente
+        long pendingNegotiations = negotiationDao.getActiveNegotiationsByOVIUser(user.getDni()).stream()
+                .filter(n -> !n.isAcceptedCustomer() && "Pending".equalsIgnoreCase(n.getStatus()))
+                .count();
+
+        model.addAttribute("pendingChats", pendingChats);
+        model.addAttribute("pendingNegotiations", pendingNegotiations);
+
         return "oviuser/index";
     }
 

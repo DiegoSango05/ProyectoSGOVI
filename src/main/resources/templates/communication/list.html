@@ -424,12 +424,15 @@
                    th:href="@{/communication/list(idNegotiation=${neg.idNegotiation}, q=${searchQuery})}"
                    th:class="${neg.idNegotiation == selectedIdNegotiation} ? 'negotiation-item active' : 'negotiation-item'">
                     <span class="negotiation-main">
-                        <span class="negotiation-name"
-                              th:if="${papassistant == null}"
-                              th:text="${assistantLabelsByNegotiationId[neg.idNegotiation]}">Asistente</span>
-                        <span class="negotiation-name"
-                              th:if="${papassistant != null}"
-                              th:text="${oviUserLabelsByNegotiationId[neg.idNegotiation]}">Usuario OVI</span>
+                        <span style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.5rem; text-align: left;">
+                            <span class="negotiation-name"
+                                  th:if="${papassistant == null}"
+                                  th:text="${assistantLabelsByNegotiationId[neg.idNegotiation]}">Asistente</span>
+                            <span class="negotiation-name"
+                                  th:if="${papassistant != null}"
+                                  th:text="${oviUserLabelsByNegotiationId[neg.idNegotiation]}">Usuario OVI</span>
+                            <span class="badge bg-danger rounded-pill" th:if="${neg.pendingMessagesCount > 0}" th:text="${neg.pendingMessagesCount}">1</span>
+                        </span>
                         <span th:class="|status-badge status-${neg.status != null ? #strings.toLowerCase(neg.status) : 'pending'}|"
                               th:text="${neg.status}">Pending</span>
                     </span>

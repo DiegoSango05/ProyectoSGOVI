@@ -101,4 +101,14 @@ public class Negotiation {
                 ", nameAssistant='" + nameAssistant + '\'' +
                 '}';
     }
+
+    private int pendingMessagesCount;
+
+    public int getPendingMessagesCount() {
+        return pendingMessagesCount;
+    }
+
+    public void setPendingMessagesCount(int pendingMessagesCount) {
+        this.pendingMessagesCount = pendingMessagesCount;
+    }
 }
