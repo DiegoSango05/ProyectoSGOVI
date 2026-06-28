@@ -14,9 +14,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/assistancerequest")
@@ -45,34 +49,119 @@ public class AssistanceRequestController {
     }
 
     @RequestMapping("/my-list")
-    public String myList(HttpSession session, Model model) {
+    public String myList(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                         @RequestParam(value = "orderBy", required = false, defaultValue = "type") String orderBy,
+                         @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                         @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                         HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
         if (user == null) {
             return "redirect:/login";
         }
         List<AssistanceRequest> assistanceRequests = assistanceRequestDao.getAssistanceRequestsByOVIUser(user.getDni());
-        model.addAttribute("assistanceRequests", assistanceRequests);
-        addOVIListAttributes(model, assistanceRequests);
+        if (assistanceRequests == null) {
+            assistanceRequests = new ArrayList<AssistanceRequest>();
+        }
+
+        String searchLower = normalize(search);
+        if (!searchLower.isEmpty()) {
+            assistanceRequests = assistanceRequests.stream()
+                    .filter(request -> containsIgnoreCase(request.getType(), searchLower)
+                            || containsIgnoreCase(request.getDescription(), searchLower)
+                            || containsIgnoreCase(request.getSchedule(), searchLower)
+                            || containsIgnoreCase(request.getLocation(), searchLower)
+                            || containsIgnoreCase(request.getRequirements(), searchLower)
+                            || containsIgnoreCase(request.getStatus(), searchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<AssistanceRequest> comparator = Comparator.comparing(request -> safeLower(request.getType()));
+        if ("location".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getLocation()));
+        } else if ("status".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getStatus()));
+        } else if ("schedule".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getSchedule()));
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        assistanceRequests.sort(comparator);
+
+        PageResult<AssistanceRequest> pageResult = paginate(assistanceRequests, page, 4);
+
+        model.addAttribute("assistanceRequests", pageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
+        addOVIListAttributes(model, pageResult.items());
         return "assistancerequest/ovi-list";
     }
 
     @RequestMapping("/assistant-list")
-    public String assistantList(HttpSession session, Model model) {
+    public String assistantList(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                @RequestParam(value = "orderBy", required = false, defaultValue = "type") String orderBy,
+                                @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                                @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                HttpSession session, Model model) {
         PAPAssistant assistant = getLoggedAssistant(session);
         if (assistant == null) {
             return "redirect:/login";
         }
         List<AssistanceRequest> assistanceRequests =
                 assistanceRequestDao.getAcceptedAssistanceRequestsByAssistant(assistant.getDni());
+        if (assistanceRequests == null) {
+            assistanceRequests = new ArrayList<AssistanceRequest>();
+        }
+
+        String searchLower = normalize(search);
+        if (!searchLower.isEmpty()) {
+            assistanceRequests = assistanceRequests.stream()
+                    .filter(request -> containsIgnoreCase(request.getType(), searchLower)
+                            || containsIgnoreCase(request.getDescription(), searchLower)
+                            || containsIgnoreCase(request.getSchedule(), searchLower)
+                            || containsIgnoreCase(request.getLocation(), searchLower)
+                            || containsIgnoreCase(request.getRequirements(), searchLower)
+                            || containsIgnoreCase(request.getStatus(), searchLower)
+                            || containsIgnoreCase(request.getDniOVIuser(), searchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<AssistanceRequest> comparator = Comparator.comparing(request -> safeLower(request.getType()));
+        if ("location".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getLocation()));
+        } else if ("status".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getStatus()));
+        } else if ("schedule".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getSchedule()));
+        } else if ("dniOVIuser".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(request -> safeLower(request.getDniOVIuser()));
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        assistanceRequests.sort(comparator);
+
+        PageResult<AssistanceRequest> pageResult = paginate(assistanceRequests, page, 4);
+
         Map<Integer, Negotiation> negotiationsByRequestId = new HashMap<Integer, Negotiation>();
-        for (AssistanceRequest request : assistanceRequests) {
+        for (AssistanceRequest request : pageResult.items()) {
             Negotiation negotiation = negotiationDao.getActiveNegotiation(request.getId(), assistant.getDni());
             if (negotiation != null) {
                 negotiationsByRequestId.put(request.getId(), negotiation);
             }
         }
-        model.addAttribute("assistanceRequests", assistanceRequests);
+        model.addAttribute("assistanceRequests", pageResult.items());
         model.addAttribute("negotiationsByRequestId", negotiationsByRequestId);
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
         return "assistancerequest/assistant-list";
     }
 
@@ -194,6 +283,46 @@ public class AssistanceRequestController {
 
     private boolean isAccepted(String status) {
         return "Accepted".equalsIgnoreCase(status);
+    }
+
+    private <T> PageResult<T> paginate(List<T> items, int requestedPage, int pageSize) {
+        int totalRecords = items.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
+
+        int currentPage = requestedPage;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        int fromIndex = (currentPage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalRecords);
+        List<T> pageItems = new ArrayList<T>();
+        if (fromIndex < totalRecords) {
+            pageItems = items.subList(fromIndex, toIndex);
+        }
+
+        return new PageResult<T>(pageItems, currentPage, totalPages, totalRecords);
+    }
+
+    private boolean containsIgnoreCase(String value, String normalizedSearch) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedSearch);
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT);
+    }
+
+    private record PageResult<T>(List<T> items, int currentPage, int totalPages, int totalRecords) {
     }
 
     @GetMapping("/candidates/{id}")

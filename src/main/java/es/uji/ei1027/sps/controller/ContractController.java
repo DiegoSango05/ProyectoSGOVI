@@ -72,22 +72,106 @@ public class ContractController {
     }
 
     @RequestMapping("/my-list")
-    public String myList(HttpSession session, Model model) {
+    public String myList(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                         @RequestParam(value = "orderBy", required = false, defaultValue = "startDate") String orderBy,
+                         @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
+                         @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                         HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
         if (user == null) {
             return "redirect:/login";
         }
-        model.addAttribute("contracts", contractDao.getContractsByOVIUser(user.getDni()));
+        List<Contract> contracts = contractDao.getContractsByOVIUser(user.getDni());
+        if (contracts == null) {
+            contracts = new ArrayList<Contract>();
+        }
+
+        String normalizedSearch = normalize(search);
+        if (!normalizedSearch.isEmpty()) {
+            contracts = contracts.stream()
+                    .filter(contract -> containsIgnoreCase(contract.getStatus(), normalizedSearch)
+                            || containsIgnoreCase(contract.getDocument(), normalizedSearch)
+                            || containsIgnoreCase(String.valueOf(contract.getId()), normalizedSearch)
+                            || containsIgnoreCase(String.valueOf(contract.getIdNegotiation()), normalizedSearch)
+                            || containsIgnoreCase(contract.getStartDate() == null ? null : contract.getStartDate().toString(), normalizedSearch)
+                            || containsIgnoreCase(contract.getEndDate() == null ? null : contract.getEndDate().toString(), normalizedSearch))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<Contract> comparator = Comparator.comparing(Contract::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        if ("endDate".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(Contract::getEndDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        } else if ("status".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(contract -> safeLower(contract.getStatus()));
+        } else if ("document".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(contract -> safeLower(contract.getDocument()));
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        contracts.sort(comparator);
+
+        PageResult<Contract> pageResult = paginate(contracts, page, 5);
+
+        model.addAttribute("contracts", pageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
         return "contract/ovi-list";
     }
 
     @RequestMapping("/assistant-list")
-    public String assistantList(HttpSession session, Model model) {
+    public String assistantList(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                @RequestParam(value = "orderBy", required = false, defaultValue = "startDate") String orderBy,
+                                @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
+                                @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                HttpSession session, Model model) {
         PAPAssistant assistant = getLoggedAssistant(session);
         if (assistant == null) {
             return "redirect:/login";
         }
-        model.addAttribute("contracts", contractDao.getContractsByAssistant(assistant.getDni()));
+        List<Contract> contracts = contractDao.getContractsByAssistant(assistant.getDni());
+        if (contracts == null) {
+            contracts = new ArrayList<Contract>();
+        }
+
+        String normalizedSearch = normalize(search);
+        if (!normalizedSearch.isEmpty()) {
+            contracts = contracts.stream()
+                    .filter(contract -> containsIgnoreCase(contract.getStatus(), normalizedSearch)
+                            || containsIgnoreCase(contract.getDocument(), normalizedSearch)
+                            || containsIgnoreCase(String.valueOf(contract.getId()), normalizedSearch)
+                            || containsIgnoreCase(String.valueOf(contract.getIdNegotiation()), normalizedSearch)
+                            || containsIgnoreCase(contract.getStartDate() == null ? null : contract.getStartDate().toString(), normalizedSearch)
+                            || containsIgnoreCase(contract.getEndDate() == null ? null : contract.getEndDate().toString(), normalizedSearch))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<Contract> comparator = Comparator.comparing(Contract::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        if ("endDate".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(Contract::getEndDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        } else if ("status".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(contract -> safeLower(contract.getStatus()));
+        } else if ("document".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(contract -> safeLower(contract.getDocument()));
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        contracts.sort(comparator);
+
+        PageResult<Contract> pageResult = paginate(contracts, page, 5);
+
+        model.addAttribute("contracts", pageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
         return "contract/assistant-list";
     }
 

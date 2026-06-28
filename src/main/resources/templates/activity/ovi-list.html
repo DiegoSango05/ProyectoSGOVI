@@ -135,6 +135,10 @@
             padding: 3rem 1rem;
             text-align: center;
         }
+
+        .list-toolbar { background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 1.5rem; padding: 1rem; }
+        .pager-link { border: 2px solid var(--ovi-orange); border-radius: 8px; color: var(--ovi-orange); font-weight: 700; padding: 0.45rem 0.9rem; text-decoration: none; }
+        .pager-link.disabled { border-color: #ddd; color: #aaa; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -164,6 +168,33 @@
             </a>
         </div>
     </div>
+
+    <form class="list-toolbar row g-3 align-items-end" th:action="@{/activity/my-list}" method="get">
+        <div class="col-md-5">
+            <label for="activitySearch" class="form-label fw-bold">Buscar</label>
+            <input id="activitySearch" class="form-control" type="search" name="search" th:value="${search}" placeholder="Nombre, tipo, ubicacion o DNI instructor">
+        </div>
+        <div class="col-md-3">
+            <label for="activityOrderBy" class="form-label fw-bold">Ordenar por</label>
+            <select id="activityOrderBy" class="form-select" name="orderBy">
+                <option value="date" th:selected="${orderBy == 'date'}">Fecha</option>
+                <option value="title" th:selected="${orderBy == 'title'}">Nombre</option>
+                <option value="type" th:selected="${orderBy == 'type'}">Tipo</option>
+                <option value="location" th:selected="${orderBy == 'location'}">Ubicacion</option>
+                <option value="dniInstructor" th:selected="${orderBy == 'dniInstructor'}">DNI instructor</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="activityDir" class="form-label fw-bold">Direccion</label>
+            <select id="activityDir" class="form-select" name="dir">
+                <option value="asc" th:selected="${dir == 'asc'}">Asc</option>
+                <option value="desc" th:selected="${dir == 'desc'}">Desc</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn-main">Aplicar</button>
+        </div>
+    </form>
 
     <div class="table-panel" th:if="${activities != null and !activities.isEmpty()}">
         <div class="table-responsive">
@@ -209,6 +240,19 @@
         <a th:href="@{/activity/join-list}" class="btn-main">
             <i class="bi bi-person-plus me-1"></i> Apuntarse a una actividad
         </a>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4" th:if="${totalPages != null}">
+        <span class="text-muted" th:text="|${totalRecords} resultados|">0 resultados</span>
+        <div class="d-flex align-items-center gap-3">
+            <a class="pager-link"
+               th:classappend="${currentPage le 1} ? 'disabled' : ''"
+               th:href="@{/activity/my-list(search=${search}, orderBy=${orderBy}, dir=${dir}, page=${currentPage - 1})}">Anterior</a>
+            <span class="fw-bold" th:text="|Pagina ${currentPage} de ${totalPages}|">Pagina 1 de 1</span>
+            <a class="pager-link"
+               th:classappend="${currentPage ge totalPages} ? 'disabled' : ''"
+               th:href="@{/activity/my-list(search=${search}, orderBy=${orderBy}, dir=${dir}, page=${currentPage + 1})}">Siguiente</a>
+        </div>
     </div>
 </main>
 </body>

@@ -228,18 +228,62 @@ public class ActivityController {
     // --- MÉTODOS PARA USUARIOS OVI ---
 
     @RequestMapping("/my-list")
-    public String myActivities(HttpSession session, Model model) {
+    public String myActivities(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                               @RequestParam(value = "orderBy", required = false, defaultValue = "date") String orderBy,
+                               @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                               HttpSession session, Model model) {
         OVIUser user = getLoggedOVIUser(session);
         PAPAssistant assistant = getLoggedAssistant(session);
         if (user == null && assistant == null) return "redirect:/login";
 
+        List<Activity> activities;
         if (user != null) {
-            model.addAttribute("activities", activityDao.getActivitiesByOVIUser(user.getDni()));
+            activities = activityDao.getActivitiesByOVIUser(user.getDni());
             model.addAttribute("homeUrl", "/oviuser");
         } else {
-            model.addAttribute("activities", activityDao.getActivitiesByAssistant(assistant.getDni()));
+            activities = activityDao.getActivitiesByAssistant(assistant.getDni());
             model.addAttribute("homeUrl", "/pap_assistant/index");
         }
+        if (activities == null) {
+            activities = new ArrayList<Activity>();
+        }
+
+        String searchLower = normalize(search);
+        if (!searchLower.isEmpty()) {
+            activities = activities.stream()
+                    .filter(activity -> containsIgnoreCase(activity.getTitle(), searchLower)
+                            || containsIgnoreCase(activity.getDescription(), searchLower)
+                            || containsIgnoreCase(activity.getType(), searchLower)
+                            || containsIgnoreCase(activity.getLocation(), searchLower)
+                            || containsIgnoreCase(activity.getDniInstructor(), searchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<Activity> comparator = Comparator.comparing(Activity::getActivityDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        if ("title".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getTitle()));
+        } else if ("type".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getType()));
+        } else if ("location".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getLocation()));
+        } else if ("dniInstructor".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getDniInstructor()));
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        activities.sort(comparator);
+
+        PageResult<Activity> pageResult = paginate(activities, page, 5);
+
+        model.addAttribute("activities", pageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
         return "activity/ovi-list";
     }
 
