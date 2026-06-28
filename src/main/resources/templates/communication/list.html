@@ -433,13 +433,6 @@
                         <span th:class="|status-badge status-${neg.status != null ? #strings.toLowerCase(neg.status) : 'pending'}|"
                               th:text="${neg.status}">Pending</span>
                     </span>
-                    <span class="negotiation-meta"
-                          th:if="${papassistant == null}"
-                          th:text="|Negociacion #${neg.idNegotiation}|">Negociacion</span>
-                    <span class="negotiation-meta"
-                          th:if="${papassistant != null}"
-                          th:text="|Negociacion #${neg.idNegotiation}|">Negociacion</span>
-                    <span class="negotiation-meta" th:text="|Solicitud: ${neg.idRequest}|">Solicitud</span>
                 </a>
             </div>
         </aside>
@@ -454,9 +447,6 @@
                         th:if="${selectedIdNegotiation != null and papassistant != null}"
                         th:text="${oviUserLabelsByNegotiationId[selectedIdNegotiation]}">Usuario OVI</h2>
                     <h2 class="chat-title" th:if="${selectedIdNegotiation == null}">Sin chat seleccionado</h2>
-                    <p class="chat-subtitle"
-                       th:if="${selectedIdNegotiation != null}"
-                       th:text="|Negociacion #${selectedIdNegotiation}|">Negociacion</p>
                     <p class="chat-subtitle" th:if="${selectedIdNegotiation == null}">Mensajes entre el usuario OVI y el asistente</p>
                 </div>
                 <div class="acceptance-box" th:if="${selectedNegotiation != null}">
