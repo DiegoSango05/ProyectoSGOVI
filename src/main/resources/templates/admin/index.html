@@ -66,6 +66,27 @@
             text-align: center;
             text-decoration: none;
             transition: 0.2s;
+            position: relative;
+        }
+
+        .badge-notification {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            min-height: 22px;
         }
 
         .option-card:hover {
@@ -143,6 +164,7 @@
     <div class="row g-4 mb-4">
         <div class="col-md-6 col-lg-3">
             <a th:href="@{/admin/ovi-users}" class="option-card">
+                <span class="badge-notification" th:if="${pendingOviUsers > 0}" th:text="${pendingOviUsers}">0</span>
                 <span class="option-icon"><i class="bi bi-people"></i></span>
                 <h2>Usuarios OVI</h2>
                 <p>Listado, validación y gestión de perfiles de usuarios.</p>
@@ -150,6 +172,7 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <a th:href="@{/admin/assistants}" class="option-card">
+                <span class="badge-notification" th:if="${pendingAssistants > 0}" th:text="${pendingAssistants}">0</span>
                 <span class="option-icon"><i class="bi bi-person-badge-fill"></i></span>
                 <h2>Asistentes PAP</h2>
                 <p>Gestión de asistentes, formación y disponibilidad.</p>
@@ -157,6 +180,7 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <a th:href="@{/admin/requests}" class="option-card">
+                <span class="badge-notification" th:if="${pendingRequests > 0}" th:text="${pendingRequests}">0</span>
                 <span class="option-icon"><i class="bi bi-clipboard-check"></i></span>
                 <h2>Solicitudes</h2>
                 <p>Revisar y asignar solicitudes de asistencia pendientes.</p>
@@ -164,6 +188,7 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <a th:href="@{/contract/admin-dashboard}" class="option-card">
+                <span class="badge-notification" th:if="${pendingContracts > 0}" th:text="${pendingContracts}">0</span>
                 <span class="option-icon"><i class="bi bi-file-earmark-ruled"></i></span>
                 <h2>Contratos</h2>
                 <p>Seguimiento de contratos activos y finalizados.</p>
@@ -181,6 +206,7 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <a th:href="@{/admin/chats}" class="option-card">
+                <span class="badge-notification" th:if="${pendingChats > 0}" th:text="${pendingChats}">0</span>
                 <span class="option-icon"><i class="bi bi-chat-left-dots"></i></span>
                 <h2>Mensajería</h2>
                 <p>Auditoría y soporte en las comunicaciones del sistema.</p>

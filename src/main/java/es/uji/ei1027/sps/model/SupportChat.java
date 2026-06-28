@@ -5,6 +5,7 @@ public class SupportChat {
     private String participantDni;
     private String participantType;
     private String participantName;
+    private int pendingMessagesCount;
 
     public int getId() {
         return id;
@@ -36,5 +37,13 @@ public class SupportChat {
 
     public void setParticipantName(String participantName) {
         this.participantName = participantName;
+    }
+
+    public int getPendingMessagesCount() {
+        return pendingMessagesCount;
+    }
+
+    public void setPendingMessagesCount(int pendingMessagesCount) {
+        this.pendingMessagesCount = pendingMessagesCount;
     }
 }

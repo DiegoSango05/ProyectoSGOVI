@@ -52,6 +52,36 @@ public class AdminController {
             return "redirect:/login";
         }
         model.addAttribute("adminName", user.getName());
+
+        // Calcular contadores de tareas pendientes para el administrador
+        long pendingOviUsers = oviUserDao.getOVIUsers().stream()
+                .filter(u -> "Pending".equalsIgnoreCase(u.getStatus()))
+                .count();
+        long pendingAssistants = papAssistantDao.getPAPAssistants().stream()
+                .filter(a -> "Pending".equalsIgnoreCase(a.getStatus()))
+                .count();
+        long pendingRequests = assistanceRequestDao.getAssistanceRequests().stream()
+                .filter(r -> "Pending".equalsIgnoreCase(r.getStatus()))
+                .count();
+        int pendingContracts = negotiationDao.getMutualAgreements().size();
+
+        int pendingChats = 0;
+        for (SupportChat chat : supportChatDao.getSupportChats()) {
+            List<SupportMessage> messages = supportChatDao.getMessagesByChat(chat.getId());
+            if (!messages.isEmpty()) {
+                SupportMessage lastMsg = messages.get(messages.size() - 1);
+                if (!"Administrador".equals(lastMsg.getSender())) {
+                    pendingChats++;
+                }
+            }
+        }
+
+        model.addAttribute("pendingOviUsers", pendingOviUsers);
+        model.addAttribute("pendingAssistants", pendingAssistants);
+        model.addAttribute("pendingRequests", pendingRequests);
+        model.addAttribute("pendingContracts", pendingContracts);
+        model.addAttribute("pendingChats", pendingChats);
+
         return "admin/index";
     }
 

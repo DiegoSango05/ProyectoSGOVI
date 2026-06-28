@@ -24,7 +24,7 @@
         .clear-search { color: #777; font-size: .85rem; text-decoration: none; }
         .clear-search:hover { color: var(--ovi-orange); }
         .chat-list { max-height: 560px; overflow-y: auto; }
-        .chat-item { border-bottom: 1px solid #eee; color: #000; display: block; padding: 1rem 1.2rem; text-decoration: none; transition: .2s; }
+        .chat-item { border-bottom: 1px solid #eee; color: #000; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem; text-decoration: none; transition: .2s; }
         .chat-item:hover, .chat-item.active { background-color: var(--ovi-soft); color: #000; }
         .chat-item.active { border-left: 4px solid var(--ovi-orange); }
         .chat-name { display: block; font-weight: 800; }
@@ -97,9 +97,12 @@
                 <a th:each="chat : ${chats}"
                    th:href="@{/support-chats/list(idChat=${chat.id}, q=${searchQuery})}"
                    th:class="${selectedChat != null and chat.id == selectedChat.id} ? 'chat-item active' : 'chat-item'">
-                    <span class="chat-name" th:text="${adminView ? chat.participantName : 'Administrador'}">Perfil</span>
-                    <span class="chat-meta" th:if="${adminView}" th:text="|${chat.participantType} - ${chat.participantDni}|">Tipo</span>
-                    <span class="chat-meta" th:unless="${adminView}">Soporte SgOVI</span>
+                    <div style="flex: 1; min-width: 0; text-align: left;">
+                        <span class="chat-name" th:text="${adminView ? chat.participantName : 'Administrador'}">Perfil</span>
+                        <span class="chat-meta" th:if="${adminView}" th:text="|${chat.participantType} - ${chat.participantDni}|">Tipo</span>
+                        <span class="chat-meta" th:unless="${adminView}">Soporte SgOVI</span>
+                    </div>
+                    <span class="badge bg-danger rounded-pill ms-2" th:if="${chat.pendingMessagesCount > 0}" th:text="${chat.pendingMessagesCount}">1</span>
                 </a>
             </div>
         </aside>

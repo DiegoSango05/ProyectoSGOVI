@@ -4,6 +4,7 @@ import es.uji.ei1027.sps.dao.SupportChatDao;
 import es.uji.ei1027.sps.model.OVIUser;
 import es.uji.ei1027.sps.model.PAPAssistant;
 import es.uji.ei1027.sps.model.SupportChat;
+import es.uji.ei1027.sps.model.SupportMessage;
 import es.uji.ei1027.sps.model.SystemUser;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,21 @@ public class SupportChatController {
         }
 
         chats = filterChatsByParticipant(chats, q, "admin".equals(role));
+
+        for (SupportChat chat : chats) {
+            List<SupportMessage> messages = supportChatDao.getMessagesByChat(chat.getId());
+            int count = 0;
+            for (int i = messages.size() - 1; i >= 0; i--) {
+                SupportMessage msg = messages.get(i);
+                if (!ownSender.equals(msg.getSender())) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            chat.setPendingMessagesCount(count);
+        }
+
         SupportChat selectedChat = getSelectedChat(idChat, chats);
         model.addAttribute("chats", chats);
         model.addAttribute("searchQuery", q == null ? "" : q.trim());
