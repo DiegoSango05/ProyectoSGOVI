@@ -3,8 +3,8 @@
 <head>
     <title>SgOVI - Chats existentes</title>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
     <style>
         :root {
             --ovi-orange: #854d00;
@@ -80,6 +80,44 @@
             margin: 0;
             padding: 1rem 1.2rem;
             text-transform: uppercase;
+        }
+
+        .chat-search {
+            border-bottom: 1px solid #eee;
+            padding: 0.85rem 1rem;
+        }
+
+        .search-field {
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            gap: 0.55rem;
+            padding: 0.55rem 0.75rem;
+        }
+
+        .search-field i {
+            color: var(--ovi-orange);
+            font-size: 1rem;
+        }
+
+        .search-field input {
+            border: 0;
+            flex: 1;
+            font-size: 0.9rem;
+            min-width: 0;
+            outline: 0;
+        }
+
+        .clear-search {
+            color: #777;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .clear-search:hover {
+            color: var(--ovi-orange);
         }
 
         .negotiation-list {
@@ -341,7 +379,7 @@
 <nav class="navbar navbar-expand-lg pt-4">
     <div class="container">
         <a class="navbar-brand" th:href="@{/oviuser}">
-            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;" />
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="brand-name">SgOVI</span>
@@ -359,25 +397,48 @@
     <div class="chat-layout">
         <aside class="sidebar">
             <h2 class="panel-title">Negociaciones activas</h2>
+            <form class="chat-search" th:action="@{/communication/list}" method="get">
+                <label for="negotiationSearch" class="visually-hidden">Buscar por participante</label>
+                <div class="search-field">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input id="negotiationSearch"
+                           type="search"
+                           name="q"
+                           th:value="${searchQuery}"
+                           placeholder="Buscar por nombre o DNI"
+                           autocomplete="off" />
+                    <a th:if="${searchQuery != null and !#strings.isEmpty(searchQuery)}"
+                       th:href="@{/communication/list}"
+                       class="clear-search"
+                       aria-label="Limpiar busqueda">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </form>
             <div class="empty-state" th:if="${#lists.isEmpty(negotiations)}">
                 <i class="bi bi-inbox"></i>
-                <p class="mb-0">No tienes negociaciones activas.</p>
+                <p class="mb-0" th:text="${searchQuery != null and !#strings.isEmpty(searchQuery)} ? 'No hay negociaciones con ese participante.' : 'No tienes negociaciones activas.'">No tienes negociaciones activas.</p>
             </div>
             <div class="negotiation-list" th:if="${!#lists.isEmpty(negotiations)}">
                 <a th:each="neg : ${negotiations}"
-                   th:href="@{/communication/list(idNegotiation=${neg.idNegotiation})}"
+                   th:href="@{/communication/list(idNegotiation=${neg.idNegotiation}, q=${searchQuery})}"
                    th:class="${neg.idNegotiation == selectedIdNegotiation} ? 'negotiation-item active' : 'negotiation-item'">
                     <span class="negotiation-main">
-                        <span class="negotiation-name" th:text="|Negociacion #${neg.idNegotiation}|">Negociacion #1</span>
+                        <span class="negotiation-name"
+                              th:if="${papassistant == null}"
+                              th:text="${assistantLabelsByNegotiationId[neg.idNegotiation]}">Asistente</span>
+                        <span class="negotiation-name"
+                              th:if="${papassistant != null}"
+                              th:text="${oviUserLabelsByNegotiationId[neg.idNegotiation]}">Usuario OVI</span>
                         <span th:class="|status-badge status-${neg.status != null ? #strings.toLowerCase(neg.status) : 'pending'}|"
                               th:text="${neg.status}">Pending</span>
                     </span>
                     <span class="negotiation-meta"
                           th:if="${papassistant == null}"
-                          th:text="|Asistente: ${neg.dniAssistant}|">Asistente</span>
+                          th:text="|Negociacion #${neg.idNegotiation}|">Negociacion</span>
                     <span class="negotiation-meta"
                           th:if="${papassistant != null}"
-                          th:text="|Usuario OVI: ${oviUserDnisByNegotiationId[neg.idNegotiation]}|">Usuario OVI</span>
+                          th:text="|Negociacion #${neg.idNegotiation}|">Negociacion</span>
                     <span class="negotiation-meta" th:text="|Solicitud: ${neg.idRequest}|">Solicitud</span>
                 </a>
             </div>
@@ -386,16 +447,24 @@
         <section class="chat-panel">
             <div class="chat-header">
                 <div>
-                    <h2 class="chat-title" th:if="${selectedIdNegotiation != null}"
-                        th:text="|Negociacion #${selectedIdNegotiation}|">Negociacion</h2>
+                    <h2 class="chat-title"
+                        th:if="${selectedIdNegotiation != null and papassistant == null}"
+                        th:text="${assistantLabelsByNegotiationId[selectedIdNegotiation]}">Asistente</h2>
+                    <h2 class="chat-title"
+                        th:if="${selectedIdNegotiation != null and papassistant != null}"
+                        th:text="${oviUserLabelsByNegotiationId[selectedIdNegotiation]}">Usuario OVI</h2>
                     <h2 class="chat-title" th:if="${selectedIdNegotiation == null}">Sin chat seleccionado</h2>
-                    <p class="chat-subtitle">Mensajes entre el usuario OVI y el asistente</p>
+                    <p class="chat-subtitle"
+                       th:if="${selectedIdNegotiation != null}"
+                       th:text="|Negociacion #${selectedIdNegotiation}|">Negociacion</p>
+                    <p class="chat-subtitle" th:if="${selectedIdNegotiation == null}">Mensajes entre el usuario OVI y el asistente</p>
                 </div>
                 <div class="acceptance-box" th:if="${selectedNegotiation != null}">
                     <form th:if="${canAcceptNegotiation}"
                           th:action="@{/communication/accept}"
                           method="post">
-                        <input type="hidden" name="idNegotiation" th:value="${selectedIdNegotiation}">
+                        <input type="hidden" name="idNegotiation" th:value="${selectedIdNegotiation}" />
+                        <input type="hidden" name="q" th:value="${searchQuery}" />
                         <button type="submit" class="accept-button">
                             Aceptar negociacion
                         </button>
@@ -438,13 +507,14 @@
                   th:if="${selectedIdNegotiation != null}"
                   th:action="@{/communication/send}"
                   method="post">
-                <input type="hidden" name="idNegotiation" th:value="${selectedIdNegotiation}">
+                <input type="hidden" name="idNegotiation" th:value="${selectedIdNegotiation}" />
+                <input type="hidden" name="q" th:value="${searchQuery}" />
                 <textarea class="form-control message-input"
                           name="message"
                           rows="1"
                           placeholder="Escribe un mensaje..."
                           aria-label="Escribe un mensaje para la negociación"
-                          required></textarea>
+                          required="required"></textarea>
                 <button type="submit" class="send-button" aria-label="Enviar mensaje">
                     <i class="bi bi-send-fill"></i>
                 </button>

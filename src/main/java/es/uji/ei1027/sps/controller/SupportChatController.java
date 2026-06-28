@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/support-chats")
@@ -24,7 +27,10 @@ public class SupportChatController {
     private SupportChatDao supportChatDao;
 
     @RequestMapping("/list")
-    public String list(@RequestParam(required = false) Integer idChat, HttpSession session, Model model) {
+    public String list(@RequestParam(required = false) Integer idChat,
+                       @RequestParam(required = false) String q,
+                       HttpSession session,
+                       Model model) {
         String role = (String) session.getAttribute("role");
         Object user = session.getAttribute("user");
         List<SupportChat> chats;
@@ -49,8 +55,10 @@ public class SupportChatController {
             return "redirect:/login";
         }
 
+        chats = filterChatsByParticipant(chats, q, "admin".equals(role));
         SupportChat selectedChat = getSelectedChat(idChat, chats);
         model.addAttribute("chats", chats);
+        model.addAttribute("searchQuery", q == null ? "" : q.trim());
         model.addAttribute("selectedChat", selectedChat);
         model.addAttribute("ownSender", ownSender);
         model.addAttribute("messages", selectedChat == null
@@ -60,7 +68,10 @@ public class SupportChatController {
     }
 
     @PostMapping("/send")
-    public String send(@RequestParam int idChat, @RequestParam String message, HttpSession session) {
+    public String send(@RequestParam int idChat,
+                       @RequestParam String message,
+                       @RequestParam(required = false) String q,
+                       HttpSession session) {
         String role = (String) session.getAttribute("role");
         Object user = session.getAttribute("user");
         List<SupportChat> chats;
@@ -82,7 +93,34 @@ public class SupportChatController {
         if (message != null && !message.trim().isEmpty() && getSelectedChat(idChat, chats) != null) {
             supportChatDao.addMessage(idChat, sender, message.trim());
         }
-        return "redirect:/support-chats/list?idChat=" + idChat;
+        return "redirect:/support-chats/list?idChat=" + idChat + buildSearchRedirect(q);
+    }
+
+    private List<SupportChat> filterChatsByParticipant(List<SupportChat> chats, String searchText, boolean adminView) {
+        if (searchText == null || searchText.isBlank()) {
+            return chats;
+        }
+
+        String normalizedSearch = searchText.trim().toLowerCase(Locale.ROOT);
+        return chats.stream()
+                .filter(chat -> adminView
+                        ? containsIgnoreCase(chat.getParticipantName(), normalizedSearch)
+                        || containsIgnoreCase(chat.getParticipantDni(), normalizedSearch)
+                        || containsIgnoreCase(chat.getParticipantType(), normalizedSearch)
+                        : containsIgnoreCase(ADMIN_SENDER, normalizedSearch)
+                        || containsIgnoreCase("Soporte SgOVI", normalizedSearch))
+                .toList();
+    }
+
+    private boolean containsIgnoreCase(String value, String normalizedSearch) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedSearch);
+    }
+
+    private String buildSearchRedirect(String searchText) {
+        if (searchText == null || searchText.isBlank()) {
+            return "";
+        }
+        return "&q=" + URLEncoder.encode(searchText.trim(), StandardCharsets.UTF_8);
     }
 
     private SupportChat getSelectedChat(Integer requestedId, List<SupportChat> chats) {

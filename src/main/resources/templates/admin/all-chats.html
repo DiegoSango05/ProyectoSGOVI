@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SgOVI - Soporte</title>
+    <title>SgOVI - Todos los chats</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
@@ -11,10 +11,11 @@
         .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
         .btn-outline-custom { border: 2px solid #000; border-radius: 8px; color: #000; font-weight: 700; padding: .58rem 1rem; text-decoration: none; text-transform: uppercase; transition: .2s; }
         .btn-outline-custom:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
-        .page-header { border-bottom: 1px solid #eee; margin-bottom: 1.5rem; padding-bottom: 1.5rem; }
-        .page-title { font-size: 2.2rem; font-weight: 800; }
+        .page-header { align-items: flex-start; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; }
+        .page-title { font-size: 2.2rem; font-weight: 800; margin-bottom: .3rem; }
         .page-title span { color: var(--ovi-orange); }
-        .chat-layout { display: grid; gap: 1.25rem; grid-template-columns: minmax(260px, 340px) 1fr; min-height: 620px; }
+        .read-only-badge { background-color: #eef3f8; border: 1px solid #d7e0ea; border-radius: 999px; color: #2c3e50; font-size: .78rem; font-weight: 800; padding: .45rem .8rem; text-transform: uppercase; white-space: nowrap; }
+        .chat-layout { display: grid; gap: 1.25rem; grid-template-columns: minmax(300px, 390px) 1fr; min-height: 620px; }
         .sidebar, .chat-panel { background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.05); overflow: hidden; }
         .panel-title { border-bottom: 1px solid #eee; font-size: .82rem; font-weight: 800; margin: 0; padding: 1rem 1.2rem; text-transform: uppercase; }
         .chat-search { border-bottom: 1px solid #eee; padding: .85rem 1rem; }
@@ -23,66 +24,69 @@
         .search-field input { border: 0; flex: 1; font-size: .9rem; min-width: 0; outline: 0; }
         .clear-search { color: #777; font-size: .85rem; text-decoration: none; }
         .clear-search:hover { color: var(--ovi-orange); }
-        .chat-list { max-height: 560px; overflow-y: auto; }
+        .chat-list { max-height: 620px; overflow-y: auto; }
         .chat-item { border-bottom: 1px solid #eee; color: #000; display: block; padding: 1rem 1.2rem; text-decoration: none; transition: .2s; }
         .chat-item:hover, .chat-item.active { background-color: var(--ovi-soft); color: #000; }
         .chat-item.active { border-left: 4px solid var(--ovi-orange); }
-        .chat-name { display: block; font-weight: 800; }
-        .chat-meta { color: #666; display: block; font-size: .84rem; margin-top: .25rem; }
+        .chat-name { display: block; font-weight: 800; line-height: 1.25; }
+        .chat-meta { color: #666; display: block; font-size: .82rem; margin-top: .25rem; }
+        .chat-type { color: var(--ovi-orange); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+        .chat-last { color: #444; display: block; font-size: .84rem; margin-top: .45rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .chat-header { align-items: center; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; }
         .chat-title { font-size: 1.05rem; font-weight: 800; margin: 0; }
-        .chat-subtitle { color: #666; font-size: .86rem; margin: 0; }
-        .messages { background-color: var(--chat-bg); display: flex; flex-direction: column; gap: .8rem; min-height: 450px; overflow-y: auto; padding: 1.5rem; }
+        .chat-subtitle { color: #666; font-size: .86rem; margin: .2rem 0 0; }
+        .messages { background-color: var(--chat-bg); display: flex; flex-direction: column; gap: .8rem; min-height: 560px; overflow-y: auto; padding: 1.5rem; }
         .message-row { display: flex; width: 100%; }
-        .message-row.mine { justify-content: flex-end; }
-        .message-row.theirs { justify-content: flex-start; }
-        .message-bubble { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.06); max-width: min(72%, 620px); padding: .75rem .9rem; }
-        .message-row.mine .message-bubble { background-color: var(--ovi-orange); color: #fff; }
-        .message-row.theirs .message-bubble { background-color: #fff; color: #000; }
+        .message-bubble { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.06); max-width: min(78%, 720px); padding: .75rem .9rem; }
         .message-sender { display: block; font-size: .72rem; font-weight: 800; margin-bottom: .3rem; opacity: .8; text-transform: uppercase; }
         .message-text { margin: 0; white-space: pre-wrap; word-break: break-word; }
         .message-date { display: block; font-size: .72rem; margin-top: .35rem; opacity: .72; text-align: right; }
-        .message-form { align-items: flex-end; background-color: #fff; border-top: 1px solid #eee; display: flex; gap: .75rem; padding: 1rem; }
-        .message-input { border: 1px solid #ddd; border-radius: 12px; min-height: 46px; resize: none; }
-        .send-button { align-items: center; background-color: var(--ovi-orange); border: none; border-radius: 12px; color: #fff; display: inline-flex; font-size: 1.1rem; height: 46px; justify-content: center; width: 52px; }
-        .send-button:hover { background-color: var(--ovi-orange-dark); }
         .empty-state { align-items: center; color: #5b5b5b; display: flex; flex: 1; flex-direction: column; justify-content: center; min-height: 520px; padding: 2rem; text-align: center; }
         .empty-state i { color: var(--ovi-orange); font-size: 2.4rem; margin-bottom: .75rem; }
-        @media (max-width: 991px) { .chat-layout { grid-template-columns: 1fr; } .chat-list { max-height: 280px; } .message-bubble { max-width: 86%; } }
+        @media (max-width: 991px) {
+            .page-header { display: block; }
+            .read-only-badge { display: inline-block; margin-top: .8rem; }
+            .chat-layout { grid-template-columns: 1fr; }
+            .chat-list { max-height: 300px; }
+            .message-bubble { max-width: 92%; }
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg pt-4">
     <div class="container">
-        <a class="navbar-brand" th:href="${backUrl}">
+        <a class="navbar-brand" th:href="@{/admin/chats}">
             <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;" />
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="brand-name">SgOVI</span>
-            <a th:href="${backUrl}" class="btn-outline-custom">Volver</a>
+            <a th:href="@{/admin/chats}" class="btn-outline-custom">Volver</a>
         </div>
     </div>
 </nav>
 <main class="container py-4">
     <div class="page-header">
-        <h1 class="page-title">Chats de <span>soporte</span></h1>
-        <p class="text-muted mb-0" th:text="${adminView} ? 'Conversaciones creadas automaticamente al aceptar perfiles.' : 'Contacta con el administrador para resolver cualquier problema.'">Soporte</p>
+        <div>
+            <h1 class="page-title">Todos los <span>chats</span></h1>
+            <p class="text-muted mb-0">Historial completo de soporte y negociaciones guardadas en la base de datos.</p>
+        </div>
+        <span class="read-only-badge"><i class="bi bi-eye me-1"></i> Solo lectura</span>
     </div>
     <div class="chat-layout">
         <aside class="sidebar">
-            <h2 class="panel-title" th:text="${adminView} ? 'Perfiles aceptados' : 'Administrador'">Conversaciones</h2>
-            <form class="chat-search" th:action="@{/support-chats/list}" method="get">
-                <label for="supportChatSearch" class="visually-hidden">Buscar por participante</label>
+            <h2 class="panel-title">Conversaciones</h2>
+            <form class="chat-search" th:action="@{/admin/chats/all}" method="get">
+                <label for="chatSearch" class="visually-hidden">Buscar por participante</label>
                 <div class="search-field">
                     <i class="bi bi-search" aria-hidden="true"></i>
-                    <input id="supportChatSearch"
+                    <input id="chatSearch"
                            type="search"
                            name="q"
                            th:value="${searchQuery}"
                            placeholder="Buscar por nombre o DNI"
                            autocomplete="off" />
                     <a th:if="${searchQuery != null and !#strings.isEmpty(searchQuery)}"
-                       th:href="@{/support-chats/list}"
+                       th:href="@{/admin/chats/all}"
                        class="clear-search"
                        aria-label="Limpiar busqueda">
                         <i class="bi bi-x-lg" aria-hidden="true"></i>
@@ -91,29 +95,36 @@
             </form>
             <div class="empty-state" th:if="${#lists.isEmpty(chats)}">
                 <i class="bi bi-inbox"></i>
-                <p class="mb-0" th:text="${searchQuery != null and !#strings.isEmpty(searchQuery)} ? 'No hay conversaciones con ese participante.' : 'No hay conversaciones de soporte disponibles.'">No hay conversaciones de soporte disponibles.</p>
+                <p class="mb-0" th:text="${searchQuery != null and !#strings.isEmpty(searchQuery)} ? 'No hay conversaciones con ese participante.' : 'No hay conversaciones disponibles.'">No hay conversaciones disponibles.</p>
             </div>
             <div class="chat-list" th:if="${!#lists.isEmpty(chats)}">
-                <a th:each="chat : ${chats}"
-                   th:href="@{/support-chats/list(idChat=${chat.id}, q=${searchQuery})}"
-                   th:class="${selectedChat != null and chat.id == selectedChat.id} ? 'chat-item active' : 'chat-item'">
-                    <span class="chat-name" th:text="${adminView ? chat.participantName : 'Administrador'}">Perfil</span>
-                    <span class="chat-meta" th:if="${adminView}" th:text="|${chat.participantType} - ${chat.participantDni}|">Tipo</span>
-                    <span class="chat-meta" th:unless="${adminView}">Soporte SgOVI</span>
+                <a th:each="chatItem : ${chats}"
+                   th:href="@{/admin/chats/all(chat=${chatItem.key}, q=${searchQuery})}"
+                   th:class="${selectedChat != null and chatItem.key == selectedChat.key} ? 'chat-item active' : 'chat-item'">
+                    <span class="chat-type" th:text="${chatItem.type}">Tipo</span>
+                    <span class="chat-name" th:text="${chatItem.title}">Conversacion</span>
+                    <span class="chat-meta" th:text="${chatItem.subtitle}">Detalle</span>
+                    <span class="chat-meta" th:text="|${chatItem.messageCount} mensajes|">0 mensajes</span>
+                    <span class="chat-last" th:text="${chatItem.lastMessage}">Ultimo mensaje</span>
                 </a>
             </div>
         </aside>
         <section class="chat-panel">
             <div class="chat-header">
                 <div>
-                    <h2 class="chat-title" th:if="${selectedChat != null}" th:text="${adminView ? selectedChat.participantName : 'Administrador'}">Chat</h2>
+                    <h2 class="chat-title" th:if="${selectedChat != null}" th:text="${selectedChat.title}">Chat</h2>
                     <h2 class="chat-title" th:if="${selectedChat == null}">Sin chat seleccionado</h2>
-                    <p class="chat-subtitle">Canal de soporte SgOVI</p>
+                    <p class="chat-subtitle" th:if="${selectedChat != null}" th:text="|${selectedChat.type} - ${selectedChat.subtitle}|">Detalle</p>
+                    <p class="chat-subtitle" th:if="${selectedChat == null}">Selecciona una conversacion para verla.</p>
                 </div>
-                <i class="bi bi-headset fs-3 text-muted"></i>
+                <i class="bi bi-lock fs-3 text-muted"></i>
             </div>
             <div class="messages" th:if="${selectedChat != null}">
-                <div th:each="msg : ${messages}" th:class="${#strings.equals(msg.sender, ownSender)} ? 'message-row mine' : 'message-row theirs'">
+                <div class="empty-state" th:if="${#lists.isEmpty(messages)}">
+                    <i class="bi bi-chat-left-text"></i>
+                    <p class="mb-0">Esta conversacion todavia no tiene mensajes.</p>
+                </div>
+                <div th:each="msg : ${messages}" class="message-row">
                     <div class="message-bubble">
                         <span class="message-sender" th:text="${msg.sender}">Remitente</span>
                         <p class="message-text" th:text="${msg.message}">Mensaje</p>
@@ -121,16 +132,6 @@
                     </div>
                 </div>
             </div>
-            <form class="message-form" th:if="${selectedChat != null}" th:action="@{/support-chats/send}" method="post">
-                <input type="hidden" name="idChat" th:value="${selectedChat.id}" />
-                <input type="hidden" name="q" th:value="${searchQuery}" />
-                <label for="chatMessage" class="visually-hidden">Escribe tu mensaje de soporte</label>
-                <textarea class="form-control message-input" id="chatMessage" name="message" rows="1" placeholder="Escribe un mensaje..." required="required"></textarea>
-                <button type="submit" class="send-button">
-                    <i class="bi bi-send-fill" aria-hidden="true"></i>
-                    <span class="visually-hidden">Enviar mensaje</span>
-                </button>
-            </form>
             <div class="empty-state" th:if="${selectedChat == null}">
                 <i class="bi bi-chat-square-dots"></i>
                 <p class="mb-0">No hay ninguna conversacion disponible.</p>

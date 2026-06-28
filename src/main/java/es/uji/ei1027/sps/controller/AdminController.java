@@ -1,6 +1,8 @@
 package es.uji.ei1027.sps.controller;
 
 import es.uji.ei1027.sps.dao.AssistanceRequestDao;
+import es.uji.ei1027.sps.dao.CommunicationDao;
+import es.uji.ei1027.sps.dao.NegotiationDao;
 import es.uji.ei1027.sps.dao.OVIUserDao;
 import es.uji.ei1027.sps.dao.PAPAssistantDao;
 import es.uji.ei1027.sps.dao.SelectionDao;
@@ -13,7 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/admin")
@@ -33,6 +38,12 @@ public class AdminController {
     @Autowired
     private SupportChatDao supportChatDao;
 
+    @Autowired
+    private CommunicationDao communicationDao;
+
+    @Autowired
+    private NegotiationDao negotiationDao;
+
     @RequestMapping("/index")
     public String indexAdmin(HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
@@ -41,6 +52,35 @@ public class AdminController {
         }
         model.addAttribute("adminName", user.getName());
         return "admin/index";
+    }
+
+    @GetMapping("/chats")
+    public String chats(HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+        return "admin/chats";
+    }
+
+    @GetMapping("/chats/all")
+    public String allChats(@RequestParam(required = false) String chat,
+                           @RequestParam(required = false) String q,
+                           HttpSession session,
+                           Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        List<AdminChatSummary> chats = filterChatsByParticipant(getAllChatSummaries(), q);
+        AdminChatSummary selectedChat = getSelectedChat(chat, chats);
+
+        model.addAttribute("chats", chats);
+        model.addAttribute("searchQuery", q == null ? "" : q.trim());
+        model.addAttribute("selectedChat", selectedChat);
+        model.addAttribute("messages", selectedChat == null
+                ? List.of()
+                : getMessagesForAdminChat(selectedChat.getKey()));
+        return "admin/all-chats";
     }
 
     @GetMapping("/request-details/{id}")
@@ -458,5 +498,125 @@ public class AdminController {
         // Si pasa tu validador, lo insertamos en la BD usando tu DAO
         papAssistantDao.addPAPAssistant(papForm);
         return "redirect:/admin/manage-profiles?type=asistente";
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        Object user = session.getAttribute("user");
+        Object role = session.getAttribute("role");
+        return user instanceof SystemUser && "admin".equals(role);
+    }
+
+    private List<AdminChatSummary> getAllChatSummaries() {
+        List<AdminChatSummary> summaries = new ArrayList<AdminChatSummary>();
+
+        for (SupportChat chat : supportChatDao.getSupportChats()) {
+            List<SupportMessage> messages = supportChatDao.getMessagesByChat(chat.getId());
+            SupportMessage lastMessage = messages.isEmpty() ? null : messages.get(messages.size() - 1);
+
+            AdminChatSummary summary = new AdminChatSummary();
+            summary.setKey("support-" + chat.getId());
+            summary.setType("Soporte");
+            summary.setTitle("Administrador - " + chat.getParticipantName());
+            summary.setSubtitle(chat.getParticipantType() + " - " + chat.getParticipantDni());
+            summary.setMessageCount(messages.size());
+            summary.setLastMessage(lastMessage == null ? "Sin mensajes todavia" : lastMessage.getMessage());
+            summary.setLastMessageDate(lastMessage == null ? null : lastMessage.getMessageDate());
+            summaries.add(summary);
+        }
+
+        for (Negotiation negotiation : negotiationDao.getNegotiations()) {
+            List<Communication> messages = communicationDao.getCommunicationsByNegotiation(negotiation.getIdNegotiation());
+            Communication lastMessage = messages.isEmpty() ? null : messages.get(messages.size() - 1);
+            AssistanceRequest request = assistanceRequestDao.getAssistanceRequest(negotiation.getIdRequest());
+            OVIUser oviUser = request == null ? null : oviUserDao.getOVIUser(request.getDniOVIuser());
+            PAPAssistant assistant = papAssistantDao.getPAPAssistant(negotiation.getDniAssistant());
+
+            AdminChatSummary summary = new AdminChatSummary();
+            summary.setKey("negotiation-" + negotiation.getIdNegotiation());
+            summary.setType("Negociacion");
+            summary.setTitle(displayName(oviUser, request == null ? null : request.getDniOVIuser())
+                    + " - " + displayName(assistant, negotiation.getDniAssistant()));
+            summary.setSubtitle("Solicitud #" + negotiation.getIdRequest() + " - " + nullSafe(negotiation.getStatus()));
+            summary.setMessageCount(messages.size());
+            summary.setLastMessage(lastMessage == null ? "Sin mensajes todavia" : lastMessage.getMessage());
+            summary.setLastMessageDate(lastMessage == null ? null : lastMessage.getMessageDate());
+            summaries.add(summary);
+        }
+
+        summaries.sort(Comparator
+                .comparing(AdminChatSummary::getLastMessageDate,
+                        Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(AdminChatSummary::getTitle, String.CASE_INSENSITIVE_ORDER));
+        return summaries;
+    }
+
+    private List<AdminChatSummary> filterChatsByParticipant(List<AdminChatSummary> chats, String searchText) {
+        if (searchText == null || searchText.isBlank()) {
+            return chats;
+        }
+
+        String normalizedSearch = searchText.trim().toLowerCase(Locale.ROOT);
+        return chats.stream()
+                .filter(chat -> containsIgnoreCase(chat.getTitle(), normalizedSearch)
+                        || containsIgnoreCase(chat.getSubtitle(), normalizedSearch))
+                .toList();
+    }
+
+    private boolean containsIgnoreCase(String value, String normalizedSearch) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedSearch);
+    }
+
+    private AdminChatSummary getSelectedChat(String requestedKey, List<AdminChatSummary> chats) {
+        if (chats.isEmpty()) {
+            return null;
+        }
+        if (requestedKey != null) {
+            for (AdminChatSummary chat : chats) {
+                if (requestedKey.equals(chat.getKey())) {
+                    return chat;
+                }
+            }
+        }
+        return chats.get(0);
+    }
+
+    private List<AdminChatMessage> getMessagesForAdminChat(String key) {
+        if (key == null) {
+            return List.of();
+        }
+
+        List<AdminChatMessage> messages = new ArrayList<AdminChatMessage>();
+        if (key.startsWith("support-")) {
+            int idChat = Integer.parseInt(key.substring("support-".length()));
+            for (SupportMessage message : supportChatDao.getMessagesByChat(idChat)) {
+                messages.add(toAdminMessage(message.getSender(), message.getMessage(), message.getMessageDate()));
+            }
+        } else if (key.startsWith("negotiation-")) {
+            int idNegotiation = Integer.parseInt(key.substring("negotiation-".length()));
+            for (Communication communication : communicationDao.getCommunicationsByNegotiation(idNegotiation)) {
+                messages.add(toAdminMessage(communication.getSender(), communication.getMessage(), communication.getMessageDate()));
+            }
+        }
+        return messages;
+    }
+
+    private AdminChatMessage toAdminMessage(String sender, String message, java.time.LocalDateTime messageDate) {
+        AdminChatMessage adminMessage = new AdminChatMessage();
+        adminMessage.setSender(sender);
+        adminMessage.setMessage(message);
+        adminMessage.setMessageDate(messageDate);
+        return adminMessage;
+    }
+
+    private String displayName(OVIUser user, String fallback) {
+        return user == null ? nullSafe(fallback) : user.getName() + " (" + user.getDni() + ")";
+    }
+
+    private String displayName(PAPAssistant assistant, String fallback) {
+        return assistant == null ? nullSafe(fallback) : assistant.getName() + " (" + assistant.getDni() + ")";
+    }
+
+    private String nullSafe(String value) {
+        return value == null || value.isBlank() ? "Sin dato" : value;
     }
 }

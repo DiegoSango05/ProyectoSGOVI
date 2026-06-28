@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SgOVI - Chats</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <style>
+        :root { --ovi-orange: #854d00; --ovi-orange-dark: #6e4000; --ovi-soft: #fffcf5; }
+        body { background: linear-gradient(to bottom, var(--ovi-soft), #fff 300px); color: #000; font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .brand-name { color: var(--ovi-orange); font-weight: 800; letter-spacing: 2px; }
+        .btn-outline-custom { border: 2px solid #000; border-radius: 8px; color: #000; font-weight: 700; padding: .58rem 1rem; text-decoration: none; text-transform: uppercase; transition: .2s; }
+        .btn-outline-custom:hover { border-color: var(--ovi-orange); color: var(--ovi-orange); }
+        .page-header { border-bottom: 1px solid #eee; margin-bottom: 2rem; padding-bottom: 1.5rem; text-align: center; }
+        .page-title { font-size: 2.4rem; font-weight: 800; }
+        .page-title span { color: var(--ovi-orange); }
+        .option-card { background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.05); color: #000; display: block; height: 100%; padding: 2rem; text-align: center; text-decoration: none; transition: .2s; }
+        .option-card:hover { border-color: var(--ovi-orange); color: #000; transform: translateY(-3px); }
+        .option-icon { align-items: center; background-color: var(--ovi-orange); border-radius: 12px; color: #fff; display: inline-flex; font-size: 1.6rem; height: 56px; justify-content: center; margin-bottom: 1.2rem; width: 56px; }
+        .option-card h2 { font-size: 1rem; font-weight: 800; margin-bottom: .65rem; text-transform: uppercase; }
+        .option-card p { color: #666; font-size: .9rem; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg pt-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/index}">
+            <img th:src="@{'/img/Logo SGOvi.png'}" alt="Logo OVI" style="max-width: 60px;" />
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="brand-name">SgOVI</span>
+            <a th:href="@{/admin/index}" class="btn-outline-custom">Volver</a>
+        </div>
+    </div>
+</nav>
+<main class="container py-5">
+    <div class="page-header">
+        <h1 class="page-title">Panel de <span>chats</span></h1>
+        <p class="text-muted mb-0">Elige si quieres gestionar tus conversaciones o revisar el historial completo.</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <a th:href="@{/support-chats/list}" class="option-card">
+                <span class="option-icon"><i class="bi bi-chat-dots"></i></span>
+                <h2>Mis chats</h2>
+                <p>Responder a usuarios y asistentes desde el canal de soporte del administrador.</p>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a th:href="@{/admin/chats/all}" class="option-card">
+                <span class="option-icon"><i class="bi bi-search"></i></span>
+                <h2>Todos los chats</h2>
+                <p>Consultar todas las conversaciones de la base de datos en modo solo lectura.</p>
+            </a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
