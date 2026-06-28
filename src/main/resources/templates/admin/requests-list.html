@@ -158,7 +158,7 @@
 
         .pill-grid {
             display: grid;
-            grid-template-columns: 80px 120px 100px 130px 150px 1fr;
+            grid-template-columns: minmax(145px, 0.9fr) minmax(140px, 1fr) 90px minmax(130px, 0.9fr) 150px minmax(220px, 1.4fr);
             gap: 20px;
             align-items: start;
             flex-grow: 1;
@@ -176,6 +176,9 @@
 
         .btn-view-profile { color: var(--ovi-orange); font-size: 1.1rem; transition: 0.2s; }
         .btn-view-profile:hover { color: var(--ovi-orange-dark); }
+        .list-toolbar { background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 1.5rem; padding: 1rem; }
+        .pager-link { border: 2px solid var(--ovi-orange); border-radius: 8px; color: var(--ovi-orange); font-weight: 700; padding: 0.45rem 0.9rem; text-decoration: none; }
+        .pager-link.disabled { border-color: #ddd; color: #aaa; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -217,6 +220,31 @@
         </a>
     </div>
 
+    <form class="list-toolbar row g-3 align-items-end" th:action="@{/admin/requests}" method="get">
+        <input type="hidden" name="status" th:value="${currentStatus}">
+        <div class="col-md-5">
+            <label for="requestSearch" class="form-label fw-bold">Buscar</label>
+            <input id="requestSearch" class="form-control" type="search" name="search" th:value="${search}" placeholder="Nombre, DNI, tipo o localidad">
+        </div>
+        <div class="col-md-3">
+            <label for="requestOrderBy" class="form-label fw-bold">Ordenar por</label>
+            <select id="requestOrderBy" class="form-select" name="orderBy">
+                <option value="name" th:selected="${orderBy == 'name'}">Nombre</option>
+                <option value="dni" th:selected="${orderBy == 'dni'}">DNI</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="requestDir" class="form-label fw-bold">Direccion</label>
+            <select id="requestDir" class="form-select" name="dir">
+                <option value="asc" th:selected="${dir == 'asc'}">Asc</option>
+                <option value="desc" th:selected="${dir == 'desc'}">Desc</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn-solid-success">Aplicar</button>
+        </div>
+    </form>
+
     <!-- CONTENEDOR DE SOLICITUDES -->
     <div id="requests-container">
         <div th:each="solicitud : ${solicitudes}">
@@ -224,11 +252,7 @@
             <div class="request-pill">
                 <div class="pill-grid">
                     <div>
-                        <span class="pill-label">ID Petición</span>
-                        <span class="pill-data" th:text="${'#' + solicitud.id}">#1</span>
-                    </div>
-                    <div>
-                        <span class="pill-label">Usuario OVI</span>
+                        <span class="pill-label">DNI Usuario</span>
                         <div class="d-flex align-items-center gap-2">
                             <span class="pill-data" th:text="${solicitud.dniOVIuser}">12345678X</span>
                             <a th:href="@{/admin/request-user-details/{dni}(dni=${solicitud.dniOVIuser}, requestId=${solicitud.id})}"
@@ -236,6 +260,10 @@
                                 <i class="bi bi-arrow-right-circle-fill"></i>
                             </a>
                         </div>
+                    </div>
+                    <div>
+                        <span class="pill-label">Usuario OVI</span>
+                        <span class="pill-data" th:text="${solicitud.nameOVIuser}">Nombre Usuario</span>
                     </div>
                     <div>
                         <span class="pill-label">Servicio</span>
@@ -316,6 +344,18 @@
         <div th:if="${#lists.isEmpty(solicitudes)}" class="text-center text-muted py-5">
             <i class="bi bi-clipboard-x mb-2 d-block fs-1"></i>
             No hay solicitudes en esta sección.
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-4" th:if="${totalPages != null}">
+        <span class="text-muted" th:text="|${totalRecords} resultados|">0 resultados</span>
+        <div class="d-flex align-items-center gap-3">
+            <a class="pager-link"
+               th:classappend="${currentPage le 1} ? 'disabled' : ''"
+               th:href="@{/admin/requests(status=${currentStatus}, search=${search}, orderBy=${orderBy}, dir=${dir}, page=${currentPage - 1})}">Anterior</a>
+            <span class="fw-bold" th:text="|Pagina ${currentPage} de ${totalPages}|">Pagina 1 de 1</span>
+            <a class="pager-link"
+               th:classappend="${currentPage ge totalPages} ? 'disabled' : ''"
+               th:href="@{/admin/requests(status=${currentStatus}, search=${search}, orderBy=${orderBy}, dir=${dir}, page=${currentPage + 1})}">Siguiente</a>
         </div>
     </div>
 </main>

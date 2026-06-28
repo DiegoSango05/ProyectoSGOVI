@@ -10,6 +10,9 @@ public class Negotiation {
     private String dniAssistant;
     private boolean acceptedCustomer;
     private boolean acceptedAssistant;
+    private String dniOVIUser;
+    private String nameOVIUser;
+    private String nameAssistant;
 
     public Negotiation() {}
 
@@ -62,6 +65,27 @@ public class Negotiation {
         this.acceptedAssistant = acceptedAssistant;
     }
 
+    public String getDniOVIUser() {
+        return dniOVIUser;
+    }
+    public void setDniOVIUser(String dniOVIUser) {
+        this.dniOVIUser = dniOVIUser;
+    }
+
+    public String getNameOVIUser() {
+        return nameOVIUser;
+    }
+    public void setNameOVIUser(String nameOVIUser) {
+        this.nameOVIUser = nameOVIUser;
+    }
+
+    public String getNameAssistant() {
+        return nameAssistant;
+    }
+    public void setNameAssistant(String nameAssistant) {
+        this.nameAssistant = nameAssistant;
+    }
+
     @Override
     public String toString() {
         return "Negotiation{" +
@@ -72,6 +96,9 @@ public class Negotiation {
                 ", dniAssistant='" + dniAssistant + '\'' +
                 ", acceptedCustomer=" + acceptedCustomer +
                 ", acceptedAssistant=" + acceptedAssistant +
+                ", dniOVIUser='" + dniOVIUser + '\'' +
+                ", nameOVIUser='" + nameOVIUser + '\'' +
+                ", nameAssistant='" + nameAssistant + '\'' +
                 '}';
     }
 }

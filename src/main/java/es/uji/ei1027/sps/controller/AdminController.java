@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -101,6 +102,10 @@ public class AdminController {
 
     @GetMapping("/requests")
     public String listRequests(@RequestParam(required = false, defaultValue = "Pending") String status,
+                               @RequestParam(value = "search", required = false, defaultValue = "") String search,
+                               @RequestParam(value = "orderBy", required = false, defaultValue = "name") String orderBy,
+                               @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) {
@@ -108,12 +113,46 @@ public class AdminController {
         }
 
         List<AssistanceRequest> solicitudesCompleta = assistanceRequestDao.getAssistanceRequests();
+        if (solicitudesCompleta == null) {
+            solicitudesCompleta = new ArrayList<AssistanceRequest>();
+        }
+        addOVIUserNamesToRequests(solicitudesCompleta);
 
         List<AssistanceRequest> solicitudesFiltradas = solicitudesCompleta.stream()
                 .filter(s -> s.getStatus() != null && s.getStatus().equalsIgnoreCase(status))
-                .toList();
+                .collect(Collectors.toList());
 
-        model.addAttribute("solicitudes", solicitudesFiltradas);
+        String searchLower = search.toLowerCase(Locale.ROOT).trim();
+        if (!searchLower.isEmpty()) {
+            solicitudesFiltradas = solicitudesFiltradas.stream()
+                    .filter(s -> containsIgnoreCase(s.getDniOVIuser(), searchLower)
+                            || containsIgnoreCase(s.getType(), searchLower)
+                            || containsIgnoreCase(s.getLocation(), searchLower)
+                            || containsIgnoreCase(s.getNameOVIuser(), searchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<AssistanceRequest> comparator = Comparator.comparing(
+                s -> s.getNameOVIuser() != null ? s.getNameOVIuser().toLowerCase(Locale.ROOT) : "");
+        if ("dni".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(
+                    s -> s.getDniOVIuser() != null ? s.getDniOVIuser().toLowerCase(Locale.ROOT) : "");
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        solicitudesFiltradas.sort(comparator);
+
+        PageResult<AssistanceRequest> pageResult = paginate(solicitudesFiltradas, page, 3);
+
+        model.addAttribute("solicitudes", pageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
+        model.addAttribute("nextDir", "asc".equalsIgnoreCase(dir) ? "desc" : "asc");
         model.addAttribute("currentStatus", status); // Guardamos cuál está activa para pintarla en el HTML
 
         return "admin/requests-list";
@@ -126,12 +165,16 @@ public class AdminController {
             request.setStatus("Rejected");
             assistanceRequestDao.updateAssistanceRequest(request);
         }
-        return "redirect:/admin/requests";
+        return "redirect:/admin/requests?status=Rejected";
     }
 
     // Listar todos los asistentes para que el admin los gestione (Añadida ordenación alfabética)
     @GetMapping("/assistants")
     public String listAssistants(@RequestParam(required = false, defaultValue = "Pending") String status,
+                                 @RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                 @RequestParam(value = "orderBy", required = false, defaultValue = "name") String orderBy,
+                                 @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                                 @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                  HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) {
@@ -139,14 +182,46 @@ public class AdminController {
         }
 
         List<PAPAssistant> todosLosAsistentes = papAssistantDao.getPAPAssistants();
+        if (todosLosAsistentes == null) {
+            todosLosAsistentes = new ArrayList<PAPAssistant>();
+        }
 
         // Filtramos y ordenamos la lista alfabéticamente por nombre
         List<PAPAssistant> asistentesFiltrados = todosLosAsistentes.stream()
                 .filter(a -> a.getStatus() != null && a.getStatus().equalsIgnoreCase(status))
-                .sorted((a1, a2) -> a1.getName().compareToIgnoreCase(a2.getName()))
-                .toList();
+                .collect(Collectors.toList());
 
-        model.addAttribute("assistants", asistentesFiltrados);
+        String assistantSearchLower = search.toLowerCase(Locale.ROOT).trim();
+        if (!assistantSearchLower.isEmpty()) {
+            asistentesFiltrados = asistentesFiltrados.stream()
+                    .filter(a -> containsIgnoreCase(a.getDni(), assistantSearchLower)
+                            || containsIgnoreCase(a.getName(), assistantSearchLower)
+                            || containsIgnoreCase(a.getAssistanceType(), assistantSearchLower)
+                            || containsIgnoreCase(a.getLocation(), assistantSearchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<PAPAssistant> assistantComparator = Comparator.comparing(
+                a -> a.getName() != null ? a.getName().toLowerCase(Locale.ROOT) : "");
+        if ("dni".equalsIgnoreCase(orderBy)) {
+            assistantComparator = Comparator.comparing(
+                    a -> a.getDni() != null ? a.getDni().toLowerCase(Locale.ROOT) : "");
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            assistantComparator = assistantComparator.reversed();
+        }
+        asistentesFiltrados.sort(assistantComparator);
+
+        PageResult<PAPAssistant> assistantPageResult = paginate(asistentesFiltrados, page, 3);
+
+        model.addAttribute("assistants", assistantPageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", assistantPageResult.currentPage());
+        model.addAttribute("totalPages", assistantPageResult.totalPages());
+        model.addAttribute("totalRecords", assistantPageResult.totalRecords());
+        model.addAttribute("nextDir", "asc".equalsIgnoreCase(dir) ? "desc" : "asc");
         model.addAttribute("currentStatus", status); // Para marcar la pestaña activa
         return "admin/assistants-list";
     }
@@ -160,7 +235,7 @@ public class AdminController {
             papAssistantDao.updatePAPAssistant(assistant);
             supportChatDao.createWelcomeChatIfAbsent(assistant.getDni(), "PAP", assistant.getName());
         }
-        return "redirect:/admin/assistants";
+        return "redirect:/admin/assistants?status=Accepted";
     }
 
     // Rechazar a un asistente
@@ -172,7 +247,7 @@ public class AdminController {
             assistant.setRejectionReason(rejectionReason);
             papAssistantDao.updatePAPAssistant(assistant);
         }
-        return "redirect:/admin/assistants";
+        return "redirect:/admin/assistants?status=Rejected";
     }
 
     // Ver perfil completo del asistente antes de aprobar/rechazar
@@ -193,20 +268,55 @@ public class AdminController {
     // Listado de Usuarios OVI (Añadida ordenación alfabética)
     @GetMapping("/ovi-users")
     public String listOVIUsers(@RequestParam(required = false, defaultValue = "Pending") String status,
+                               @RequestParam(value = "search", required = false, defaultValue = "") String search,
+                               @RequestParam(value = "orderBy", required = false, defaultValue = "name") String orderBy,
+                               @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) return "redirect:/login";
 
         List<OVIUser> todosLosUsuarios = oviUserDao.getOVIUsers();
+        if (todosLosUsuarios == null) {
+            todosLosUsuarios = new ArrayList<OVIUser>();
+        }
 
         // Filtramos y ordenamos la lista alfabéticamente por nombre
         List<OVIUser> usuariosFiltrados = todosLosUsuarios.stream()
                 .filter(u -> u.getStatus() != null && u.getStatus().equalsIgnoreCase(status))
-                .sorted((u1, u2) -> u1.getName().compareToIgnoreCase(u2.getName()))
-                .toList();
+                .collect(Collectors.toList());
 
-        model.addAttribute("users", usuariosFiltrados);
+        String userSearchLower = search.toLowerCase(Locale.ROOT).trim();
+        if (!userSearchLower.isEmpty()) {
+            usuariosFiltrados = usuariosFiltrados.stream()
+                    .filter(u -> containsIgnoreCase(u.getDni(), userSearchLower)
+                            || containsIgnoreCase(u.getName(), userSearchLower)
+                            || containsIgnoreCase(u.getAddress(), userSearchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<OVIUser> userComparator = Comparator.comparing(
+                u -> u.getName() != null ? u.getName().toLowerCase(Locale.ROOT) : "");
+        if ("dni".equalsIgnoreCase(orderBy)) {
+            userComparator = Comparator.comparing(
+                    u -> u.getDni() != null ? u.getDni().toLowerCase(Locale.ROOT) : "");
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            userComparator = userComparator.reversed();
+        }
+        usuariosFiltrados.sort(userComparator);
+
+        PageResult<OVIUser> userPageResult = paginate(usuariosFiltrados, page, 3);
+
+        model.addAttribute("users", userPageResult.items());
         model.addAttribute("currentStatus", status);
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", userPageResult.currentPage());
+        model.addAttribute("totalPages", userPageResult.totalPages());
+        model.addAttribute("totalRecords", userPageResult.totalRecords());
+        model.addAttribute("nextDir", "asc".equalsIgnoreCase(dir) ? "desc" : "asc");
         return "admin/ovi-users-list";
     }
 
@@ -232,7 +342,7 @@ public class AdminController {
             oviUserDao.updateOVIUser(oviUser);
             supportChatDao.createWelcomeChatIfAbsent(oviUser.getDni(), "OVI", oviUser.getName());
         }
-        return "redirect:/admin/ovi-users";
+        return "redirect:/admin/ovi-users?status=Accepted";
     }
 
     @PostMapping("/ovi-users/reject/{dni}")
@@ -246,7 +356,7 @@ public class AdminController {
 
             oviUserDao.updateOVIUser(oviUser);
         }
-        return "redirect:/admin/ovi-users";
+        return "redirect:/admin/ovi-users?status=Rejected";
     }
 
     @PostMapping("/requests/approve/{id}")
@@ -268,7 +378,7 @@ public class AdminController {
             selectionDao.addSelection(selection);
         }
 
-        return "redirect:/admin/requests";
+        return "redirect:/admin/requests?status=Accepted";
     }
 
     @GetMapping("/activities")
@@ -300,6 +410,10 @@ public class AdminController {
 
     @GetMapping("/manage-profiles")
     public String manageProfiles(@RequestParam(required = false, defaultValue = "usuario") String type,
+                                 @RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                 @RequestParam(value = "orderBy", required = false, defaultValue = "name") String orderBy,
+                                 @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                                 @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                  HttpSession session, Model model) {
         SystemUser user = (SystemUser) session.getAttribute("user");
         if (user == null || !session.getAttribute("role").equals("admin")) {
@@ -308,23 +422,96 @@ public class AdminController {
 
         if (type.equalsIgnoreCase("usuario")) {
             List<OVIUser> usuarios = oviUserDao.getOVIUsers();
+            if (usuarios == null) {
+                usuarios = new ArrayList<OVIUser>();
+            }
 
-            List<OVIUser> usuariosOrdenados = usuarios.stream()
-                    .sorted((u1, u2) -> u1.getName().compareToIgnoreCase(u2.getName()))
-                    .toList();
+            String userSearchLower = search.toLowerCase(Locale.ROOT).trim();
+            if (!userSearchLower.isEmpty()) {
+                usuarios = usuarios.stream()
+                        .filter(u -> containsIgnoreCase(u.getDni(), userSearchLower)
+                                || containsIgnoreCase(u.getName(), userSearchLower)
+                                || containsIgnoreCase(u.getPhoneNumber(), userSearchLower)
+                                || containsIgnoreCase(u.getEmail(), userSearchLower)
+                                || containsIgnoreCase(u.getAddress(), userSearchLower)
+                                || containsIgnoreCase(u.getEmergencyContact(), userSearchLower)
+                                || containsIgnoreCase(u.getStatus(), userSearchLower))
+                        .collect(Collectors.toList());
+            }
 
-            model.addAttribute("perfiles", usuariosOrdenados);
+            Comparator<OVIUser> userComparator = Comparator.comparing(
+                    u -> u.getName() != null ? u.getName().toLowerCase(Locale.ROOT) : "");
+            if ("dni".equalsIgnoreCase(orderBy)) {
+                userComparator = Comparator.comparing(
+                        u -> u.getDni() != null ? u.getDni().toLowerCase(Locale.ROOT) : "");
+            } else if ("phone".equalsIgnoreCase(orderBy)) {
+                userComparator = Comparator.comparing(
+                        u -> u.getPhoneNumber() != null ? u.getPhoneNumber().toLowerCase(Locale.ROOT) : "");
+            } else if ("extra".equalsIgnoreCase(orderBy)) {
+                userComparator = Comparator.comparing(
+                        u -> u.getEmail() != null ? u.getEmail().toLowerCase(Locale.ROOT) : "");
+            }
+            if ("desc".equalsIgnoreCase(dir)) {
+                userComparator = userComparator.reversed();
+            }
+            usuarios.sort(userComparator);
+
+            PageResult<OVIUser> userPageResult = paginate(usuarios, page, 3);
+            model.addAttribute("perfiles", userPageResult.items());
+            model.addAttribute("currentPage", userPageResult.currentPage());
+            model.addAttribute("totalPages", userPageResult.totalPages());
+            model.addAttribute("totalRecords", userPageResult.totalRecords());
         } else {
             List<PAPAssistant> asistentes = papAssistantDao.getPAPAssistants();
+            if (asistentes == null) {
+                asistentes = new ArrayList<PAPAssistant>();
+            }
 
-            List<PAPAssistant> asistentesOrdenados = asistentes.stream()
-                    .sorted((a1, a2) -> a1.getName().compareToIgnoreCase(a2.getName()))
-                    .toList();
+            String assistantSearchLower = search.toLowerCase(Locale.ROOT).trim();
+            if (!assistantSearchLower.isEmpty()) {
+                asistentes = asistentes.stream()
+                        .filter(a -> containsIgnoreCase(a.getDni(), assistantSearchLower)
+                                || containsIgnoreCase(a.getName(), assistantSearchLower)
+                                || containsIgnoreCase(a.getPhoneNumber(), assistantSearchLower)
+                                || containsIgnoreCase(a.getAssistanceType(), assistantSearchLower)
+                                || containsIgnoreCase(a.getLocation(), assistantSearchLower)
+                                || containsIgnoreCase(a.getProfessionalTraining(), assistantSearchLower)
+                                || containsIgnoreCase(a.getAvailability(), assistantSearchLower)
+                                || containsIgnoreCase(a.getStatus(), assistantSearchLower))
+                        .collect(Collectors.toList());
+            }
 
-            model.addAttribute("perfiles", asistentesOrdenados);
+            Comparator<PAPAssistant> assistantComparator = Comparator.comparing(
+                    a -> a.getName() != null ? a.getName().toLowerCase(Locale.ROOT) : "");
+            if ("dni".equalsIgnoreCase(orderBy)) {
+                assistantComparator = Comparator.comparing(
+                        a -> a.getDni() != null ? a.getDni().toLowerCase(Locale.ROOT) : "");
+            } else if ("phone".equalsIgnoreCase(orderBy)) {
+                assistantComparator = Comparator.comparing(
+                        a -> a.getPhoneNumber() != null ? a.getPhoneNumber().toLowerCase(Locale.ROOT) : "");
+            } else if ("extra".equalsIgnoreCase(orderBy)) {
+                assistantComparator = Comparator.comparing(
+                        a -> a.getAssistanceType() != null ? a.getAssistanceType().toLowerCase(Locale.ROOT) : "");
+            } else if ("location".equalsIgnoreCase(orderBy)) {
+                assistantComparator = Comparator.comparing(
+                        a -> a.getLocation() != null ? a.getLocation().toLowerCase(Locale.ROOT) : "");
+            }
+            if ("desc".equalsIgnoreCase(dir)) {
+                assistantComparator = assistantComparator.reversed();
+            }
+            asistentes.sort(assistantComparator);
+
+            PageResult<PAPAssistant> assistantPageResult = paginate(asistentes, page, 3);
+            model.addAttribute("perfiles", assistantPageResult.items());
+            model.addAttribute("currentPage", assistantPageResult.currentPage());
+            model.addAttribute("totalPages", assistantPageResult.totalPages());
+            model.addAttribute("totalRecords", assistantPageResult.totalRecords());
         }
 
         model.addAttribute("currentType", type); // Guarda si estamos en "usuario" o "asistente"
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
         return "admin/manage-profiles";
     }
 
@@ -500,6 +687,43 @@ public class AdminController {
         return "redirect:/admin/manage-profiles?type=asistente";
     }
 
+    private void addOVIUserNamesToRequests(List<AssistanceRequest> requests) {
+        for (AssistanceRequest request : requests) {
+            if (request.getDniOVIuser() != null) {
+                OVIUser oviUser = oviUserDao.getOVIUser(request.getDniOVIuser());
+                request.setNameOVIuser(oviUser == null ? request.getDniOVIuser() : oviUser.getName());
+            }
+        }
+    }
+
+    private <T> PageResult<T> paginate(List<T> items, int requestedPage, int pageSize) {
+        int totalRecords = items.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
+
+        int currentPage = requestedPage;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        int fromIndex = (currentPage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalRecords);
+        List<T> pageItems = new ArrayList<T>();
+        if (fromIndex < totalRecords) {
+            pageItems = items.subList(fromIndex, toIndex);
+        }
+
+        return new PageResult<T>(pageItems, currentPage, totalPages, totalRecords);
+    }
+
+    private record PageResult<T>(List<T> items, int currentPage, int totalPages, int totalRecords) {
+    }
+
     private boolean isAdmin(HttpSession session) {
         Object user = session.getAttribute("user");
         Object role = session.getAttribute("role");
@@ -559,7 +783,7 @@ public class AdminController {
         return chats.stream()
                 .filter(chat -> containsIgnoreCase(chat.getTitle(), normalizedSearch)
                         || containsIgnoreCase(chat.getSubtitle(), normalizedSearch))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private boolean containsIgnoreCase(String value, String normalizedSearch) {

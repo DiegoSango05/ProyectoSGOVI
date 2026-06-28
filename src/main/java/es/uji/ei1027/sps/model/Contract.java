@@ -9,6 +9,10 @@ public class Contract {
     private String status;
     private String document;
     private int idNegotiation;
+    private String dniOVIUser;
+    private String nameOVIUser;
+    private String dniAssistant;
+    private String nameAssistant;
 
     public Contract() {}
 
@@ -54,6 +58,34 @@ public class Contract {
         this.idNegotiation = idNegotiation;
     }
 
+    public String getDniOVIUser() {
+        return dniOVIUser;
+    }
+    public void setDniOVIUser(String dniOVIUser) {
+        this.dniOVIUser = dniOVIUser;
+    }
+
+    public String getNameOVIUser() {
+        return nameOVIUser;
+    }
+    public void setNameOVIUser(String nameOVIUser) {
+        this.nameOVIUser = nameOVIUser;
+    }
+
+    public String getDniAssistant() {
+        return dniAssistant;
+    }
+    public void setDniAssistant(String dniAssistant) {
+        this.dniAssistant = dniAssistant;
+    }
+
+    public String getNameAssistant() {
+        return nameAssistant;
+    }
+    public void setNameAssistant(String nameAssistant) {
+        this.nameAssistant = nameAssistant;
+    }
+
     @Override
     public String toString() {
         return "Contract{" +
@@ -63,6 +95,10 @@ public class Contract {
                 ", status='" + status + '\'' +
                 ", document='" + document + '\'' +
                 ", idNegotiation=" + idNegotiation +
+                ", dniOVIUser='" + dniOVIUser + '\'' +
+                ", nameOVIUser='" + nameOVIUser + '\'' +
+                ", dniAssistant='" + dniAssistant + '\'' +
+                ", nameAssistant='" + nameAssistant + '\'' +
                 '}';
     }
 }

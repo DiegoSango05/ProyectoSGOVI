@@ -143,6 +143,10 @@
             border-left: 2px solid #eee;
             padding-left: 10px;
         }
+
+        .list-toolbar { background-color: #fcfcfc; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 1.5rem; padding: 1rem; }
+        .pager-link { border: 2px solid var(--ovi-orange); border-radius: 8px; color: var(--ovi-orange); font-weight: 700; padding: 0.45rem 0.9rem; text-decoration: none; }
+        .pager-link.disabled { border-color: #ddd; color: #aaa; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -184,6 +188,31 @@
         </a>
     </div>
 
+    <form class="list-toolbar row g-3 align-items-end" th:action="@{/admin/assistants}" method="get">
+        <input type="hidden" name="status" th:value="${currentStatus}">
+        <div class="col-md-5">
+            <label for="assistantSearch" class="form-label fw-bold">Buscar</label>
+            <input id="assistantSearch" class="form-control" type="search" name="search" th:value="${search}" placeholder="Nombre, DNI, tipo o localidad">
+        </div>
+        <div class="col-md-3">
+            <label for="assistantOrderBy" class="form-label fw-bold">Ordenar por</label>
+            <select id="assistantOrderBy" class="form-select" name="orderBy">
+                <option value="name" th:selected="${orderBy == 'name'}">Nombre</option>
+                <option value="dni" th:selected="${orderBy == 'dni'}">DNI</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="assistantDir" class="form-label fw-bold">Direccion</label>
+            <select id="assistantDir" class="form-select" name="dir">
+                <option value="asc" th:selected="${dir == 'asc'}">Asc</option>
+                <option value="desc" th:selected="${dir == 'desc'}">Desc</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-success fw-bold">Aplicar</button>
+        </div>
+    </form>
+
     <!-- CONTENEDOR DE FILAS -->
     <div id="assistants-container">
         <div th:each="asistente : ${assistants}" class="assistant-row">
@@ -216,6 +245,18 @@
         <div th:if="${#lists.isEmpty(assistants)}" class="text-center text-muted py-5">
             <i class="bi bi-person-badge mb-2 d-block fs-1"></i>
             No hay asistentes en esta sección.
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-4" th:if="${totalPages != null}">
+        <span class="text-muted" th:text="|${totalRecords} resultados|">0 resultados</span>
+        <div class="d-flex align-items-center gap-3">
+            <a class="pager-link"
+               th:classappend="${currentPage le 1} ? 'disabled' : ''"
+               th:href="@{/admin/assistants(status=${currentStatus}, search=${search}, orderBy=${orderBy}, dir=${dir}, page=${currentPage - 1})}">Anterior</a>
+            <span class="fw-bold" th:text="|Pagina ${currentPage} de ${totalPages}|">Pagina 1 de 1</span>
+            <a class="pager-link"
+               th:classappend="${currentPage ge totalPages} ? 'disabled' : ''"
+               th:href="@{/admin/assistants(status=${currentStatus}, search=${search}, orderBy=${orderBy}, dir=${dir}, page=${currentPage + 1})}">Siguiente</a>
         </div>
     </div>
 </main>

@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/activity")
@@ -44,10 +48,52 @@ public class ActivityController {
     // --- MÉTODOS ACCESIBLES POR ADMIN (Pepe López) ---
 
     @RequestMapping("/list")
-    public String listActivities(HttpSession session, Model model) {
+    public String listActivities(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                 @RequestParam(value = "orderBy", required = false, defaultValue = "title") String orderBy,
+                                 @RequestParam(value = "dir", required = false, defaultValue = "asc") String dir,
+                                 @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                 HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/login";
 
-        model.addAttribute("activities", activityDao.getActivities());
+        List<Activity> activities = activityDao.getActivities();
+        if (activities == null) {
+            activities = new ArrayList<Activity>();
+        }
+
+        String searchLower = normalize(search);
+        if (!searchLower.isEmpty()) {
+            activities = activities.stream()
+                    .filter(activity -> containsIgnoreCase(activity.getTitle(), searchLower)
+                            || containsIgnoreCase(activity.getType(), searchLower)
+                            || containsIgnoreCase(activity.getLocation(), searchLower)
+                            || containsIgnoreCase(activity.getDniInstructor(), searchLower))
+                    .collect(Collectors.toList());
+        }
+
+        Comparator<Activity> comparator = Comparator.comparing(activity -> safeLower(activity.getTitle()));
+        if ("type".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getType()));
+        } else if ("location".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getLocation()));
+        } else if ("dniInstructor".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(activity -> safeLower(activity.getDniInstructor()));
+        } else if ("date".equalsIgnoreCase(orderBy)) {
+            comparator = Comparator.comparing(Activity::getActivityDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        }
+        if ("desc".equalsIgnoreCase(dir)) {
+            comparator = comparator.reversed();
+        }
+        activities.sort(comparator);
+
+        PageResult<Activity> pageResult = paginate(activities, page, 3);
+
+        model.addAttribute("activities", pageResult.items());
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("dir", dir);
+        model.addAttribute("currentPage", pageResult.currentPage());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalRecords", pageResult.totalRecords());
         return "activity/list";
     }
 
@@ -288,5 +334,45 @@ public class ActivityController {
             registeredByActivityId.put(activity.getId(), registered);
         }
         return registeredByActivityId;
+    }
+
+    private <T> PageResult<T> paginate(List<T> items, int requestedPage, int pageSize) {
+        int totalRecords = items.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
+
+        int currentPage = requestedPage;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        int fromIndex = (currentPage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalRecords);
+        List<T> pageItems = new ArrayList<T>();
+        if (fromIndex < totalRecords) {
+            pageItems = items.subList(fromIndex, toIndex);
+        }
+
+        return new PageResult<T>(pageItems, currentPage, totalPages, totalRecords);
+    }
+
+    private boolean containsIgnoreCase(String value, String normalizedSearch) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedSearch);
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT);
+    }
+
+    private record PageResult<T>(List<T> items, int currentPage, int totalPages, int totalRecords) {
     }
 }

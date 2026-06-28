@@ -9,6 +9,7 @@ public class AssistanceRequest {
     private String status;
     private String requirements;
     private String dniOVIuser;
+    private String nameOVIuser;
 
     public AssistanceRequest() {}
 
@@ -68,6 +69,14 @@ public class AssistanceRequest {
         this.dniOVIuser = dniOVIuser;
     }
 
+    public String getNameOVIuser() {
+        return nameOVIuser;
+    }
+
+    public void setNameOVIuser(String nameOVIuser) {
+        this.nameOVIuser = nameOVIuser;
+    }
+
     @Override
     public String toString() {
         return "AssistanceRequest{" +
@@ -79,6 +88,7 @@ public class AssistanceRequest {
                 ", status='" + status + '\'' +
                 ", requirements='" + requirements + '\'' +
                 ", dniOVIuser='" + dniOVIuser + '\'' +
+                ", nameOVIuser='" + nameOVIuser + '\'' +
                 '}';
     }
 }
