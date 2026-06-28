@@ -170,7 +170,7 @@
                         <span th:if="${participant.dniAssistant != null}" class="badge badge-assistant">Asistente</span>
                     </td>
                     <td class="text-end pe-3">
-                        <a th:href="@{/assistancelist/delete/{id_list}(id_list=${participant.id_list})}" class="btn-delete-pill">
+                        <a th:href="@{/assistancelist/delete/{id_list}(id_list=${participant.id_list})}" class="btn-delete-pill" aria-label="Eliminar participante">
                             <i class="bi bi-trash3-fill"></i>
                         </a>
                     </td>
